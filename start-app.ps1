@@ -1,0 +1,5 @@
+Write-Host "Starting Backend Server..."
+Start-Process -FilePath "cmd" -ArgumentList "/c npx ts-node src/index.ts" -WorkingDirectory "$PSScriptRoot\server"
+Write-Host "Starting Frontend..."
+Start-Process -FilePath "cmd" -ArgumentList "/c npm run dev" -WorkingDirectory "$PSScriptRoot"
+Write-Host "Application started!"
