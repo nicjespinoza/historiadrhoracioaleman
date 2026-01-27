@@ -59,8 +59,8 @@ export const patientSchema = z.object({
     firstName: z.string().min(1, 'El nombre es requerido'),
     lastName: z.string().min(1, 'Los apellidos son requeridos'),
     birthDate: z.string().min(1, 'La fecha de nacimiento es requerida'),
-    sex: z.enum(['Masculino', 'Femenino'], {
-        errorMap: () => ({ message: 'Seleccione el sexo' }),
+    sex: z.enum(['Masculino', 'Femenino'] as const, {
+        message: 'Seleccione el sexo',
     }),
     profession: z.string().default(''),
     email: z.string().email('Email inválido').or(z.literal('')).default(''),
