@@ -1,0 +1,126 @@
+/* 1. ACTUALIZAMOS EL IMPORT PARA INCLUIR EL PESO 500 (Medium) */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #a78bfa;
+  --color-primary-hover: #8b5cf6;
+  --color-secondary: #E2E8CE;
+  --color-accent: #FF886E;
+  --color-background: #F9FAFB;
+  --color-background-dark: #0f172a;
+  --color-background-light: #f8fafc;
+  --color-accent-blue: #38bdf8;
+  --color-accent-purple: #c084fc;
+  --color-surface: rgba(255, 255, 255, 0.7);
+  
+  /* CENLAE Colors */
+  --color-cenlae-primary: #084286;
+  --color-cenlae-footer: #084286;
+  --color-cenlae-bg-dark: #111827;
+
+  --font-sans: 'Open Sans', sans-serif;
+  --font-display: 'Open Sans', sans-serif;
+  --tracking-tight: -0.02em;
+}
+
+@utility glass {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@layer base {
+  /* 2. REGLAS GLOBALES DE TIPOGRAFÍA */
+  
+  /* Todo el cuerpo del texto (Descripciones) será Medium (500) */
+  body, #root, p, span, div {
+    @apply font-sans font-medium antialiased; /* font-medium es peso 500 */
+  }
+
+  /* Todos los títulos (h1-h6) serán SemiBold (600) */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-semibold tracking-tight; /* font-semibold es peso 600 */
+  }
+  
+  /* Mantener colores base */
+  body {
+    @apply bg-background text-gray-900;
+  }
+  
+  .dark body {
+    @apply bg-background-dark text-slate-200;
+  }
+}
+
+/* Landing Page Custom Styles */
+
+.line-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.glow-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.3), transparent);
+  width: 100%;
+  opacity: 0.4;
+}
+
+.glow-line:nth-child(1) { top: 30%; transform: rotate(5deg) scaleX(1.5); }
+.glow-line:nth-child(2) { top: 40%; transform: rotate(2deg) scaleX(1.5); }
+.glow-line:nth-child(3) { top: 50%; transform: rotate(0deg) scaleX(1.5); }
+.glow-line:nth-child(4) { top: 60%; transform: rotate(-2deg) scaleX(1.5); }
+.glow-line:nth-child(5) { top: 70%; transform: rotate(-5deg) scaleX(1.5); }
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+}
+
+.glow-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, #c084fc, #38bdf8);
+}
+
+.feature-card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  border-color: rgba(167, 139, 250, 0.3);
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.code-snippet {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.token.keyword { color: #ff79c6; }
+.token.function { color: #8be9fd; }
+.token.string { color: #f1fa8c; }
+.token.comment { color: #6272a4; }

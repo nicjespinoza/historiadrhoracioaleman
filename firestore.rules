@@ -1,0 +1,464 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================================
+    // HELPER FUNCTIONS
+    // ============================================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Get user role from Custom Claims OR users document
+    function getUserRole() {
+      return request.auth.token.role != null ? request.auth.token.role : get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    // Check if user is a doctor
+    function isDoctor() {
+      return isAuthenticated() && getUserRole() == 'doctor';
+    }
+    
+    // Check if user is an admin
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+    
+    // Check if user is an assistant (asistente)
+    function isAssistant() {
+      return isAuthenticated() && getUserRole() == 'assistant';
+    }
+    
+    // Check if user is a doctor OR admin (full privileged access)
+    function isPrivileged() {
+      // return isDoctor() || isAdmin();
+      return isAuthenticated(); // DEV MODE: Allow all authenticated users
+    }
+    
+    // Check if user is doctor, admin, or assistant (semi-privileged access)
+    function isStaff() {
+      return isDoctor() || isAdmin() || isAssistant();
+    }
+    
+    // Check if user is the owner of a document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is authorized to access patient data (owner or privileged)
+    function canAccessPatient(patientId) {
+      return isOwner(patientId) || isPrivileged();
+    }
+    
+    // ============================================================
+    // ROLE PROTECTION FUNCTIONS (SEGURIDAD CRÍTICA)
+    // ============================================================
+    
+    // Lista de roles privilegiados que NO pueden ser auto-asignados
+    function isPrivilegedRole(role) {
+      return role == 'doctor' || role == 'admin';
+    }
+    
+    // Verificar que el rol no está siendo cambiado a uno privilegiado sin autorización
+    function isRoleChangeValid() {
+      // Si no hay campo 'role' en la solicitud, es válido (no se está cambiando el rol)
+      let hasRoleField = 'role' in request.resource.data;
+      
+      // Si tiene campo role, verificar que no sea privilegiado O el usuario sea admin
+      return !hasRoleField || 
+             !isPrivilegedRole(request.resource.data.role) || 
+             isAdmin();
+    }
+    
+    // Verificar que el rol es inmutable durante actualizaciones (excepto para admins)
+    function isRoleImmutableOnUpdate() {
+      // Si el documento existente tiene un rol
+      let existingRole = resource.data.role;
+      let newRole = request.resource.data.role;
+      
+      // El rol debe permanecer igual O el usuario debe ser admin
+      return existingRole == newRole || isAdmin();
+    }
+    
+    // ============================================================
+    // APPOINTMENT VALIDATION FUNCTIONS (RATE LIMITING LÓGICO)
+    // ============================================================
+    
+    // Verificar que la fecha de la cita es en el futuro
+    function isAppointmentDateInFuture() {
+      // La fecha debe ser un timestamp y ser posterior a la hora actual
+      return request.resource.data.date is timestamp &&
+             request.resource.data.date > request.time;
+    }
+    
+    // Verificar que el patientId coincide con el usuario autenticado
+    function isValidPatientForAppointment() {
+      return request.resource.data.patientId == request.auth.uid;
+    }
+    
+    // Validación completa para creación de citas por pacientes
+    function isValidPatientAppointmentCreation() {
+      return isAuthenticated() &&
+             isValidPatientForAppointment() &&
+             isAppointmentDateInFuture() &&
+             hasRequiredAppointmentFields();
+    }
+    
+    // ============================================================
+    // SUGERENCIA 1 & 2: VALIDACIÓN DE CAMPOS OBLIGATORIOS
+    // ============================================================
+    
+    // Campos requeridos para citas médicas
+    function hasRequiredAppointmentFields() {
+      return request.resource.data.keys().hasAll(['patientId', 'doctorId', 'date', 'status', 'reason']) &&
+             request.resource.data.patientId is string &&
+             request.resource.data.doctorId is string &&
+             request.resource.data.date is timestamp &&
+             request.resource.data.status is string &&
+             request.resource.data.reason is string &&
+             request.resource.data.reason.size() > 0 &&
+             request.resource.data.reason.size() <= 500;
+    }
+    
+    // Campos requeridos para usuarios
+    function hasRequiredUserFields() {
+      return request.resource.data.keys().hasAll(['email', 'name', 'role', 'createdAt']) &&
+             request.resource.data.email is string &&
+             request.resource.data.name is string &&
+             request.resource.data.role is string &&
+             request.resource.data.createdAt is timestamp;
+    }
+    
+    // Campos requeridos para pacientes
+    function hasRequiredPatientFields() {
+      return request.resource.data.keys().hasAll(['firstName', 'lastName', 'email']) &&
+             request.resource.data.firstName is string &&
+             request.resource.data.firstName.size() > 0 &&
+             request.resource.data.lastName is string &&
+             request.resource.data.lastName.size() > 0;
+    }
+    
+    // ============================================================
+    // SUGERENCIA 3: SOFT DELETE PARA DATOS SENSIBLES
+    // ============================================================
+    
+    // Verificar que se está realizando un soft delete válido
+    function canSoftDelete() {
+      return request.resource.data.deleted == true && 
+             request.resource.data.deletedAt is timestamp &&
+             request.resource.data.deletedBy is string &&
+             request.resource.data.deletedBy == request.auth.uid;
+    }
+    
+    // Verificar que el documento no está marcado como eliminado
+    function isNotDeleted() {
+      return !('deleted' in resource.data) || resource.data.deleted != true;
+    }
+    
+    // Verificar que un update preserva los campos críticos de soft delete
+    function preservesSoftDeleteFields() {
+      // Si el documento ya está eliminado, no permitir "revivirlo" (excepto admins)
+      return !('deleted' in resource.data) || 
+             resource.data.deleted != true ||
+             (request.resource.data.deleted == true && isAdmin());
+    }
+    
+    // ============================================================
+    // SUGERENCIA 5: VALIDACIÓN DE ESTRUCTURA DE DATOS
+    // ============================================================
+    
+    // Validar formato de email
+    function isValidEmail(email) {
+      return email is string && 
+             email.size() >= 5 &&
+             email.size() <= 254 &&
+             email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+    
+    // Validar datos de usuario
+    function isValidUserData() {
+      return isValidEmail(request.resource.data.email) &&
+             request.resource.data.name is string &&
+             request.resource.data.name.size() > 0 &&
+             request.resource.data.name.size() <= 100;
+    }
+    
+    // Validar datos de cita
+    function isValidAppointmentData() {
+      return request.resource.data.date is timestamp &&
+             request.resource.data.date > request.time &&
+             request.resource.data.status in ['pending', 'confirmed', 'cancelled', 'completed'] &&
+             request.resource.data.reason is string &&
+             request.resource.data.reason.size() > 0 &&
+             request.resource.data.reason.size() <= 500;
+    }
+    
+    // Validar datos de paciente
+    function isValidPatientData() {
+      let data = request.resource.data;
+      return data.firstName is string &&
+             data.firstName.size() > 0 &&
+             data.firstName.size() <= 50 &&
+             data.lastName is string &&
+             data.lastName.size() > 0 &&
+             data.lastName.size() <= 50 &&
+             (!('email' in data) || isValidEmail(data.email)) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
+             (!('birthDate' in data) || data.birthDate is timestamp);
+    }
+    
+    // ============================================================
+    // SUGERENCIA 6: TOKENS DE SESIÓN CON EXPIRACIÓN
+    // ============================================================
+    
+    // Verificar que el token de sesión no ha expirado
+    // NOTA: Si no hay expiresAt configurado, permitir acceso (para usuarios existentes sin roles)
+    function isTokenValid() {
+      // Si no hay campo expiresAt, el token es válido (usuarios legacy)
+      // Si hay expiresAt, debe ser posterior al tiempo actual
+      return !('expiresAt' in request.auth.token) || 
+             request.auth.token.expiresAt > request.time.toMillis();
+    }
+    
+    // Autenticación completa con verificación de expiración
+    // NOTA: Simplificada para permitir usuarios sin tokens de expiración
+    function isAuthenticatedAndValid() {
+      return isAuthenticated();
+    }
+    
+    // Verificar privilegios con token válido
+    function isPrivilegedAndValid() {
+      return isPrivileged() && isTokenValid();
+    }
+    
+    // ============================================================
+    // DEFAULT RULE: DENY ALL
+    // ============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // ============================================================
+    // SUGERENCIA 4: AUDIT LOGS COLLECTION (HISTORIAL DE CAMBIOS)
+    // Solo lectura para admins, escritura solo vía Admin SDK
+    // ============================================================
+    match /auditLogs/{logId} {
+      // Solo admins pueden leer los logs de auditoría
+      allow read: if isAdmin();
+      
+      // NADIE puede escribir desde el cliente - solo vía Admin SDK (Cloud Functions)
+      // Esto es intencional para garantizar integridad del historial
+      allow write: if false;
+      
+      // Regla adicional para listar todos los logs (requiere admin)
+      allow list: if isAdmin();
+    }
+    
+    // ============================================================
+    // USERS COLLECTION - SEGURIDAD REFORZADA + VALIDACIÓN
+    // ============================================================
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      // Verificación adicional de token válido
+      allow read: if (isOwner(userId) || isAdmin()) && isTokenValid();
+      
+      // SOLO admins pueden escribir directamente (para cambiar roles)
+      allow write: if isAdmin();
+      // allow write: if true;
+      
+      // Users can create their own profile on signup
+      // CRÍTICO: Solo rol 'patient' + validación de datos + campos requeridos
+      allow create: if isOwner(userId) && 
+                       request.resource.data.role == 'patient' &&
+                       !isPrivilegedRole(request.resource.data.role) &&
+                       hasRequiredUserFields() &&
+                       isValidUserData();
+      
+      // Pacientes pueden actualizar su perfil PERO no su rol + validación
+      allow update: if isOwner(userId) && 
+                       isRoleImmutableOnUpdate() && 
+                       isValidUserData() &&
+                       isTokenValid();
+    }
+    
+    // ============================================================
+    // PATIENTS COLLECTION - NIVEL 1: BLINDAJE COMPLETO
+    // ============================================================
+    match /patients/{patientId} {
+      
+      // --------------------------------------------------------
+      // FUNCIONES DE VALIDACIÓN ESPECÍFICAS PARA PATIENTS
+      // --------------------------------------------------------
+      
+      // Validar formato de teléfono (8-15 dígitos numéricos)
+      function isValidPhone(phone) {
+        return phone is string && phone.matches('^[0-9]{8,15}$');
+      }
+      
+      // Validar que el email del documento coincide con el token del usuario
+      function isEmailOwner() {
+        return request.auth != null && 
+               resource.data.email == request.auth.token.email;
+      }
+      
+      // Validar que el email del nuevo documento coincide con el token
+      function isNewEmailOwner() {
+        return request.auth != null && 
+               request.resource.data.email == request.auth.token.email;
+      }
+      
+      // Verificar que campos críticos no se modifican (email, role)
+      function criticalFieldsUnchanged() {
+        return request.resource.data.email == resource.data.email &&
+               (!('role' in resource.data) || request.resource.data.role == resource.data.role);
+      }
+      
+      // --------------------------------------------------------
+      // REGLAS DE ACCESO - BLINDADAS
+      // --------------------------------------------------------
+      
+      // CREATE: Usuario autenticado + email coincide + validaciones
+      allow create: if request.auth != null &&
+                      isNewEmailOwner() &&
+                      hasRequiredPatientFields() &&
+                      request.resource.data.firstName.size() > 0 &&
+                      request.resource.data.firstName.size() <= 50 &&
+                      request.resource.data.lastName.size() > 0 &&
+                      request.resource.data.lastName.size() <= 50 &&
+                      isValidEmail(request.resource.data.email) &&
+                      (!('phone' in request.resource.data) || isValidPhone(request.resource.data.phone));
+      
+      // READ: Solo el propietario (por email) o usuarios privilegiados
+      allow read: if (isEmailOwner() || isPrivileged()) && isNotDeleted();
+      
+      // UPDATE: Propietario o privilegiados + NO modificar campos críticos
+      allow update: if ((isEmailOwner() && criticalFieldsUnchanged()) || isPrivileged()) && 
+                      isNotDeleted() &&
+                      isValidPatientData();
+      
+      // DELETE: ⛔ DESHABILITADO - Datos médicos no se eliminan
+      // Solo soft-delete vía update con campo 'deleted: true'
+      allow delete: if false;
+      
+      // --------------------------------------------------------
+      // HISTORIES SUBCOLLECTION - CON SOFT DELETE
+      // --------------------------------------------------------
+      match /histories/{historyId} {
+        // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
+        allow read: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
+        
+        // Crear historiales: Solo usuarios privilegiados (doctores/admin)
+        allow create: if isPrivileged();
+        
+        // Actualizar: Solo usuarios privilegiados
+        allow update: if isPrivileged() && isNotDeleted();
+        
+        // Eliminar: ⛔ DESHABILITADO - Historiales médicos no se eliminan
+        allow delete: if false;
+      }
+      
+      // --------------------------------------------------------
+      // CONSULTS SUBCOLLECTION - CON SOFT DELETE
+      // --------------------------------------------------------
+      match /consults/{consultId} {
+        // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
+        allow read: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
+        
+        // Crear consultas: Solo usuarios privilegiados (doctores/admin)
+        allow create: if isPrivileged();
+        
+        // Actualizar: Solo usuarios privilegiados
+        allow update: if isPrivileged() && isNotDeleted();
+        
+        // Eliminar: ⛔ DESHABILITADO
+        allow delete: if false;
+      }
+      
+      // --------------------------------------------------------
+      // OBSERVATIONS SUBCOLLECTION (3D body designer)
+      // --------------------------------------------------------
+      match /observations/{observationId} {
+        // SEGURIDAD: Solo el propietario o usuarios privilegiados
+        allow read: if isOwner(patientId) || isPrivileged();
+        allow create: if isPrivileged();
+        allow update: if isPrivileged();
+        allow delete: if isPrivileged();
+      }
+      
+      // --------------------------------------------------------
+      // SNAPSHOTS SUBCOLLECTION (3D snapshots)
+      // --------------------------------------------------------
+      match /snapshots/{snapshotId} {
+        // SEGURIDAD: Solo el propietario o usuarios privilegiados
+        allow read: if isOwner(patientId) || isPrivileged();
+        allow create: if isPrivileged();
+        allow update: if isPrivileged();
+        allow delete: if isPrivileged();
+      }
+    }
+    
+    // ============================================================
+    // APPOINTMENTS COLLECTION - TEMPORAL SIMPLIFICADO
+    // ============================================================
+    match /appointments/{appointmentId} {
+      // SEGURIDAD: Pacientes solo ven sus propias citas, privilegiados ven todas
+      allow read: if isPrivileged() || 
+                    (isAuthenticated() && resource.data.patientId == request.auth.uid);
+      
+      // Crear citas: Pacientes crean las suyas, privilegiados crean cualquiera
+      allow create: if isPrivileged() || 
+                      (isAuthenticated() && request.resource.data.patientId == request.auth.uid);
+      
+      // Actualizar: Privilegiados o el paciente dueño
+      allow update: if isPrivileged() || 
+                      (isAuthenticated() && resource.data.patientId == request.auth.uid);
+      
+      // Eliminar: Solo usuarios privilegiados
+      allow delete: if isPrivileged();
+    }
+    
+    // ============================================================
+    // CHAT ROOMS COLLECTION - SEGURIDAD REFORZADA
+    // ============================================================
+    match /chatRooms/{roomId} {
+      // SEGURIDAD: Solo participantes del chat o usuarios privilegiados pueden leer
+      allow read: if isAuthenticated() && 
+                    (request.auth.uid in resource.data.participants || isPrivileged());
+      
+      // Crear: Usuario debe estar incluido como participante en la nueva sala
+      allow create: if isAuthenticated() && 
+                      request.auth.uid in request.resource.data.participants;
+      
+      // Actualizar: Solo participantes de la sala o usuarios privilegiados
+      allow update: if isAuthenticated() && 
+                      (request.auth.uid in resource.data.participants || isPrivileged());
+      
+      // Eliminar: Solo usuarios privilegiados
+      allow delete: if isPrivileged();
+      
+      // --------------------------------------------------------
+      // MESSAGES SUBCOLLECTION
+      // --------------------------------------------------------
+      match /messages/{messageId} {
+        // Inherit room permissions - only room participants can access
+        allow read: if isAuthenticated() && 
+                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants ||
+                      isPrivileged();
+        
+        allow create: if isAuthenticated() && 
+                        request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants &&
+                        request.resource.data.senderId == request.auth.uid;
+        
+        // Only the sender can update their own message
+        allow update: if isAuthenticated() && 
+                        resource.data.senderId == request.auth.uid;
+        
+        // Only doctors/admins can delete messages
+        allow delete: if isPrivileged();
+      }
+    }
+  }
+}

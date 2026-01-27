@@ -1,0 +1,55 @@
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+// LandingPage removed as it's now handled by Next.js
+// import { LandingPage } from './screens/LandingPage';
+import { ClinicLanding } from './screens/landing/ClinicLanding';
+import { DoctorLanding } from './screens/landing/DoctorLanding';
+import { AuthPage } from './screens/AuthPage';
+import { DoctorDashboard } from './screens/DoctorDashboard';
+import { PatientPortalRoutes } from './screens/PatientPortalRoutes';
+import { PaymentCallbackScreen } from './screens/PaymentCallbackScreen';
+
+import { AssistantDashboard } from './screens/AssistantDashboard';
+import CenlaePage from './screens/CenlaePage';
+import { DoctorProfilePage } from './screens/cenlae/DoctorProfilePage';
+
+const AppRoutes = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // Avoid hydration mismatch
+
+  return (
+    <Routes>
+      {/* Public Routes - Landing is Next.js now, but we keep these just in case or for specific access */}
+      {/* <Route path="/" element={<LandingPage />} /> */}
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/cenlae" element={<CenlaePage />} />
+      <Route path="/perfil" element={<DoctorProfilePage />} />
+
+      {/* Doctor Login Route */}
+      <Route path="/app/doctor/login" element={<AuthPage />} />
+
+      {/* Payment Callback Route (for 3DS return) */}
+      <Route path="/app/payment/callback" element={<PaymentCallbackScreen />} />
+
+      {/* Patient Portal Routes */}
+      <Route path="/app/patient/*" element={<PatientPortalRoutes />} />
+
+      {/* Assistant Dashboard Routes */}
+      <Route path="/app/assistant/*" element={<AssistantDashboard />} />
+
+      {/* Doctor Dashboard Routes (Protected) */}
+      <Route path="/app/*" element={<DoctorDashboard />} />
+
+      {/* Fallback - Redirect to App Login or Root if not found */}
+      <Route path="*" element={<Navigate to="/app/doctor/login" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
+
