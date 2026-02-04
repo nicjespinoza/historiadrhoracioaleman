@@ -1,4 +1,6 @@
 
+import Image from 'next/image';
+
 export const MedicalServices = () => {
     return (
         <section className="py-20 lg:py-24 bg-green-700 dark:bg-green-900 transition-colors duration-300">
@@ -39,10 +41,12 @@ export const MedicalServices = () => {
 const ServiceItem = ({ title, desc, image }: { title: string, desc: string, image: string }) => (
     <div className="flex flex-col sm:flex-row bg-[#111111] rounded-2xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform duration-300 group">
         <div className="w-full sm:w-1/2 h-64 sm:h-auto relative overflow-hidden bg-white">
-            <img
+            <Image
                 alt={title}
-                className="w-full h-full object-cover p-0 group-hover:scale-105 transition-transform duration-500"
+                fill
+                className="object-cover p-0 group-hover:scale-105 transition-transform duration-500"
                 src={image}
+                sizes="(max-width: 640px) 100vw, 50vw"
             />
         </div>
         <div className="w-full sm:w-1/2 p-6 flex flex-col justify-center">

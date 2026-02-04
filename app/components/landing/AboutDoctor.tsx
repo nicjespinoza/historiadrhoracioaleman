@@ -1,4 +1,6 @@
 
+import Image from 'next/image';
+
 export const AboutDoctor = () => {
     return (
         <section id="about" className="py-20 lg:py-28 bg-white dark:bg-gray-800 relative overflow-hidden transition-colors duration-300">
@@ -37,10 +39,12 @@ export const AboutDoctor = () => {
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-tr from-green-700/20 to-transparent rounded-2xl transform translate-x-4 translate-y-4"></div>
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                                <img
+                                <Image
                                     alt="Dr. Horacio H. Alemán Escobar"
-                                    className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+                                    fill
+                                    className="object-cover hover:scale-105 transition-transform duration-700"
                                     src="/images/doctor_portrait.png"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
                                 />
                             </div>
 

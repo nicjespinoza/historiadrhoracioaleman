@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Image from 'next/image';
 
 const slides = [
     {
@@ -49,11 +49,16 @@ export const HeroSection = () => {
                     className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
                         }`}
                 >
-                    <img
-                        alt={slide.title}
-                        className="w-full h-full object-cover opacity-60"
-                        src={slide.image}
-                    />
+                    <div className="relative w-full h-full">
+                        <Image
+                            alt={slide.title}
+                            src={slide.image}
+                            fill
+                            className="object-cover opacity-60"
+                            priority={index === 0}
+                            quality={90}
+                        />
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
                 </div>
             ))}
@@ -71,21 +76,6 @@ export const HeroSection = () => {
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight drop-shadow-2xl leading-tight min-h-[1.2em] animate-fade-in-up delay-100">
                         {slides[currentSlide].title}
                     </h1>
-
-                    <p className="text-xl md:text-2xl text-gray-200 font-light max-w-2xl mx-auto drop-shadow-lg animate-fade-in-up delay-200">
-                        Brindando atención urológica integral y de vanguardia para mejorar su calidad de vida.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-5 justify-center mt-10 animate-fade-in-up delay-300">
-                        <Link href="/app" className="px-8 py-4 bg-green-700 hover:bg-green-600 text-white font-semibold rounded-lg shadow-xl shadow-green-900/40 transition-all transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2 ring-1 ring-green-600">
-                            Agendar Cita
-                            <span className="material-icons-outlined">calendar_month</span>
-                        </Link>
-                        <Link href="#about" className="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 text-white font-semibold rounded-lg shadow-lg transition-all transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2">
-                            Conocer más
-                            <span className="material-icons-outlined">arrow_forward</span>
-                        </Link>
-                    </div>
                 </div>
             </div>
 
@@ -112,8 +102,8 @@ export const HeroSection = () => {
                         key={index}
                         onClick={() => setCurrentSlide(index)}
                         className={`transition-all duration-300 rounded-full shadow-lg ${index === currentSlide
-                                ? 'w-10 h-3 bg-green-500'
-                                : 'w-3 h-3 bg-white/40 hover:bg-white'
+                            ? 'w-10 h-3 bg-green-500'
+                            : 'w-3 h-3 bg-white/40 hover:bg-white'
                             }`}
                         aria-label={`Go to slide ${index + 1}`}
                     />
