@@ -4,24 +4,28 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
-    eslint: {
-        ignoreDuringBuilds: true,
+    typescript: {
+        ignoreBuildErrors: true,
     },
+    output: 'export',
     images: {
-        domains: [
-            'firebasestorage.googleapis.com',
-            'lh3.googleusercontent.com',
-            'flagcdn.com'
-        ],
-    },
-    // Ensure we can handle the SPA route appropriately
-    async rewrites() {
-        return [
+        unoptimized: true,
+        remotePatterns: [
             {
-                source: '/app/:path*',
-                destination: '/app/index', // This might need adjustment based on how we structure the catch-all
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+                port: '',
+                pathname: '/v0/b/**',
             },
-        ];
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'flagcdn.com',
+            }
+        ],
     },
 };
 

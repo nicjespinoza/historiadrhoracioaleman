@@ -40,7 +40,7 @@ export const AboutDoctor = () => {
                                 <img
                                     alt="Dr. Horacio H. Alemán Escobar"
                                     className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZHjS2vV7xOAZClGJARDw4L0o85OsyAO1bL569GrlhxNQ-fCtNDl3tMZrA30tl2DC2Ni462PUZN5-IIWm3wcdZH7-qFsmxjDDE1THnScp4ErBe4ZJzCb8fbjHCPxGi7Sv40tb7dDPldbaUno9MknmXYdkjwXDF4iK1EKzIND8RdJxHFTdYOIN8fFlKwU--1czOesHIDmufjhswHe4pRju5-G5MLG1H9fnszbm8Mu7SAJvKg4dTGJte8u6_LtY_mUrd3GI3125UAsZP"
+                                    src="/images/doctor_portrait.png"
                                 />
                             </div>
 

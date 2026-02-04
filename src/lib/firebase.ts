@@ -28,8 +28,8 @@ const app = initializeApp(firebaseConfig);
 // 3. Copia la "Site Key" (empieza con 6L...) y reemplaza el placeholder abajo
 // 4. NO uses contraseñas ni claves secretas aquí, solo la Site Key pública
 
-// Solo activar en producción para evitar problemas en desarrollo
-if (process.env.NODE_ENV === 'production') {
+// Solo activar en producción y en el cliente para evitar problemas en SSG
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
     try {
         initializeAppCheck(app, {
             provider: new ReCaptchaEnterpriseProvider(
