@@ -26,6 +26,7 @@ export const DoctorDashboard = () => {
     const [modalContent, setModalContent] = useState<ModalContent | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
     const [totalPatients, setTotalPatients] = useState(0);
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +36,8 @@ export const DoctorDashboard = () => {
     const [isSearching, setIsSearching] = useState(false);
     // Filter State
     const [selectedPatientType, setSelectedPatientType] = useState<string>('Historia Clinica');
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
     // Check Firebase authentication
     useEffect(() => {
@@ -43,7 +46,11 @@ export const DoctorDashboard = () => {
         }
     }, [firebaseUser, navigate]);
 
+<<<<<<< HEAD
     // Load initial data (Paginated)
+=======
+    // Load initial data
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     useEffect(() => {
         const loadData = async () => {
             if (!firebaseUser) {
@@ -51,6 +58,7 @@ export const DoctorDashboard = () => {
                 return;
             }
             try {
+<<<<<<< HEAD
                 // Fetch first page of patients (limit 9) and total count
                 const [pResult, count] = await Promise.all([
                     api.getPatients({ limitCount: 9, patientType: selectedPatientType }),
@@ -71,6 +79,32 @@ export const DoctorDashboard = () => {
                 // Clear histories and consults from global state to favor lazy loading in profile
                 setHistories([]);
                 setConsults([]);
+=======
+                // Clear any corrupted localStorage data
+                localStorage.removeItem('patients');
+                localStorage.removeItem('histories');
+                localStorage.removeItem('consults');
+
+                const [p, h, c] = await Promise.all([
+                    api.getPatients(),
+                    api.getHistories(),
+                    api.getConsults()
+                ]);
+
+                // Filter out corrupted patients (those without valid IDs)
+                const validPatients = p.filter(patient => patient.id && patient.id.trim() !== '');
+
+
+
+                console.log('Loaded patients from Firestore:', validPatients.length);
+                if (p.length !== validPatients.length) {
+                    console.warn(`Filtered out ${p.length - validPatients.length} corrupted patient(s) with empty IDs`);
+                }
+
+                setPatients(validPatients);
+                setHistories(h);
+                setConsults(c);
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
                 // Set user info from Firebase Auth
                 const userInfo = {
@@ -87,7 +121,11 @@ export const DoctorDashboard = () => {
             }
         };
         loadData();
+<<<<<<< HEAD
     }, [firebaseUser, selectedPatientType]); // Re-run when filter changes
+=======
+    }, [firebaseUser]);
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
     // Note: We no longer cache patients in localStorage since we're using Firestore
     // This prevents issues with stale or corrupted IDs
@@ -106,6 +144,7 @@ export const DoctorDashboard = () => {
         }
     };
 
+<<<<<<< HEAD
     const handlePageChange = async (newPage: number) => {
         if (loadingMore || newPage < 1) return;
 
@@ -193,6 +232,11 @@ export const DoctorDashboard = () => {
         }
     };
 
+=======
+    // Access Control Check - REMOVED FOR DEMO
+    // if (!currentUser || currentUser.role !== 'doctor') { ... }
+
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     return (
         <DoctorLayout onLogout={handleLogout} currentUser={currentUser ? currentUser.name : 'Doctor'}>
             <ErrorBoundary>
@@ -211,6 +255,7 @@ export const DoctorDashboard = () => {
                                 <PatientListScreen
                                     patients={patients}
                                     onPatientDelete={(id) => setPatients(prev => prev.filter(p => p.id !== id))}
+<<<<<<< HEAD
                                     totalCount={isSearching ? undefined : totalPatients}
                                     currentPage={currentPage}
                                     onPageChange={handlePageChange}
@@ -218,6 +263,8 @@ export const DoctorDashboard = () => {
                                     onSearch={handleSearch}
                                     selectedType={selectedPatientType}
                                     onTypeChange={setSelectedPatientType}
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                                 />
                             } />
                             <Route path="patients-specialty" element={

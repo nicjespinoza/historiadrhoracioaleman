@@ -59,8 +59,13 @@ export const patientSchema = z.object({
     firstName: z.string().min(1, 'El nombre es requerido'),
     lastName: z.string().min(1, 'Los apellidos son requeridos'),
     birthDate: z.string().min(1, 'La fecha de nacimiento es requerida'),
+<<<<<<< HEAD
     sex: z.enum(['Masculino', 'Femenino'] as const, {
         message: 'Seleccione el sexo',
+=======
+    sex: z.enum(['Masculino', 'Femenino'], {
+        errorMap: () => ({ message: 'Seleccione el sexo' }),
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     }),
     profession: z.string().default(''),
     email: z.string().email('Email inválido').or(z.literal('')).default(''),
@@ -236,7 +241,68 @@ export const familyHistorySchema = z.object({
 // Obesity History (Optional)
 // ============================================
 
+<<<<<<< HEAD
 
+=======
+export const obesityHistorySchema = z.object({
+    weightGainOnset: z.object({
+        childhood: z.boolean().default(false),
+        youth: z.boolean().default(false),
+        pregnancy: z.boolean().default(false),
+        menopause: z.boolean().default(false),
+        postEvent: z.boolean().default(false),
+        when: z.string().default(''),
+    }),
+    familyObesity: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        who: z.string().default(''),
+    }),
+    familyPathologies: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        who: z.string().default(''),
+    }),
+    previousTreatments: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        which: z.string().default(''),
+    }),
+    previousMeds: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        which: z.string().default(''),
+    }),
+    maxWeight: z.string().default(''),
+    minWeight: z.string().default(''),
+    reboundCause: z.string().default(''),
+    previousActivity: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        which: z.string().default(''),
+    }),
+    currentActivity: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        which: z.string().default(''),
+    }),
+    qualityOfLifeAlteration: z.object({
+        yes: z.boolean().default(false),
+        no: z.boolean().default(false),
+        how: z.string().default(''),
+    }),
+    metrics: z.object({
+        height: z.string().default(''),
+        currentWeight: z.string().default(''),
+        currentImc: z.string().default(''),
+        lostWeight: z.string().default(''),
+        lostOverweightPercentage: z.string().default(''),
+        lostImcExcessPercentage: z.string().default(''),
+        desiredWeight: z.string().default(''),
+        desiredImc: z.string().default(''),
+    }),
+}).optional();
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
 // ============================================
 // Initial History Schema (InitialHistoryScreen)
@@ -350,6 +416,10 @@ export const initialHistorySchema = z.object({
     isValidated: z.boolean().default(true),
 
     // Optional: Obesity History
+<<<<<<< HEAD
+=======
+    obesityHistory: obesityHistorySchema,
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 });
 
 export type InitialHistoryFormData = z.infer<typeof initialHistorySchema>;
@@ -483,6 +553,10 @@ export const getDefaultInitialHistoryValues = (patientId: string): InitialHistor
     },
 
     isValidated: true,
+<<<<<<< HEAD
+=======
+    obesityHistory: undefined,
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 });
 
 export const getDefaultSubsequentConsultValues = (patientId: string): SubsequentConsultFormData => ({

@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+<<<<<<< HEAD
   "engines": {
     "node": "20"
   },
@@ -14,6 +15,14 @@
     "vite:dev": "vite",
     "vite:build": "vite build",
     "vite:preview": "vite preview"
+=======
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "prepare": "husky"
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -25,12 +34,19 @@
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "firebase": "^12.7.0",
+<<<<<<< HEAD
     "firebase-admin": "^13.6.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.554.0",
     "next": "^16.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+=======
+    "framer-motion": "^12.23.25",
+    "lucide-react": "^0.554.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     "react-hook-form": "^7.69.0",
     "react-router-dom": "^7.10.0",
     "react-signature-canvas": "^1.1.0-alpha.2",
@@ -44,8 +60,11 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/node": "^22.14.0",
+<<<<<<< HEAD
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.22",
     "husky": "^9.1.7",
@@ -55,4 +74,8 @@
     "vite": "^6.2.0",
     "vitest": "^4.0.15"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99

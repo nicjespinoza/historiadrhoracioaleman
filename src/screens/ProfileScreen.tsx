@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool, ChevronDown, Globe, Database, AlertCircle, ShieldCheck } from 'lucide-react';
+=======
+import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool } from 'lucide-react';
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 import { Patient, InitialHistory, SubsequentConsult } from '../types';
 import { calculateAge } from '../lib/helpers';
 import { api } from '../../api';
@@ -20,6 +24,7 @@ interface ProfileScreenProps {
     onPatientUpdate: (patient: Patient) => void;
 }
 
+<<<<<<< HEAD
 export const ProfileScreen = ({ patients, histories = [], consults = [], onPatientUpdate }: ProfileScreenProps) => {
     const { patientId } = useParams();
     const navigate = useNavigate();
@@ -27,19 +32,29 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     // UI States
     const [currentTab, setCurrentTab] = useState<'general' | 'consents' | 'stats'>('general');
     const [showFullInfo, setShowFullInfo] = useState(false);
+=======
+export const ProfileScreen = ({ patients, histories, consults, onPatientUpdate }: ProfileScreenProps) => {
+    const { patientId } = useParams<{ patientId: string }>();
+    const navigate = useNavigate();
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingPatient, setEditingPatient] = useState<Partial<Patient>>({});
     const [snapshots, setSnapshots] = useState<any[]>([]);
     const [deleteSnapshotId, setDeleteSnapshotId] = useState<string | null>(null);
 
+<<<<<<< HEAD
     // Local state for lazy loaded data
     const [localHistories, setLocalHistories] = useState<InitialHistory[]>([]);
     const [localConsults, setLocalConsults] = useState<SubsequentConsult[]>([]);
 
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     // Video consultation state
     const [appointments, setAppointments] = useState<any[]>([]);
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [videoAppointment, setVideoAppointment] = useState<any>(null);
+<<<<<<< HEAD
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
     const [creatingRoom, setCreatingRoom] = useState<string | null>(null);
 
@@ -54,10 +69,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             api.getSnapshots(patientId).then(setSnapshots).catch(console.error);
 
             // Load Appointments
+=======
+    const [creatingRoom, setCreatingRoom] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (patientId) {
+            api.getSnapshots(patientId).then(setSnapshots).catch(console.error);
+            // Load appointments for this patient
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
             api.getAppointments().then(all => {
                 const patientApts = all.filter((a: any) => a.patientId === patientId);
                 setAppointments(patientApts);
             }).catch(console.error);
+<<<<<<< HEAD
 
             // Lazy Load Histories & Consults if not provided via props (or if empty due to optimization)
             if (histories.filter(h => h.patientId === patientId).length === 0) {
@@ -77,6 +101,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             }
         }
     }, [patientId, histories]); // Dependencies
+=======
+        }
+    }, [patientId]);
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
     const patient = patients.find(p => p.id === patientId);
 
@@ -135,6 +163,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const [aiResult, setAiResult] = useState<any>(null);
 
     // Consent Manager State
+<<<<<<< HEAD
+=======
+    const [activeTab, setActiveTab] = useState<'general' | 'consents'>('general');
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     const [selectedConsent, setSelectedConsent] = useState<any>(null);
     const [signatureRef, setSignatureRef] = useState<any>(null);
     const [signedDocs, setSignedDocs] = useState<string[]>([]);
@@ -199,10 +231,15 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
         return <div className="p-8 text-center text-gray-500">Paciente no encontrado.</div>;
     }
 
+<<<<<<< HEAD
     // Merge props data with local lazy-loaded data
     const safePatientId = patient?.id || '';
     const patientHistories = [...histories.filter(h => h.patientId === safePatientId), ...localHistories];
     const patientConsults = [...consults.filter(c => c.patientId === safePatientId), ...localConsults];
+=======
+    const patientHistories = histories.filter(h => h.patientId === patient.id);
+    const patientConsults = consults.filter(c => c.patientId === patient.id);
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -250,14 +287,24 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                     {/* Tab Navigation */}
                     <div className="flex gap-6 mt-8 overflow-x-auto">
                         <button
+<<<<<<< HEAD
                             onClick={() => setCurrentTab('general')}
                             className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+=======
+                            onClick={() => setActiveTab('general')}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'general' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                         >
                             Información General
                         </button>
                         <button
+<<<<<<< HEAD
                             onClick={() => setCurrentTab('consents')}
                             className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+=======
+                            onClick={() => setActiveTab('consents')}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'consents' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                         >
                             <PenTool size={16} /> Consentimientos y Firmas
                         </button>
@@ -266,6 +313,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             </div>
 
             {/* TAB: General Profile Content */}
+<<<<<<< HEAD
             {currentTab === 'general' && (
                 <div className="space-y-8">
                     <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -507,10 +555,119 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
+=======
+            {activeTab === 'general' && (
+                <div className="space-y-8">
+                    <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center border-b pb-2">
+                                <h3 className="font-bold text-gray-900">Información Personal</h3>
+                                <button onClick={handleEditClick} className="text-gray-400 hover:text-blue-600 transition-colors">
+                                    <Edit size={18} />
+                                </button>
+                            </div>
+                            <InputGroup label="Fecha de Nacimiento">
+                                <div className={INPUT_CLASS}>{patient.birthDate}</div>
+                                <div className="text-sm text-gray-500 mt-1 font-medium">Edad: {calculateAge(patient.birthDate)}</div>
+                            </InputGroup>
+                            <InputGroup label="Estado Civil">
+                                <div className={INPUT_CLASS}>{patient.civilStatus || 'No especificado'}</div>
+                            </InputGroup>
+                            <InputGroup label="Religión">
+                                <div className={INPUT_CLASS}>{patient.religion || 'No especificado'}</div>
+                            </InputGroup>
+                            <InputGroup label="Ocupación">
+                                <div className={INPUT_CLASS}>{patient.occupation || 'No especificado'}</div>
+                            </InputGroup>
+                            <InputGroup label="Profesión">
+                                <div className={INPUT_CLASS}>{patient.profession}</div>
+                            </InputGroup>
+                            <InputGroup label="Procedencia">
+                                <div className={INPUT_CLASS}>{patient.origin || 'No especificado'}</div>
+                            </InputGroup>
+                            <InputGroup label="Acompañante">
+                                <div className={INPUT_CLASS}>{patient.companion || 'No especificado'}</div>
+                            </InputGroup>
+                            <InputGroup label="Email">
+                                <div className={INPUT_CLASS}>{patient.email}</div>
+                            </InputGroup>
+                            <InputGroup label="Teléfono">
+                                <div className={INPUT_CLASS}>{patient.phone}</div>
+                            </InputGroup>
+                            <InputGroup label="Dirección">
+                                <div className={INPUT_CLASS}>{patient.address}</div>
+                            </InputGroup>
+                            <InputGroup label="Tipo de Paciente">
+                                <div className={INPUT_CLASS}>
+                                    <span className={`px-2 py-1 rounded text-sm font-bold ${patient.patientType === 'Historia Clinica' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                        {patient.patientType || 'Historia Clinica'}
+                                    </span>
+                                </div>
+                            </InputGroup>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-8">
+                            <div>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg">
+                                        <FileText className="text-blue-600" /> Historias Clínicas
+                                    </h3>
+                                    {patientHistories.length === 0 && (
+                                        <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-sm text-blue-600 font-medium hover:underline">
+                                            + Crear Historia Inicial
+                                        </button>
+                                    )}
+                                </div>
+                                {patientHistories.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {patientHistories.map(h => (
+                                            <div key={h.id} className={`p - 4 rounded - xl border - 2 transition - colors group ${h.isValidated === false ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-black hover:border-blue-900'} `}>
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className={`font - bold transition - colors ${h.isValidated === false ? 'text-yellow-800' : 'text-gray-900 group-hover:text-blue-600'} `}>
+                                                            {h.date} - {h.time}
+                                                        </p>
+                                                        {h.isValidated === false ? (
+                                                            <p className="text-sm text-yellow-700 mt-1 font-bold">
+                                                                Historia clínica no completada
+                                                            </p>
+                                                        ) : (
+                                                            <p className="text-sm text-gray-600 mt-1">
+                                                                <span className="font-bold">Motivo consulta:</span> {Object.keys(h.motives || {}).filter(k => h.motives[k]).join(', ') || h.otherMotive || 'Sin motivo'}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        {h.isValidated === false ? (
+                                                            <button
+                                                                onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
+                                                                className="bg-yellow-500 text-white px-4 py-1 rounded-lg text-xs font-bold hover:bg-yellow-600 transition-colors shadow-sm"
+                                                            >
+                                                                Completar
+                                                            </button>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
+                                                                    className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors"
+                                                                >
+                                                                    Ver
+                                                                </button>
+                                                                <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                                    Editar
+                                                                </button>
+                                                                <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                                    Eliminar
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
+<<<<<<< HEAD
                                 )
                             }
                         </div >
@@ -639,6 +796,198 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             {/* TAB: Consent Manager */}
             {
                 currentTab === 'consents' && (
+=======
+                                ) : (
+                                    <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                        <p className="text-gray-500 mb-2">No hay historia clínica registrada</p>
+                                        <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-blue-600 font-bold hover:underline">
+                                            Crear Historia Inicial
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-[#083c79] rounded-xl p-6 text-white shadow-lg overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                                        <span className="bg-white/20 p-1.5 rounded-lg">🧬</span> Diseñar Enfermedad
+                                    </h3>
+                                    <p className="text-blue-100 mb-4 text-sm max-w-md">
+                                        Utiliza nuestra herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
+                                    </p>
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const newSnap = await api.createSnapshot(patient.id);
+                                                navigate(`/app/crearimagen/${patient.id}/${newSnap.id}`);
+                                            } catch (e) {
+                                                alert('Error al crear nueva imagen');
+                                            }
+                                        }}
+                                        className="bg-white text-blue-900 px-6 py-2.5 rounded-lg font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 mb-6"
+                                    >
+                                        <span>Crear imagen 3D</span>
+                                        <ArrowLeft className="rotate-180" size={18} />
+                                    </button >
+
+                                    {
+                                        snapshots.length > 0 && (
+                                            <div className="space-y-3">
+                                                <h4 className="font-bold text-sm text-blue-200 uppercase tracking-widest border-b border-white/20 pb-1 mb-2">Imágenes Guardadas</h4>
+                                                {snapshots.map(snap => (
+                                                    <div key={snap.id} className="bg-white/10 p-3 rounded-lg border border-white/10 flex justify-between items-center group hover:bg-white/20 transition-colors">
+                                                        <div>
+                                                            <p className="font-bold text-sm">{snap.name}</p>
+                                                            <p className="text-xs text-blue-200">{new Date(snap.createdAt).toLocaleDateString()}</p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
+                                                                className="bg-blue-500 hover:bg-blue-600 p-1.5 rounded-md transition-colors" title="Ver"
+                                                            >
+                                                                <Eye size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setDeleteSnapshotId(snap.id)}
+                                                                className="bg-red-500 hover:bg-red-600 p-1.5 rounded-md transition-colors" title="Eliminar"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )
+                                    }
+                                </div >
+                            </div >
+
+                            <div>
+                                <h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg mb-4">
+                                    <Stethoscope className="text-purple-600" /> Consultas de Seguimiento
+                                </h3>
+                                {patientConsults.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {patientConsults.map(c => (
+                                            <div key={c.id} className="bg-gray-50 p-4 rounded-xl border-2 border-black hover:border-purple-900 transition-colors group">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{c.date} - {c.time}</p>
+                                                        <p className="text-sm text-gray-600 mt-1">
+                                                            <span className="font-bold">Motivo consulta:</span> {Object.keys(c.motives || {}).filter(k => c.motives[k]).join(', ') || c.otherMotive || 'Sin motivo'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <button
+                                                            onClick={() => navigate(`/app/consult/${patient.id}`)}
+                                                            className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors"
+                                                        >
+                                                            Ver
+                                                        </button>
+                                                        <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                            Editar
+                                                        </button>
+                                                        <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                            Eliminar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                        <p className="text-gray-500">No hay consultas registradas</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Upcoming Appointments Section */}
+                    {
+                        appointments.filter(a => a.type === 'virtual' && (a.paymentStatus === 'paid' || a.paid)).length > 0 && (
+                            <div className="rounded-2xl shadow-xl p-6 mb-8 text-white overflow-hidden relative" style={{ backgroundColor: '#083c79' }}>
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                        <Video className="text-white" size={24} />
+                                        Consultas Virtuales Pendientes
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {appointments
+                                            .filter(a => a.type === 'virtual' && (a.paymentStatus === 'paid' || a.paid))
+                                            .map(apt => (
+                                                <div key={apt.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <Calendar size={16} style={{ color: '#083c79' }} />
+                                                                <span className="font-bold" style={{ color: '#083c79' }}>{apt.date}</span>
+                                                                <Clock size={16} style={{ color: '#083c79' }} className="ml-2" />
+                                                                <span className="font-bold" style={{ color: '#083c79' }}>{apt.time}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-sm">
+                                                                {apt.videoRoomActive ? (
+                                                                    <>
+                                                                        <CheckCircle size={14} className="text-green-500" />
+                                                                        <span className="text-green-600 font-medium">Sala activa - El paciente puede unirse</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Clock size={14} className="text-gray-400" />
+                                                                        <span className="text-gray-500">Sala no iniciada</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            {apt.videoRoomActive ? (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setVideoAppointment(apt);
+                                                                        setShowVideoModal(true);
+                                                                    }}
+                                                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all hover:scale-105"
+                                                                >
+                                                                    <Video size={18} />
+                                                                    Entrar a la Sala
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleCreateVideoRoom(apt)}
+                                                                    disabled={creatingRoom === apt.id}
+                                                                    className="bg-white text-purple-700 hover:bg-purple-50 px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all hover:scale-105 disabled:opacity-70"
+                                                                >
+                                                                    {creatingRoom === apt.id ? (
+                                                                        <>
+                                                                            <div className="w-4 h-4 border-2 border-purple-700 border-t-transparent rounded-full animate-spin"></div>
+                                                                            Creando...
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Video size={18} />
+                                                                            Crear Video Llamada
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                </div>
+            )}
+
+            {/* TAB: Consent Manager */}
+            {
+                activeTab === 'consents' && (
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Sidebar: List */}
                         <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-fit">
@@ -814,6 +1163,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                 preSelectedPatientId={patient.id}
             />
 
+<<<<<<< HEAD
             {/* Prescriptions Modal */}
             {
                 showPrescriptionsModal && (
@@ -918,6 +1268,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                 )
             }
 
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
             {/* AI Analysis Modal */}
             {
                 showAIModal && (
@@ -1019,7 +1371,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                 )
             }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
             {/* Edit Patient Modal */}
             {
                 isEditModalOpen && (
@@ -1177,10 +1532,15 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
 
                 )
             }
             {/* Delete Snapshot Confirmation Modal */}
+=======
+                )
+            }
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
             {
                 deleteSnapshotId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -1215,6 +1575,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                     </div>
                 )
             }
+<<<<<<< HEAD
         </div>
+=======
+        </div >
+>>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     );
 };
