@@ -12,6 +12,7 @@ interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputEle
     wrapperClassName?: string;
     as?: 'input' | 'textarea';
     rows?: number;
+    showPasswordToggle?: boolean;
 }
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, FloatingLabelInputProps>(({
@@ -25,10 +26,14 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
     value,
     as = 'input',
     rows,
+    showPasswordToggle,
     ...props
 }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const hasValue = value !== '' && value !== undefined;
+
+    const inputType = props.type === 'password' && showPassword ? 'text' : props.type;
 
     return (
         <div className={cn("relative mb-6", containerClassName)}>
@@ -114,12 +119,29 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
                             className={cn(
                                 "w-full h-full bg-transparent border-none outline-none px-0 pt-5 pb-1 text-gray-900 font-medium placeholder-transparent",
                                 icon ? "pl-0" : "pl-4",
+                                props.type === 'password' ? "pr-10" : "",
                                 className
                             )}
                             placeholder={label}
+                            type={inputType}
                         />
                     )}
                 </div>
+
+                {/* Password Toggle */}
+                {props.type === 'password' && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-12 z-20 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        {showPassword ? (
+                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} key="eye-off" className="material-icons-outlined text-xl">visibility_off</motion.span>
+                        ) : (
+                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} key="eye" className="material-icons-outlined text-xl">visibility</motion.span>
+                        )}
+                    </button>
+                )}
 
                 {/* Status Icons */}
                 <div className={cn("pr-4", as === 'textarea' ? "self-start mt-4" : "")}>

@@ -1,57 +1,285 @@
 
-import Image from 'next/image';
+'use client';
+
+import { useState, useEffect } from 'react';
+
+interface Service {
+    title: string;
+    desc: string;
+    video: string;
+    modalDescription: string;
+    highlights: string[];
+    icon: string;
+}
+
+const services: Service[] = [
+    {
+        title: "Enfermedad Litiásica",
+        desc: "Cálculos renales y tecnología láser.",
+        video: "/videos/Enfermedad Litiasica.mp4",
+        icon: "kidney",
+        modalDescription:
+            "El Dr. Horacio Alemán es especialista en el diagnóstico y tratamiento de cálculos renales y urinarios mediante las técnicas más avanzadas de mínima invasión. Utilizando tecnología láser de última generación (Holmium y Thulium), fragmenta y elimina los cálculos sin necesidad de cirugía abierta, lo que permite una recuperación mucho más rápida y con menos dolor.",
+        highlights: [
+            "Litotricia láser Holmium y Thulium",
+            "Ureteroscopía flexible de alta definición",
+            "Nefrolitotomía percutánea (NLP) mínimamente invasiva",
+            "Diagnóstico avanzado con tomografía y ultrasonido",
+            "Tratamiento personalizado según tipo de cálculo",
+            "Recuperación rápida con mínima hospitalización",
+        ],
+    },
+    {
+        title: "Patología de Próstata",
+        desc: "Crecimiento prostático y prevención.",
+        video: "/videos/Patologia de Prostata.mp4",
+        icon: "medical_services",
+        modalDescription:
+            "Con más de 15 años de experiencia, el Dr. Alemán ofrece un abordaje integral para el crecimiento prostático benigno (HPB) y otras patologías prostáticas. Emplea técnicas endourológicas avanzadas como la resección transuretral (RTU) y enucleación láser, evitando cirugías abiertas y garantizando una mejoría significativa en la calidad de vida del paciente.",
+        highlights: [
+            "Resección transuretral de próstata (RTU-P)",
+            "Enucleación prostática con láser",
+            "Evaluación con antígeno prostático (PSA)",
+            "Ultrasonido transrectal de alta resolución",
+            "Biopsias guiadas por imagen",
+            "Seguimiento personalizado post-tratamiento",
+        ],
+    },
+    {
+        title: "VPH Masculino",
+        desc: "Detección y tratamiento integral.",
+        video: "/videos/VPH Masculino.mp4",
+        icon: "biotech",
+        modalDescription:
+            "El Dr. Alemán cuenta con amplia experiencia en la detección temprana y tratamiento del Virus del Papiloma Humano (VPH) en varones. Mediante penoscopía de alta resolución y técnicas de fulguración, identifica y elimina lesiones subclínicas y condilomas con precisión, previniendo complicaciones y reduciendo el riesgo de transmisión a la pareja.",
+        highlights: [
+            "Penoscopía de alta resolución",
+            "Detección de lesiones subclínicas",
+            "Fulguración y crioterapia de condilomas",
+            "Tipificación viral por PCR",
+            "Asesoría integral de pareja",
+            "Seguimiento y prevención de recurrencias",
+        ],
+    },
+    {
+        title: "Urología Oncológica",
+        desc: "Cáncer de riñón, próstata y vejiga.",
+        video: "/videos/Urologia Oncologica.mp4",
+        icon: "health_and_safety",
+        modalDescription:
+            "El Dr. Horacio Alemán brinda atención especializada en el diagnóstico y tratamiento quirúrgico de cánceres urológicos: riñón, próstata, vejiga y testículo. Su enfoque combina cirugía oncológica de precisión con técnicas mínimamente invasivas, priorizando la preservación funcional del paciente y trabajando de la mano con equipos multidisciplinarios.",
+        highlights: [
+            "Prostatectomía radical mínimamente invasiva",
+            "Nefrectomía parcial conservadora de nefronas",
+            "Cistectomía y reconstrucción urinaria",
+            "Orquiectomía y cirugía testicular",
+            "Diagnóstico temprano con biomarcadores",
+            "Coordinación con oncología y radioterapia",
+        ],
+    },
+];
 
 export const MedicalServices = () => {
+    const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedService) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [selectedService]);
+
     return (
-        <section className="py-20 lg:py-24 bg-green-700 dark:bg-green-900 transition-colors duration-300">
+        <section className="py-20 lg:py-32 bg-[#00a63e] transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-white text-xs font-bold tracking-wider uppercase mb-3">Nuestras Especialidades</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Servicios Médicos</h2>
-                    <div className="w-20 h-1.5 bg-white mx-auto rounded-full opacity-50"></div>
+                    <span className="inline-block text-green-200/80 text-sm font-semibold tracking-[0.3em] uppercase mb-4">Especialidades</span>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">Servicios Médicos</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                    <ServiceItem
-                        title="Enfermedad Litiásica del Tracto Urinario"
-                        desc="Manejo médico y quirúrgico de piedras renales, ureterales y vesicales"
-                        image="https://lh3.googleusercontent.com/aida-public/AB6AXuCHtA-ZoVt_VBsO0JAVBvY4HzZ81g4MIA7zgIDjjGNYV5Fxiv_peHOOc4zfDx016E3vPpJpcoC3CgJxicQ-DsmlUoeQKwLwb7PNz7c5ah7Ww45rvxYv45j8wvMHhrwUUmNAgKTfGeUoOn2utzne0Vr3I8JqNLzZY4tHgV7tDHJFSrN9cmtc1cxs5hOlEmVa6Fj2EDefmzE2vBwGxqHiU4gJ3-FIhrcUch-lF3TPY_-3EyKx9fAnAisp3sBsn8WtcBAm8ywVP5CUmw_q"
-                    />
-                    <ServiceItem
-                        title="Enfermedades de la próstata"
-                        desc="Manejo médico y quirúrgico de enfermedades de la prostata"
-                        image="https://lh3.googleusercontent.com/aida-public/AB6AXuCVYplkylSBJGXz6p2v8xffNKY0u8GKueMb21y_brFUSyD_EP1C20kddipTC8JXyea2j-HuJHqtC_G4VnDFYYROD9mecIwJt5orFKQc_7KVuk92Lt2u9eVWjUi9m6QMyK6PLdPqmTznSLS1Pvx4X-Pj5CyCJzoPSECUtBgR2Zmo0TryaRblzdH8c1e4UqDMS6A9ImM20mmrkwxkFi-RqcnPyJIGjajVmDg6Br98baIN4OwiK3uM8sT19dZaDdrykRDC7m5-VClkdqZk"
-                    />
-                    <ServiceItem
-                        title="Virus Papiloma Humano"
-                        desc="Manejo Integral del paciente masculino con Virus Papiloma Humano."
-                        image="https://lh3.googleusercontent.com/aida-public/AB6AXuCPdvBwi8j_9kcEzKrMRl5Yq1xAlZ1yvCUnfkW4alYm0tKZBP2mSAzDdMtx8W3t217ZdxquPjmt8A3Qw8iEYFAaoPA5FN2q1e77RZce0pqdzcGPH_1eZg11nYO0utT8tLubqNH8j-i8dwyAlSbjwcLi3eweLMaUn9VUxVNEDq0vdO7n3E9FRXCN-LhaN0qEhP-LJr9GXFm3vEYJPdLYK5Wo4CGw24RRwYAZ7XTnsTSURZbmVp7CBbGdVjHJZ0XIbWKsHkAQMP76tHRi"
-                    />
-                    <ServiceItem
-                        title="Enfermedad Oncológica"
-                        desc="Manejo Integral del paciente masculino con Cáncer de Riñón, Próstata, Vejiga, Pene, testículo."
-                        image="https://lh3.googleusercontent.com/aida-public/AB6AXuAsfoxZCKnRiVOiQ3eu3uUJwPm4i-fgSQ7PuL3uy33U-s38imou6MTPnddJTo-T3plGepNAIPdOloCcelrzWV0zECSxrEmUPZ2Tzy0qUVFf6xBo1bzB7nfn3-0ubRm-Ec6boQJdhyrnWQcEVxqXBL2OPi0WnJfeN7aBh0skUw1Cs8YWitwDLmyG5-iQACwJOoCFcjRpw1csFbXYjNRqjPXFutGclXGW17OQYKapql2EI-iV-mUMdUsQ2JnZ1D4XV1NxK4uQfKBBJVaV"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                    {services.map((service, index) => (
+                        <ServiceCard
+                            key={index}
+                            service={service}
+                            onClick={() => setSelectedService(service)}
+                        />
+                    ))}
                 </div>
             </div>
+
+            {/* Modal */}
+            {selectedService && (
+                <ServiceModal
+                    service={selectedService}
+                    onClose={() => setSelectedService(null)}
+                />
+            )}
         </section>
     );
 };
 
-const ServiceItem = ({ title, desc, image }: { title: string, desc: string, image: string }) => (
-    <div className="flex flex-col sm:flex-row bg-[#111111] rounded-2xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform duration-300 group">
-        <div className="w-full sm:w-1/2 h-64 sm:h-auto relative overflow-hidden bg-white">
-            <Image
-                alt={title}
-                fill
-                className="object-cover p-0 group-hover:scale-105 transition-transform duration-500"
-                src={image}
-                sizes="(max-width: 640px) 100vw, 50vw"
-            />
-        </div>
-        <div className="w-full sm:w-1/2 p-6 flex flex-col justify-center">
-            <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+/* ─────────────── Service Card ─────────────── */
+const ServiceCard = ({ service, onClick }: { service: Service; onClick: () => void }) => (
+    <div
+        onClick={onClick}
+        className="group relative flex flex-col rounded-2xl overflow-hidden shadow-2xl cursor-pointer transition-all duration-500 hover:-translate-y-3 hover:shadow-green-900/40 hover:shadow-3xl aspect-[3/4]"
+    >
+        {/* Green accent top line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Full card video background */}
+        <video
+            src={service.video}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+        />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10" />
+
+        {/* Glassmorphism overlay on hover */}
+        <div className="absolute inset-0 bg-green-900/0 group-hover:bg-green-900/20 backdrop-blur-0 group-hover:backdrop-blur-[1px] transition-all duration-500 z-10" />
+
+        {/* Content at bottom */}
+        <div className="relative z-20 mt-auto p-6 flex flex-col space-y-3">
+            <h3 className="text-xl lg:text-2xl font-bold text-white group-hover:text-green-400 transition-colors duration-300 drop-shadow-lg">
+                {service.title}
+            </h3>
+            <p className="text-gray-300 text-sm leading-relaxed drop-shadow-md">
+                {service.desc}
+            </p>
+            <div className="pt-1">
+                <span className="inline-flex items-center text-green-400 text-sm font-semibold group-hover:translate-x-2 transition-transform duration-300 drop-shadow-md">
+                    Saber más <span className="material-icons-outlined text-base ml-1">arrow_forward</span>
+                </span>
+            </div>
         </div>
     </div>
 );
+
+/* ─────────────── Service Modal ─────────────── */
+const ServiceModal = ({ service, onClose }: { service: Service; onClose: () => void }) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        // Trigger enter animation
+        requestAnimationFrame(() => setIsVisible(true));
+    }, []);
+
+    const handleClose = () => {
+        setIsVisible(false);
+        setTimeout(onClose, 300);
+    };
+
+    return (
+        <div
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            onClick={handleClose}
+        >
+            {/* Backdrop */}
+            <div className={`absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`} />
+
+            {/* Modal Content */}
+            <div
+                className={`relative z-10 w-full max-w-5xl max-h-[90vh] bg-gradient-to-br from-gray-900 via-[#0a0a0a] to-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10 transition-all duration-300 ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button */}
+                <button
+                    onClick={handleClose}
+                    className="absolute top-4 right-4 z-30 p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-red-500/80 hover:border-red-500 transition-all duration-300 group"
+                    aria-label="Cerrar"
+                >
+                    <span className="material-icons-outlined text-xl group-hover:rotate-90 transition-transform duration-300">close</span>
+                </button>
+
+                {/* Green accent top line */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 z-20" />
+
+                {/* Two-column layout */}
+                <div className="flex flex-col lg:flex-row h-full max-h-[90vh]">
+                    {/* Left — Video */}
+                    <div className="relative lg:w-1/2 aspect-video lg:aspect-auto lg:min-h-[500px] bg-black flex-shrink-0">
+                        <video
+                            src={service.video}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Subtle gradient on the right edge for blending */}
+                        <div className="hidden lg:block absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
+                    </div>
+
+                    {/* Right — Content */}
+                    <div className="lg:w-1/2 p-8 lg:p-10 overflow-y-auto custom-scrollbar">
+                        {/* Icon + Title */}
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                                <span className="material-icons-outlined text-green-400 text-2xl">{service.icon}</span>
+                            </div>
+                            <div>
+                                <span className="text-green-400/80 text-xs font-semibold tracking-[0.2em] uppercase">Especialidad</span>
+                                <h3 className="text-2xl lg:text-3xl font-bold text-white leading-tight">{service.title}</h3>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-400 rounded-full my-6" />
+
+                        {/* Description */}
+                        <p className="text-gray-300 text-base leading-relaxed mb-8">
+                            {service.modalDescription}
+                        </p>
+
+                        {/* Highlights */}
+                        <div className="space-y-3 mb-8">
+                            <h4 className="text-white text-sm font-semibold tracking-wider uppercase flex items-center gap-2">
+                                <span className="material-icons-outlined text-green-400 text-lg">verified</span>
+                                Tratamientos y Procedimientos
+                            </h4>
+                            <div className="grid grid-cols-1 gap-2.5">
+                                {service.highlights.map((item, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-green-500/20 hover:bg-green-500/[0.03] transition-all duration-300"
+                                    >
+                                        <span className="material-icons-outlined text-green-500 text-sm mt-0.5">check_circle</span>
+                                        <span className="text-gray-300 text-sm leading-relaxed">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <a
+                                href="https://wa.me/50495814040"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-green-500/25 hover:-translate-y-0.5"
+                            >
+                                <span className="material-icons-outlined text-lg">chat</span>
+                                Agendar Consulta
+                            </a>
+                            <button
+                                onClick={handleClose}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-semibold rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

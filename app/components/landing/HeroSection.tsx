@@ -54,28 +54,29 @@ export const HeroSection = () => {
                             alt={slide.title}
                             src={slide.image}
                             fill
-                            className="object-cover opacity-60"
+                            className="object-cover opacity-80"
                             priority={index === 0}
                             quality={90}
                         />
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+                    {/* Dark Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/30 to-transparent"></div>
                 </div>
             ))}
 
-            {/* Content */}
+            {/* Content — centered */}
             <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-center">
-                <div className="space-y-8 max-w-4xl transition-all duration-700 transform">
-                    <div className="inline-flex items-center space-x-2 bg-green-700/20 backdrop-blur-sm border border-green-700/30 rounded-full px-5 py-2 mb-4 animate-fade-in-up">
+                <div className="space-y-6 max-w-4xl transition-all duration-700 transform">
+                    <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight drop-shadow-2xl leading-tight min-h-[1.2em] animate-fade-in-up">
+                        {slides[currentSlide].title}
+                    </h1>
+
+                    <div className="inline-flex items-center space-x-2 bg-green-700/20 backdrop-blur-sm border border-green-700/30 rounded-full px-5 py-2 animate-fade-in-up delay-100">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span className="text-green-300 text-sm font-medium tracking-widest uppercase">
                             {slides[currentSlide].subtitle}
                         </span>
                     </div>
-
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight drop-shadow-2xl leading-tight min-h-[1.2em] animate-fade-in-up delay-100">
-                        {slides[currentSlide].title}
-                    </h1>
                 </div>
             </div>
 

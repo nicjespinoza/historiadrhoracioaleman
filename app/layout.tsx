@@ -2,6 +2,7 @@
 import './globals.css';
 import React from 'react';
 import type { Metadata } from 'next';
+import { Providers } from './components/Providers';
 
 
 export const metadata: Metadata = {
@@ -21,9 +22,11 @@ export default function RootLayout({
                 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
                 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
             </head>
-            <body className="font-sans antialiased">
+            <body className="font-sans antialiased" suppressHydrationWarning={true}>
                 <div id="root">
-                    {children}
+                    <Providers>
+                        {children}
+                    </Providers>
                 </div>
             </body>
         </html>

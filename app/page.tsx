@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function LandingPage() {
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <main className="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-300">
             <Navbar />
             <HeroSection />
             <ServicesCards />

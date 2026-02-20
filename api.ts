@@ -32,9 +32,81 @@ const docToData = <T>(doc: any): T => {
 
 export const api = {
     // ==================== PATIENTS ====================
-    getPatients: async (): Promise<Patient[]> => {
-        const snapshot = await getDocs(collection(db, 'patients'));
-        return snapshot.docs.map(doc => docToData<Patient>(doc));
+    // Optimized Search Function
+    searchPatients: async (term: string, patientType?: string): Promise<Patient[]> => {
+        const normalizedTerm = term.trim();
+        if (!normalizedTerm) return [];
+
+        const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+        const capitalizedTerm = capitalize(normalizedTerm);
+
+        // We build queries for both original and capitalized terms if they differ
+        const terms = Array.from(new Set([normalizedTerm, capitalizedTerm]));
+
+        const buildQueries = (fieldName: string, limitCount: number) => {
+            return terms.map(t => {
+                let q = query(collection(db, 'patients'),
+                    where(fieldName, '>=', t),
+                    where(fieldName, '<=', t + '\uf8ff'),
+                    limit(limitCount)
+                );
+                if (patientType && patientType !== 'all') {
+                    q = query(q, where('patientType', '==', patientType));
+                }
+                return getDocs(q);
+            });
+        };
+
+        // Execute all queries in parallel
+        const results = await Promise.all([
+            ...buildQueries('lastName', 20),
+            ...buildQueries('firstName', 20),
+            ...buildQueries('email', 10),
+            ...buildQueries('phone', 10)
+        ]);
+
+        // Merge and deduplicate results
+        const uniquePatients = new Map<string, Patient>();
+        results.forEach(snap => {
+            snap.docs.forEach(doc => {
+                if (!uniquePatients.has(doc.id)) {
+                    uniquePatients.set(doc.id, docToData<Patient>(doc));
+                }
+            });
+        });
+
+        return Array.from(uniquePatients.values());
+    },
+
+    getPatients: async (options?: { limitCount?: number, lastDoc?: any, searchTerm?: string, patientType?: string }): Promise<{ patients: Patient[], lastVisible: any }> => {
+        let q = query(collection(db, 'patients'), orderBy('lastName'), orderBy('firstName'));
+
+        if (options?.patientType && options.patientType !== 'all') {
+            q = query(q, where('patientType', '==', options.patientType));
+        }
+
+        if (options?.lastDoc) {
+            q = query(q, startAfter(options.lastDoc));
+        }
+
+        if (options?.limitCount) {
+            q = query(q, limit(options.limitCount));
+        }
+
+        const snapshot = await getDocs(q);
+        const patients = snapshot.docs.map(doc => docToData<Patient>(doc));
+        const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+
+        return { patients, lastVisible };
+    },
+
+    getPatientsCount: async (patientType?: string): Promise<number> => {
+        let q = query(collection(db, 'patients'));
+        if (patientType && patientType !== 'all') {
+            q = query(q, where('patientType', '==', patientType));
+        }
+        const snapshot = await getCountFromServer(q);
+        return snapshot.data().count;
     },
 
     createPatient: async (data: Omit<Patient, 'id'> | Patient): Promise<Patient> => {
@@ -164,6 +236,12 @@ export const api = {
         return { success: true };
     },
 
+    // ==================== PRESCRIPTIONS (Subcollection) ====================
+    getPrescriptions: async (patientId: string) => {
+        const snapshot = await getDocs(collection(db, 'patients', patientId, 'prescriptions'));
+        return snapshot.docs.map(doc => docToData<any>(doc));
+    },
+
     // ==================== APPOINTMENTS (Root Collection) ====================
     getAppointments: async (): Promise<Appointment[]> => {
         const snapshot = await getDocs(collection(db, 'appointments'));
@@ -229,5 +307,25 @@ export const api = {
             name: 'Admin'
         }, { merge: true });
         return { success: true };
+    },
+
+    // ==================== IP AUTHORIZATION ====================
+    checkIPAccess: async (ip: string): Promise<boolean> => {
+        try {
+            // We check the 'authorized_ips' collection
+            // The document ID can be the IP itself for direct lookup
+            const docRef = doc(db, 'authorized_ips', ip);
+            const snapshot = await getDoc(docRef);
+
+            if (snapshot.exists()) return true;
+
+            // Optional: Also search by a field if IDs are names
+            const q = query(collection(db, 'authorized_ips'), where('ip', '==', ip));
+            const querySnapshot = await getDocs(q);
+            return !querySnapshot.empty;
+        } catch (error) {
+            console.error("Error checking IP access:", error);
+            return false;
+        }
     }
 };

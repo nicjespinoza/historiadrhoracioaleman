@@ -26,6 +26,15 @@ export const DoctorDashboard = () => {
     const [modalContent, setModalContent] = useState<ModalContent | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [totalPatients, setTotalPatients] = useState(0);
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageCursors, setPageCursors] = useState<any[]>([]); // Stores the lastDoc of each page to be used as startAfter for next page
+    const [loadingMore, setLoadingMore] = useState(false);
+    // Search State
+    const [isSearching, setIsSearching] = useState(false);
+    // Filter State
+    const [selectedPatientType, setSelectedPatientType] = useState<string>('Historia Clinica');
 
     // Check Firebase authentication
     useEffect(() => {
@@ -34,7 +43,7 @@ export const DoctorDashboard = () => {
         }
     }, [firebaseUser, navigate]);
 
-    // Load initial data
+    // Load initial data (Paginated)
     useEffect(() => {
         const loadData = async () => {
             if (!firebaseUser) {
@@ -42,30 +51,26 @@ export const DoctorDashboard = () => {
                 return;
             }
             try {
-                // Clear any corrupted localStorage data
-                localStorage.removeItem('patients');
-                localStorage.removeItem('histories');
-                localStorage.removeItem('consults');
-
-                const [p, h, c] = await Promise.all([
-                    api.getPatients(),
-                    api.getHistories(),
-                    api.getConsults()
+                // Fetch first page of patients (limit 9) and total count
+                const [pResult, count] = await Promise.all([
+                    api.getPatients({ limitCount: 9, patientType: selectedPatientType }),
+                    api.getPatientsCount(selectedPatientType)
                 ]);
 
-                // Filter out corrupted patients (those without valid IDs)
-                const validPatients = p.filter(patient => patient.id && patient.id.trim() !== '');
-
-
-
-                console.log('Loaded patients from Firestore:', validPatients.length);
-                if (p.length !== validPatients.length) {
-                    console.warn(`Filtered out ${p.length - validPatients.length} corrupted patient(s) with empty IDs`);
-                }
+                // Filter out corrupted patients
+                const validPatients = pResult.patients.filter(patient => patient.id && patient.id.trim() !== '');
 
                 setPatients(validPatients);
-                setHistories(h);
-                setConsults(c);
+                setTotalPatients(count);
+
+
+                // Reset pagination state
+                setCurrentPage(1);
+                setPageCursors([pResult.lastVisible]); // Store first page's end cursor
+
+                // Clear histories and consults from global state to favor lazy loading in profile
+                setHistories([]);
+                setConsults([]);
 
                 // Set user info from Firebase Auth
                 const userInfo = {
@@ -82,7 +87,7 @@ export const DoctorDashboard = () => {
             }
         };
         loadData();
-    }, [firebaseUser]);
+    }, [firebaseUser, selectedPatientType]); // Re-run when filter changes
 
     // Note: We no longer cache patients in localStorage since we're using Firestore
     // This prevents issues with stale or corrupted IDs
@@ -101,8 +106,92 @@ export const DoctorDashboard = () => {
         }
     };
 
+    const handlePageChange = async (newPage: number) => {
+        if (loadingMore || newPage < 1) return;
+
+        const direction = newPage > currentPage ? 'next' : 'prev';
+        setLoadingMore(true);
+
+        try {
+            let cursor = null;
+
+            if (newPage > 1) {
+                // For page 2, we need the cursor stored at index 0 (end of page 1)
+                // For page 3, we need the cursor stored at index 1 (end of page 2)
+                cursor = pageCursors[newPage - 2];
+            }
+
+            const result = await api.getPatients({
+                limitCount: 9,
+                lastDoc: cursor,
+                patientType: selectedPatientType
+            });
+
+            const newPatients = result.patients.filter(patient => patient.id && patient.id.trim() !== '');
+            setPatients(newPatients);
+            setCurrentPage(newPage);
+
+            // If we moved forward and successfully got data, ensure we store the new cursor
+            if (direction === 'next' && result.lastVisible) {
+                const newCursors = [...pageCursors];
+                // Ensure we store it at the correct index for the *current* page we just finished
+                newCursors[newPage - 1] = result.lastVisible;
+                setPageCursors(newCursors);
+            }
+
+        } catch (error) {
+            console.error("Error changing page:", error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
     // Access Control Check - REMOVED FOR DEMO
     // if (!currentUser || currentUser.role !== 'doctor') { ... }
+
+    const handleSearch = async (term: string) => {
+        if (!term) {
+            // Restore initial state (Page 1)
+            setIsSearching(false);
+            setLoadingMore(true);
+            try {
+                // Fetch first page of patients (limit 9) and total count
+                const [pResult, count] = await Promise.all([
+                    api.getPatients({ limitCount: 9, patientType: selectedPatientType }),
+                    api.getPatientsCount(selectedPatientType)
+                ]);
+
+                const validPatients = pResult.patients.filter(patient => patient.id && patient.id.trim() !== '');
+
+                setPatients(validPatients);
+                setTotalPatients(count);
+
+                // Reset pagination state
+                setCurrentPage(1);
+                setPageCursors([pResult.lastVisible]);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingMore(false);
+            }
+            return;
+        }
+
+        setIsSearching(true);
+        setLoadingMore(true);
+        try {
+            // Use specialized search function with type filtering
+            const results = await api.searchPatients(term, selectedPatientType);
+            const validResults = results.filter(patient => patient.id && patient.id.trim() !== '');
+            setPatients(validResults);
+            // We set totalPatients to undefined (or ignore it) so PatientListScreen falls back to client pagination
+            setCurrentPage(1);
+        } catch (error) {
+            console.error("Error searching:", error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     return (
         <DoctorLayout onLogout={handleLogout} currentUser={currentUser ? currentUser.name : 'Doctor'}>
@@ -122,6 +211,13 @@ export const DoctorDashboard = () => {
                                 <PatientListScreen
                                     patients={patients}
                                     onPatientDelete={(id) => setPatients(prev => prev.filter(p => p.id !== id))}
+                                    totalCount={isSearching ? undefined : totalPatients}
+                                    currentPage={currentPage}
+                                    onPageChange={handlePageChange}
+                                    isLoading={loadingMore}
+                                    onSearch={handleSearch}
+                                    selectedType={selectedPatientType}
+                                    onTypeChange={setSelectedPatientType}
                                 />
                             } />
                             <Route path="patients-specialty" element={

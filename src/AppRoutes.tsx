@@ -13,6 +13,8 @@ import { AssistantDashboard } from './screens/AssistantDashboard';
 import CenlaePage from './screens/CenlaePage';
 import { DoctorProfilePage } from './screens/cenlae/DoctorProfilePage';
 
+import { IPProtectedArea } from '../app/components/auth/IPProtectedArea';
+
 const AppRoutes = () => {
   const [mounted, setMounted] = useState(false);
 
@@ -30,20 +32,41 @@ const AppRoutes = () => {
       <Route path="/cenlae" element={<CenlaePage />} />
       <Route path="/perfil" element={<DoctorProfilePage />} />
 
-      {/* Doctor Login Route */}
-      <Route path="/app/doctor/login" element={<AuthPage />} />
+      {/* Doctor Login Route (Protected by IP) */}
+      <Route
+        path="/app/doctor/login"
+        element={
+          <IPProtectedArea>
+            <AuthPage />
+          </IPProtectedArea>
+        }
+      />
 
       {/* Payment Callback Route (for 3DS return) */}
       <Route path="/app/payment/callback" element={<PaymentCallbackScreen />} />
 
-      {/* Patient Portal Routes */}
+      {/* Patient Portal Routes (Public Entry) */}
       <Route path="/app/patient/*" element={<PatientPortalRoutes />} />
 
-      {/* Assistant Dashboard Routes */}
-      <Route path="/app/assistant/*" element={<AssistantDashboard />} />
+      {/* Assistant Dashboard Routes (Protected by IP) */}
+      <Route
+        path="/app/assistant/*"
+        element={
+          <IPProtectedArea>
+            <AssistantDashboard />
+          </IPProtectedArea>
+        }
+      />
 
-      {/* Doctor Dashboard Routes (Protected) */}
-      <Route path="/app/*" element={<DoctorDashboard />} />
+      {/* Doctor Dashboard Routes (Protected by IP) */}
+      <Route
+        path="/app/*"
+        element={
+          <IPProtectedArea>
+            <DoctorDashboard />
+          </IPProtectedArea>
+        }
+      />
 
       {/* Fallback - Redirect to App Login or Root if not found */}
       <Route path="*" element={<Navigate to="/app/doctor/login" replace />} />

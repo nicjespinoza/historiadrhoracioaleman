@@ -14,7 +14,7 @@ export interface Patient {
   createdAt: string;
   registrationSource?: 'online' | 'manual';
   isOnline?: boolean;
-  
+
   // New fields for clinical file
   civilStatus: 'Soltero' | 'Casado' | string;
   occupation: string;
@@ -22,6 +22,7 @@ export interface Patient {
   origin: string; // Procedencia
   companion: string; // Acompañante
   patientType: 'Historia Clinica' | 'Recetario';
+  migrated?: boolean;
 }
 
 // Helper to store dynamic checkbox data
@@ -169,41 +170,16 @@ export interface InitialHistory {
 
   // Legacy Physical Exam
   physicalExam?: PhysicalExam;
-  
+
   isValidated?: boolean;
-  obesityHistory?: ObesityHistory;
+
+  // Migration Fields
+  legacyPrescription?: string;
+  legacyId?: string;
+  legacyRandomId?: string;
 }
 
-export interface ObesityHistory {
-  weightGainOnset: {
-    childhood: boolean;
-    youth: boolean;
-    pregnancy: boolean;
-    menopause: boolean;
-    postEvent: boolean;
-    when: string;
-  };
-  familyObesity: { yes: boolean; no: boolean; who: string };
-  familyPathologies: { yes: boolean; no: boolean; who: string };
-  previousTreatments: { yes: boolean; no: boolean; which: string };
-  previousMeds: { yes: boolean; no: boolean; which: string };
-  maxWeight: string;
-  minWeight: string;
-  reboundCause: string;
-  previousActivity: { yes: boolean; no: boolean; which: string };
-  currentActivity: { yes: boolean; no: boolean; which: string };
-  qualityOfLifeAlteration: { yes: boolean; no: boolean; how: string };
-  metrics: {
-    height: string;
-    currentWeight: string;
-    currentImc: string;
-    lostWeight: string;
-    lostOverweightPercentage: string;
-    lostImcExcessPercentage: string;
-    desiredWeight: string;
-    desiredImc: string;
-  };
-}
+
 
 export interface SubsequentConsult {
   id: string;
@@ -251,6 +227,11 @@ export interface SubsequentConsult {
     exams: string[];
     norms: string[];
   };
+
+  // Migration Fields
+  migrated?: boolean;
+  legacyId?: string;
+  legacyRandomId?: string;
 }
 
 export interface Appointment {

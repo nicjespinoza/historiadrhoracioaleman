@@ -11,7 +11,7 @@ export const ContactCTA = () => {
                             <img
                                 alt="Consulta Médica"
                                 className="absolute inset-0 w-full h-full object-cover"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3wHAPsl6gC76RNSM8U2rq4E2N7kr_VnFAVVtEeke5o_Lq2KngH8C-S1Z15sunXHLGSV8n3IrUWaYtCJKvPP8jriXHh7a8ca5AW4FyUubrvv8AKjGURKUoO0nI1d2nkbnSunGFToa96pkwp9q_jMomZOwzu7_xcyPV2N_hGd603dQXPWglBR9lJoun5fU3ZqyqPZQXiig7Z0fRUaTAhttfxswKDsvI4R2DiyjbK0ENHsDMlATmilU8rjlKpDUjUUOkTDYbBcLJW6cR"
+                                src="/images/consultorio-urologico-01.jpg"
                             />
                         </div>
                         <div className="w-full lg:w-2/5 relative flex items-center bg-gray-900/10 lg:bg-transparent -mt-20 lg:mt-0 p-4 lg:p-0">

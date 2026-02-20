@@ -57,19 +57,19 @@ export const Footer = () => {
                                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-green-700">
                                     <span className="material-icons-outlined text-sm">location_on</span>
                                 </div>
-                                <span className="text-gray-400 pt-1">Centro Médico de Especialidades, Consultorio 305. San Salvador, El Salvador.</span>
+                                <span className="text-gray-400 pt-1">Clínica Palermo, dos central 1c al lago, Consultorio Urológico</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-green-700">
                                     <span className="material-icons-outlined text-sm">call</span>
                                 </div>
-                                <a className="text-gray-400 hover:text-white transition-colors pt-0.5" href="tel:+50322220000">(+503) 2222-0000</a>
+                                <a className="text-gray-400 hover:text-white transition-colors pt-0.5" href="tel:+50322220000">(+505) 8636-9169</a>
                             </li>
                             <li className="flex items-center gap-3">
                                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-green-700">
                                     <span className="material-icons-outlined text-sm">mail</span>
                                 </div>
-                                <a className="text-gray-400 hover:text-white transition-colors pt-0.5" href="mailto:info@drhoracioaleman.com">info@drhoracioaleman.com</a>
+                                <a className="text-gray-400 hover:text-white transition-colors pt-0.5" href="mailto:horaciouro@gmail.com">horaciouro@gmail.com</a>
                             </li>
                             <li className="flex items-center gap-3">
                                 <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-green-700">
