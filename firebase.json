@@ -1,10 +1,6 @@
 {
     "hosting": {
-<<<<<<< HEAD
         "public": "out",
-=======
-        "public": "dist",
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
         "ignore": [
             "firebase.json",
             "**/.*",
@@ -12,15 +8,10 @@
         ],
         "rewrites": [
             {
-<<<<<<< HEAD
                 "source": "/app/**",
                 "destination": "/app/index.html"
             },
             {
-                "source": "**",
-                "destination": "/index.html"
-            }
-=======
                 "source": "**",
                 "destination": "/index.html"
             }
@@ -77,7 +68,6 @@
                     }
                 ]
             }
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
         ]
     },
     "firestore": {

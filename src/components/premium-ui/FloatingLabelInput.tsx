@@ -12,10 +12,7 @@ interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputEle
     wrapperClassName?: string;
     as?: 'input' | 'textarea';
     rows?: number;
-<<<<<<< HEAD
-    showPasswordToggle?: boolean;
-=======
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
+showPasswordToggle?: boolean;
 }
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElement, FloatingLabelInputProps>(({
@@ -29,8 +26,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
     value,
     as = 'input',
     rows,
-<<<<<<< HEAD
-    showPasswordToggle,
+showPasswordToggle,
     ...props
 }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -38,14 +34,6 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
     const hasValue = value !== '' && value !== undefined;
 
     const inputType = props.type === 'password' && showPassword ? 'text' : props.type;
-
-=======
-    ...props
-}, ref) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const hasValue = value !== '' && value !== undefined;
-
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     return (
         <div className={cn("relative mb-6", containerClassName)}>
             <motion.div
@@ -130,23 +118,16 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
                             className={cn(
                                 "w-full h-full bg-transparent border-none outline-none px-0 pt-5 pb-1 text-gray-900 font-medium placeholder-transparent",
                                 icon ? "pl-0" : "pl-4",
-<<<<<<< HEAD
-                                props.type === 'password' ? "pr-10" : "",
+props.type === 'password' ? "pr-10" : "",
                                 className
                             )}
                             placeholder={label}
                             type={inputType}
-=======
-                                className
-                            )}
-                            placeholder={label}
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                         />
                     )}
                 </div>
 
-<<<<<<< HEAD
-                {/* Password Toggle */}
+{/* Password Toggle */}
                 {props.type === 'password' && (
                     <button
                         type="button"
@@ -160,9 +141,6 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
                         )}
                     </button>
                 )}
-
-=======
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
                 {/* Status Icons */}
                 <div className={cn("pr-4", as === 'textarea' ? "self-start mt-4" : "")}>
                     <AnimatePresence mode="wait">
@@ -211,3 +189,4 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement | HTMLTextAreaElem
 });
 
 FloatingLabelInput.displayName = 'FloatingLabelInput';
+

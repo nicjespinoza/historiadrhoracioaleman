@@ -35,7 +35,6 @@ service cloud.firestore {
     // Check if user is a doctor OR admin (full privileged access)
     function isPrivileged() {
       // return isDoctor() || isAdmin();
-<<<<<<< HEAD
       // DEV MODE: Allow all authenticated users + Explicit email overrides
       return isAuthenticated() && (
         true || // DEV MODE: Remove this 'true' in strict production if needed
@@ -44,9 +43,6 @@ service cloud.firestore {
         request.auth.token.email == 'horaciouro@gmail.com' ||
         request.auth.token.email == 'admin@drhoraciouro.com'
       );
-=======
-      return isAuthenticated(); // DEV MODE: Allow all authenticated users
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     }
     
     // Check if user is doctor, admin, or assistant (semi-privileged access)
@@ -246,7 +242,6 @@ service cloud.firestore {
     }
     
     // ============================================================
-<<<<<<< HEAD
     // AUTHORIZED IPS COLLECTION
     // ============================================================
     match /authorized_ips/{ip} {
@@ -256,9 +251,6 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
-    // ============================================================
-=======
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     // DEFAULT RULE: DENY ALL
     // ============================================================
     match /{document=**} {
@@ -291,7 +283,6 @@ service cloud.firestore {
       
       // SOLO admins pueden escribir directamente (para cambiar roles)
       allow write: if isAdmin();
-      // allow write: if true;
       
       // Users can create their own profile on signup
       // CRÍTICO: Solo rol 'patient' + validación de datos + campos requeridos
@@ -374,19 +365,11 @@ service cloud.firestore {
         // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
         allow read: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
         
-<<<<<<< HEAD
         // Crear historiales: Propietario o usuarios privilegiados
         allow create: if isOwner(patientId) || isPrivileged();
         
         // Actualizar: Propietario o usuarios privilegiados
         allow update: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
-=======
-        // Crear historiales: Solo usuarios privilegiados (doctores/admin)
-        allow create: if isPrivileged();
-        
-        // Actualizar: Solo usuarios privilegiados
-        allow update: if isPrivileged() && isNotDeleted();
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
         
         // Eliminar: ⛔ DESHABILITADO - Historiales médicos no se eliminan
         allow delete: if false;
@@ -419,14 +402,12 @@ service cloud.firestore {
         allow update: if isPrivileged();
         allow delete: if isPrivileged();
       }
-<<<<<<< HEAD
 
       // --------------------------------------------------------
       // PRESCRIPTIONS SUBCOLLECTION (Recetas)
       // --------------------------------------------------------
       match /prescriptions/{prescriptionId} {
         // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
-        // Se elimina isNotDeleted() para permitir queries de lista sin filtro
         allow read: if isOwner(patientId) || isPrivileged();
         
         // Crear recetas: Solo usuarios privilegiados (doctores/admin)
@@ -438,8 +419,6 @@ service cloud.firestore {
         // Eliminar: ⛔ DESHABILITADO
         allow delete: if false;
       }
-=======
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
       
       // --------------------------------------------------------
       // SNAPSHOTS SUBCOLLECTION (3D snapshots)

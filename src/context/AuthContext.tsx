@@ -1,19 +1,13 @@
-<<<<<<< HEAD
 'use client';
-=======
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
-<<<<<<< HEAD
     User,
     UserCredential
-=======
-    User
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
@@ -21,11 +15,7 @@ interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
     signIn: (email: string, pass: string) => Promise<void>;
-<<<<<<< HEAD
     signUp: (email: string, pass: string) => Promise<UserCredential>;
-=======
-    signUp: (email: string, pass: string) => Promise<void>;
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     logout: () => Promise<void>;
 }
 
@@ -56,11 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const signUp = async (email: string, pass: string) => {
-<<<<<<< HEAD
         return await createUserWithEmailAndPassword(auth, email, pass);
-=======
-        await createUserWithEmailAndPassword(auth, email, pass);
->>>>>>> a832b7bdcb8c197ae327c6b5b8a4707d069e0b99
     };
 
     const logout = async () => {

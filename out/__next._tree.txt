@@ -1,7 +1,7 @@
-:HL["/_next/static/chunks/a330f6d3bd772ecb.css","style"]
+:HL["/_next/static/chunks/ca3f03f61a8cfa30.css","style"]
 :HL["https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap","style"]
 :HL["https://fonts.googleapis.com/icon?family=Material+Icons+Outlined","style"]
 :HL["https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap","style"]
-:HL["https://lh3.googleusercontent.com/aida-public/AB6AXuC3wHAPsl6gC76RNSM8U2rq4E2N7kr_VnFAVVtEeke5o_Lq2KngH8C-S1Z15sunXHLGSV8n3IrUWaYtCJKvPP8jriXHh7a8ca5AW4FyUubrvv8AKjGURKUoO0nI1d2nkbnSunGFToa96pkwp9q_jMomZOwzu7_xcyPV2N_hGd603dQXPWglBR9lJoun5fU3ZqyqPZQXiig7Z0fRUaTAhttfxswKDsvI4R2DiyjbK0ENHsDMlATmilU8rjlKpDUjUUOkTDYbBcLJW6cR","image"]
-:HL["https://lh3.googleusercontent.com/aida-public/AB6AXuD-9RjjbEtlKKiTPakmZfHRfh3ikIxi8y_71MXheZiAeNbmRBO4B2XWA5JdOIGYUzX3ysIVbdBZmKaW_n5xpV9wzXLtg7ZLgJQMiwjPrRrc2p4bxqQZaWNaGRcfdTduLEcs2q35L5sb8wz3m93E38PUQJxUGmxJmCTXkmtuwuOmnhW_x-l4k4j8TPXLT6EhPMkpdJ5r8cxH-R7uvGE6yV8nLynLQl5N3-ccpu99G6SAJk6FoXimZAw0OC05c32N6QUmGFVxY3rlnl__","image"]
-0:{"buildId":"U4gFzQ3QSMBp5rGlgXrfB","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+:HL["/images/consultorio-urologico-01.jpg","image"]
+:HL["https://www.gstatic.com/images/branding/product/2x/maps_96dp.png","image"]
+0:{"buildId":"hi-cCr4vLfsjf52_zuyps","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
