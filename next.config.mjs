@@ -1,0 +1,38 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin();
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    reactStrictMode: true,
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+    // output: 'export',
+    images: {
+        unoptimized: true,
+        qualities: [75, 90],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'firebasestorage.googleapis.com',
+                port: '',
+                pathname: '/v0/b/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'flagcdn.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'static.wixstatic.com',
+            }
+        ],
+    },
+};
+
+export default withNextIntl(nextConfig);

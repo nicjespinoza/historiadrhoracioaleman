@@ -1,0 +1,5 @@
+{
+  "name": "MediRecord Pro",
+  "description": "A comprehensive electronic health record (EHR) system for medical professionals to manage patients, clinical histories, and follow-up consultations.",
+  "requestFramePermissions": []
+}
