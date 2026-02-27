@@ -1,0 +1,21 @@
+{
+    "Index": {
+        "title": "Urologist Surgeon in Managua, Nicaragua",
+        "description": "Dr. Horacio Alemán - Specialized Medical Attention in Advanced Urology, Kidney Stones, and Oncology in Managua, Nicaragua.",
+        "Hero": {
+            "specialty": "Urologist Surgeon",
+            "mainTitle": "Dr. Horacio Alemán",
+            "subTitle": "Specialized Medical Attention",
+            "cta": "Schedule Appointment"
+        },
+        "MedicalServices": {
+            "specialtiesBadge": "Specialties",
+            "mainTitle": "Medical Services",
+            "learnMore": "Learn more",
+            "specialtyBadge": "Medical Specialty",
+            "treatmentsTitle": "Treatments and Procedures",
+            "cta": "Schedule Consultation",
+            "close": "Back"
+        }
+    }
+}

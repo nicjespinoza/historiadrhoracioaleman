@@ -8,7 +8,7 @@ import { GlassCard } from '../components/premium-ui/GlassCard';
 interface PatientListScreenProps {
     patients: Patient[];
     onPatientDelete: (id: string) => void;
-totalCount?: number;
+    totalCount?: number;
     currentPage?: number;
     onPageChange?: (page: number) => void;
     isLoading?: boolean;
@@ -60,7 +60,7 @@ export const PatientListScreen = ({
         }
     };
 
-// Filter patients
+    // Filter patients
     const filtered = useMemo(() => {
         return patients.filter(p =>
             p.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,10 +102,10 @@ export const PatientListScreen = ({
     return (
         <div className="min-h-screen p-4 md:p-8">
             <GlassCard className="p-4 md:p-10 max-w-7xl mx-auto shadow-2xl">
-<div className="flex flex-col gap-6 mb-8">
+                <div className="flex flex-col gap-6 mb-8">
                     {/* Header & Create Button */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h2 className="text-3xl font-bold text-cenlae-primary flex items-center gap-3">
+                        <h2 className="text-3xl font-bold text-[#083c79] flex items-center gap-3">
                             <Users className="text-blue-600" /> Pacientes
                             <span className="text-base font-normal text-gray-500">
                                 ({totalCount || filtered.length})
@@ -118,7 +118,7 @@ export const PatientListScreen = ({
                             <UserPlus size={20} /> Crear Nuevo
                         </button>
                     </div>
-{/* Tabs & Search Row */}
+                    {/* Tabs & Search Row */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50 p-2 rounded-2xl border border-gray-100">
                         {/* Tabs */}
                         <div className="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100 w-full md:w-auto overflow-x-auto">
@@ -222,7 +222,7 @@ export const PatientListScreen = ({
                             </div>
                         </div>
                     ))}
-{visiblePatients.length === 0 && (
+                    {visiblePatients.length === 0 && (
                         <div className="col-span-full text-center py-20">
                             <div className="inline-block p-4 rounded-full bg-gray-100 mb-4 text-gray-400">
                                 <Search size={40} />
@@ -232,7 +232,7 @@ export const PatientListScreen = ({
                     )}
                 </div>
 
-{/* Server Side Pagination Controls (Next/Prev) */}
+                {/* Server Side Pagination Controls (Next/Prev) */}
                 {isServerPagination && totalPages > 1 && !searchTerm && (
                     <div className="flex flex-col items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-200">
 

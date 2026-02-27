@@ -1,4 +1,33 @@
 {
     "indexes": [],
-    "fieldOverrides": []
+    "fieldOverrides": [
+        {
+            "collectionGroup": "histories",
+            "fieldPath": "date",
+            "indexes": [
+                {
+                    "order": "ASCENDING",
+                    "queryScope": "COLLECTION_GROUP"
+                },
+                {
+                    "order": "DESCENDING",
+                    "queryScope": "COLLECTION_GROUP"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "consults",
+            "fieldPath": "date",
+            "indexes": [
+                {
+                    "order": "ASCENDING",
+                    "queryScope": "COLLECTION_GROUP"
+                },
+                {
+                    "order": "DESCENDING",
+                    "queryScope": "COLLECTION_GROUP"
+                }
+            ]
+        }
+    ]
 }

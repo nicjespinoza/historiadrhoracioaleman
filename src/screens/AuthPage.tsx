@@ -12,12 +12,12 @@ export const AuthPage = () => {
         if (currentUser) {
             // Check roles or user data in Firestore later
             // For now, redirect to main app
-            navigate('/app');
+            navigate('/[locale]/app');
         }
     }, [currentUser, navigate]);
 
     const handlePatientAccess = () => {
-        navigate('/app/patient/login');
+        navigate('/[locale]/app/patient/login');
     };
 
     return (

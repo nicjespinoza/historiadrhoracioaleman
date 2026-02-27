@@ -39,22 +39,22 @@ export const PatientLoginScreen = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#083c79] p-4 font-sans">
             <div className="bg-white p-8 md:p-12 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 relative">
-                
+
                 {/* Cabecera Personalizada Login */}
                 <div className="mb-8 relative">
                     {/* Botón Regresar - ESTILO SOLICITADO */}
-                    <button 
-                        onClick={() => navigate('/cenlae')} 
-                        className="absolute right-0 top-0 p-2 -mr-2 text-[#084286] hover:bg-[#084286] hover:text-white rounded-full transition-colors duration-200"
+                    <button
+                        onClick={() => navigate('/')}
+                        className="absolute right-0 top-0 p-2 -mr-2 text-[#083c79] hover:bg-[#083c79] hover:text-white rounded-full transition-colors duration-200"
                         title="Regresar al inicio"
                     >
                         <ArrowLeft size={24} />
                     </button>
 
                     <div className="flex justify-center mb-6 pt-2">
-                        <img 
-                            src="https://static.wixstatic.com/media/3743a7_bc65d6328e9c443e95b330a92181fbc8~mv2.png/v1/crop/x_10,y_7,w_390,h_61/fill/w_545,h_85,al_c,lg_1,q_85,enc_avif,quality_auto/logo-drmairenavalle.png" 
-                            alt="Logo Dr. Milton Mairena Valle" 
+                        <img
+                            src="/images/logo-dr-horacio-aleman.png"
+                            alt="Logo Dr. Horacio Alemán"
                             className="h-12 md:h-14 object-contain"
                         />
                     </div>
@@ -128,7 +128,7 @@ export const PatientLoginScreen = () => {
 export const PatientRegisterScreen = () => {
     const navigate = useNavigate();
     const { signUp } = useAuth(); // Asegúrate de que tu hook useAuth exponga 'currentUser' o 'deleteUser' si es posible, si no, usaremos la lógica estándar.
-    
+
     // Estados del formulario
     const [formData, setFormData] = useState({
         firstName: '',
@@ -184,7 +184,7 @@ export const PatientRegisterScreen = () => {
             setGeneralError('La contraseña debe tener al menos 6 caracteres');
             return;
         }
-        
+
         // Re-validar Regex de teléfono
         const phoneRegex = /^\d{8,15}$/;
         if (!phoneRegex.test(formData.phone)) {
@@ -207,13 +207,13 @@ export const PatientRegisterScreen = () => {
                 // Verificación de Teléfono Duplicado
                 // Nota: Idealmente usarías una query: api.getPatientsByPhone(phone)
                 // Si usas getPatients() y filtras (como en tu código original), ahora funcionará porque tienes sesión.
-                const allPatients = await api.getPatients(); 
+                const allPatients = await api.getPatients();
                 const phoneExists = allPatients.some(p => p.phone === formData.phone);
 
                 if (phoneExists) {
                     // ROLLBACK: El teléfono ya existe, pero acabamos de crear el usuario en Auth.
                     // Debemos borrar el usuario de Auth para no dejar "registros fantasma".
-                    await user.delete(); 
+                    await user.delete();
                     setFieldErrors(prev => ({ ...prev, phone: 'Este número de teléfono ya está registrado en el sistema.' }));
                     setIsLoading(false);
                     return; // Detenemos el proceso
@@ -271,25 +271,25 @@ export const PatientRegisterScreen = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#083c79] p-4 font-sans">
             <div className="bg-white p-8 md:p-12 rounded-2xl shadow-xl w-full max-w-3xl border border-gray-100 relative">
-                
+
                 {/* Cabecera */}
                 <div className="mb-8 relative">
-                    <button 
-                        onClick={() => navigate('/app/patient/login')} 
-                        className="absolute right-0 top-0 p-2 -mr-2 text-[#084286] hover:bg-[#084286] hover:text-white rounded-full transition-colors duration-200"
+                    <button
+                        onClick={() => navigate('/app/patient/login')}
+                        className="absolute right-0 top-0 p-2 -mr-2 text-[#083c79] hover:bg-[#083c79] hover:text-white rounded-full transition-colors duration-200"
                         title="Regresar al inicio de sesión"
                     >
                         <ArrowLeft size={24} />
                     </button>
 
                     <div className="flex justify-center mb-6 pt-2">
-                        <img 
-                            src="https://static.wixstatic.com/media/3743a7_bc65d6328e9c443e95b330a92181fbc8~mv2.png/v1/crop/x_10,y_7,w_390,h_61/fill/w_545,h_85,al_c,lg_1,q_85,enc_avif,quality_auto/logo-drmairenavalle.png" 
-                            alt="Logo Dr. Milton Mairena Valle" 
+                        <img
+                            src="/images/logo-dr-horacio-aleman.png"
+                            alt="Logo Dr. Horacio Alemán"
                             className="h-12 md:h-14 object-contain"
                         />
                     </div>
-                    
+
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight text-center">
                         Registra tus datos
                     </h1>

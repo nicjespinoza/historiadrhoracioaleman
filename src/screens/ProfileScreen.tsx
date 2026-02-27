@@ -32,14 +32,14 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const [snapshots, setSnapshots] = useState<any[]>([]);
     const [deleteSnapshotId, setDeleteSnapshotId] = useState<string | null>(null);
 
-// Local state for lazy loaded data
+    // Local state for lazy loaded data
     const [localHistories, setLocalHistories] = useState<InitialHistory[]>([]);
     const [localConsults, setLocalConsults] = useState<SubsequentConsult[]>([]);
     // Video consultation state
     const [appointments, setAppointments] = useState<any[]>([]);
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [videoAppointment, setVideoAppointment] = useState<any>(null);
-const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+    const [showAppointmentModal, setShowAppointmentModal] = useState(false);
     const [creatingRoom, setCreatingRoom] = useState<string | null>(null);
 
     // Prescriptions State
@@ -57,7 +57,7 @@ const [showAppointmentModal, setShowAppointmentModal] = useState(false);
                 const patientApts = all.filter((a: any) => a.patientId === patientId);
                 setAppointments(patientApts);
             }).catch(console.error);
-// Lazy Load Histories & Consults if not provided via props (or if empty due to optimization)
+            // Lazy Load Histories & Consults if not provided via props (or if empty due to optimization)
             if (histories.filter(h => h.patientId === patientId).length === 0) {
                 api.getHistories(patientId).then(data => {
                     // We can't update the parent state easily from here without a huge refactor, 
@@ -139,16 +139,16 @@ const [showAppointmentModal, setShowAppointmentModal] = useState(false);
     const [signedDocs, setSignedDocs] = useState<string[]>([]);
 
     const CONSENTS_LIST = [
-        { id: '1', title: 'Consentimiento para Endoscopia' },
-        { id: '2', title: 'Consentimiento para Cirugía Menor' },
-        { id: '3', title: 'Consentimiento para Telemedicina' },
-        { id: '4', title: 'Consentimiento de Tratamiento de Datos' },
-        { id: '5', title: 'Consentimiento Informado General' },
-        { id: '6', title: 'Autorización de Procedimientos' },
-        { id: '7', title: 'Consentimiento para Anestesia' },
-        { id: '8', title: 'Consentimiento para Transfusión' },
-        { id: '9', title: 'Rechazo de Tratamiento' },
-        { id: '10', title: 'Consentimiento COVID-19' },
+        { id: '1', title: 'Consentimiento para Cistoscopia y Procedimientos Urológicos' },
+        { id: '2', title: 'Consentimiento para Biopsia de Próstata Transrectal' },
+        { id: '3', title: 'Consentimiento para Cirugía de Próstata (RTUP/Abierta)' },
+        { id: '4', title: 'Consentimiento para Vasectomía' },
+        { id: '5', title: 'Consentimiento Informado General de Urología' },
+        { id: '6', title: 'Autorización para Tratamiento de Disfunción Eréctil' },
+        { id: '7', title: 'Consentimiento para Telemedicina Urológica' },
+        { id: '8', title: 'Autorización de Uso de Datos Personales (Ley 787 Nicaragua)' },
+        { id: '9', title: 'Rechazo Informado de Tratamiento Urológico' },
+        { id: '10', title: 'Consentimiento para Procedimientos con Láser de Holmio' },
     ];
 
     const handleSaveConsent = () => {
@@ -198,7 +198,7 @@ const [showAppointmentModal, setShowAppointmentModal] = useState(false);
         return <div className="p-8 text-center text-gray-500">Paciente no encontrado.</div>;
     }
 
-// Merge props data with local lazy-loaded data
+    // Merge props data with local lazy-loaded data
     const safePatientId = patient?.id || '';
     const patientHistories = [...histories.filter(h => h.patientId === safePatientId), ...localHistories];
     const patientConsults = [...consults.filter(c => c.patientId === safePatientId), ...localConsults];
@@ -214,7 +214,7 @@ const [showAppointmentModal, setShowAppointmentModal] = useState(false);
                                 <ArrowLeft size={24} />
                             </button>
                             <div>
-                                <h1 className="text-3xl font-bold text-cenlae-primary flex items-center gap-2">
+                                <h1 className="text-3xl font-bold text-[#083c79] flex items-center gap-2">
                                     {patient.firstName} {patient.lastName}
                                     {patient.isOnline && <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Online" />}
                                 </h1>
@@ -249,13 +249,13 @@ const [showAppointmentModal, setShowAppointmentModal] = useState(false);
                     {/* Tab Navigation */}
                     <div className="flex gap-6 mt-8 overflow-x-auto">
                         <button
-onClick={() => setCurrentTab('general')}
+                            onClick={() => setCurrentTab('general')}
                             className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             Información General
                         </button>
                         <button
-onClick={() => setCurrentTab('consents')}
+                            onClick={() => setCurrentTab('consents')}
                             className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             <PenTool size={16} /> Consentimientos y Firmas
@@ -265,7 +265,7 @@ onClick={() => setCurrentTab('consents')}
             </div>
 
             {/* TAB: General Profile Content */}
-{currentTab === 'general' && (
+            {currentTab === 'general' && (
                 <div className="space-y-8">
                     <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
 
@@ -510,7 +510,7 @@ onClick={() => setCurrentTab('consents')}
                                             </div>
                                         ))}
                                     </div>
-)
+                                )
                             }
                         </div >
                     </div >
@@ -667,7 +667,7 @@ onClick={() => setCurrentTab('consents')}
                                                     {consent.title}
                                                 </p>
                                                 <p className="text-xs text-gray-400 mt-1">
-                                                    {isSigned ? 'Firmado el 18/12/2025' : 'Pendiente de firma'}
+                                                    {isSigned ? `Firmado el ${new Date().toLocaleDateString()}` : 'Pendiente de firma'}
                                                 </p>
                                             </div>
                                         </button>
@@ -695,21 +695,22 @@ onClick={() => setCurrentTab('consents')}
                                         <div className="h-[400px] bg-gray-100 p-8 overflow-y-auto">
                                             <div className="bg-white shadow-lg min-h-full p-8 mx-auto max-w-2xl">
                                                 <div className="text-center mb-8">
-                                                    <h1 className="text-xl font-bold uppercase mb-2">Consentimiento Informado</h1>
-                                                    <h2 className="text-lg text-gray-600">{selectedConsent.title}</h2>
+                                                    <h1 className="text-xl font-bold uppercase mb-1">República de Nicaragua</h1>
+                                                    <h2 className="text-md font-bold text-gray-700 mb-2 underline">CONSENTIMIENTO INFORMADO ESPECIALIZADO EN UROLOGÍA</h2>
+                                                    <h3 className="text-lg text-blue-900 font-semibold">{selectedConsent.title}</h3>
                                                 </div>
                                                 <div className="space-y-4 text-gray-800 text-sm leading-relaxed text-justify">
                                                     <p>
-                                                        Yo, <strong>{patient.firstName} {patient.lastName}</strong>, identificado con la historia clínica número <strong>{patient.id}</strong>, declaro que he sido informado/a detalladamente sobre el procedimiento.
+                                                        En la ciudad de Managua, Nicaragua, yo, <strong>{patient.firstName} {patient.lastName}</strong>, en pleno uso de mis facultades, declaro que el especialista en Urología ha explicado de forma clara y comprensible la naturaleza de mi condición urológica y el procedimiento propuesto.
                                                     </p>
                                                     <p>
-                                                        Entiendo los beneficios, riesgos y alternativas del mismo. He tenido la oportunidad de hacer preguntas y éstas han sido respondidas a mi satisfacción.
+                                                        He sido informado sobre los riesgos específicos asociados a la intervención urológica, las posibles complicaciones y las alternativas de tratamiento disponibles en el país. Entiendo que la medicina no es una ciencia exacta y que no se pueden garantizar resultados específicos.
                                                     </p>
                                                     <p>
-                                                        Autorizo al equipo médico a realizar el procedimiento y cualquier intervención adicional que se considere necesaria durante el proceso por mi bienestar.
+                                                        Asimismo, autorizo el tratamiento de mis datos personales de salud conforme a la <strong>Ley No. 787, Ley de Protección de Datos Personales</strong> de la República de Nicaragua, para los fines estrictamente médicos y legales de mi expediente clínico.
                                                     </p>
-                                                    <p className="mt-8 font-bold">
-                                                        Mediante mi firma a continuación, expreso mi consentimiento libre y voluntario.
+                                                    <p className="mt-8 font-bold border-l-4 border-blue-600 pl-4 bg-blue-50 py-2">
+                                                        Mediante mi firma digital, expreso mi consentimiento libre, previo, expreso e informado para la realización de dicho acto médico.
                                                     </p>
                                                     <div className="mt-12 pt-8 border-t border-gray-300">
                                                         <p className="mb-2">Firmado digitalmente:</p>
@@ -813,7 +814,7 @@ onClick={() => setCurrentTab('consents')}
                 preSelectedPatientId={patient.id}
             />
 
-{/* Prescriptions Modal */}
+            {/* Prescriptions Modal */}
             {
                 showPrescriptionsModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -1175,7 +1176,7 @@ onClick={() => setCurrentTab('consents')}
                             </div>
                         </div>
                     </div>
-)
+                )
             }
             {/* Delete Snapshot Confirmation Modal */}
             {
@@ -1212,7 +1213,7 @@ onClick={() => setCurrentTab('consents')}
                     </div>
                 )
             }
-</div>
+        </div>
     );
 };
 

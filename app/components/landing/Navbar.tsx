@@ -3,13 +3,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { api } from '@/api';
 
 export const Navbar = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [theme, setTheme] = useState('light');
+    const t = useTranslations('Index');
+    const locale = useLocale();
+    const pathname = usePathname();
     const router = useRouter();
+    const [isLangOpen, setIsLangOpen] = useState(false);
 
     useEffect(() => {
         // Init theme
@@ -40,28 +45,21 @@ export const Navbar = () => {
         }
     };
 
+    const changeLanguage = (newLocale: string) => {
+        const segments = pathname.split('/');
+        segments[1] = newLocale;
+        router.push(segments.join('/'));
+        setIsLangOpen(false);
+    };
+
     const handleLogoClick = async (e: React.MouseEvent) => {
         e.preventDefault();
 
         try {
-            // 1. Get client IP
-            const response = await fetch('https://api4.ipify.org?format=json');
-            const data = await response.json();
-            const ip = data.ip;
-
-            // 2. Check if IP is authorized
-            const authorized = await api.checkIPAccess(ip);
-
-            if (authorized) {
-                // If authorized, go to staff login area
-                router.push('/app/doctor/login');
-            } else {
-                // Otherwise normal behavior: go home
-                router.push('/');
-            }
+            // LOGIC FOR LOGO CLICK
+            router.push(`/${locale}`);
         } catch (error) {
-            console.error("Error checking IP for logo click:", error);
-            router.push('/');
+            router.push(`/${locale}`);
         }
     };
 
@@ -86,16 +84,48 @@ export const Navbar = () => {
                         </div>
                     </div>
                     <div className="hidden md:flex items-center space-x-8">
-                        <button className="flex items-center space-x-2 text-gray-600 hover:text-green-700 transition-colors py-2 px-3 rounded-lg border border-transparent hover:border-gray-200">
-                            <img alt="El Salvador" className="rounded-sm w-6" src="https://flagcdn.com/w40/sv.png" />
-                            <span className="text-sm font-medium">Español</span>
-                            <span className="material-icons-outlined text-sm">expand_more</span>
-                        </button>
+                        {/* Language Selector */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsLangOpen(!isLangOpen)}
+                                className="flex items-center space-x-2 text-gray-700 hover:text-green-700 transition-all font-bold py-2 px-4 rounded-xl border border-gray-200 hover:border-green-200 bg-white shadow-sm active:scale-95"
+                            >
+                                <img
+                                    alt={locale === 'es' ? 'Español' : 'English'}
+                                    className="rounded-full w-5 h-5 object-cover"
+                                    src={locale === 'es' ? "https://flagcdn.com/w40/sv.png" : "https://flagcdn.com/w40/us.png"}
+                                />
+                                <span className="text-sm font-bold uppercase tracking-wider">{locale === 'es' ? 'Español' : 'English'}</span>
+                                <span className={`material-icons-outlined text-lg transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                            </button>
+
+                            {isLangOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 overflow-hidden z-50">
+                                    <button
+                                        onClick={() => changeLanguage('es')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${locale === 'es' ? 'bg-green-50/50 text-green-700' : 'text-gray-700'}`}
+                                    >
+                                        <img className="rounded-full w-5 h-5 object-cover" src="https://flagcdn.com/w40/sv.png" alt="ES" />
+                                        <span className="text-sm font-bold">Español</span>
+                                        {locale === 'es' && <span className="material-icons-outlined text-sm ml-auto">check</span>}
+                                    </button>
+                                    <button
+                                        onClick={() => changeLanguage('en')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${locale === 'en' ? 'bg-green-50/50 text-green-700' : 'text-gray-700'}`}
+                                    >
+                                        <img className="rounded-full w-5 h-5 object-cover" src="https://flagcdn.com/w40/us.png" alt="EN" />
+                                        <span className="text-sm font-bold">English</span>
+                                        {locale === 'en' && <span className="material-icons-outlined text-sm ml-auto">check</span>}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
                         <div className="flex bg-gray-100 rounded-lg p-1">
-                            <Link href="/" className="px-5 py-2 rounded-md bg-green-700 text-white shadow-sm text-sm font-medium transition-all">Inicio</Link>
+                            <Link href={`/${locale}`} className="px-5 py-2 rounded-md bg-green-700 text-white shadow-sm text-sm font-medium transition-all">Inicio</Link>
                             <Link href="/app/doctor/login" className="px-5 py-2 rounded-md text-gray-600 hover:text-green-700 text-sm font-medium transition-all hover:bg-gray-200">Acceso</Link>
                         </div>
+
 
                         <Link href="/app/patient/login" className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-semibold rounded-full shadow-lg text-white bg-gray-900 hover:bg-gray-800 transition-all transform hover:-translate-y-0.5">
                             <span className="material-icons-outlined text-base mr-2">person</span>

@@ -39,4 +39,10 @@ scripts/data/
 # Next.js build output
 .next/
 
-.next/ 
+# Static export output
+out/
+
+# Large 3D model files (use Firebase Storage or CDN instead)
+*.glb
+*.gltf
+public/models/

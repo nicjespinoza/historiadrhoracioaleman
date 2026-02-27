@@ -13,11 +13,7 @@
   --color-accent-blue: #38bdf8;
   --color-accent-purple: #c084fc;
   --color-surface: rgba(255, 255, 255, 0.7);
-  
-  /* CENLAE Colors */
-  --color-cenlae-primary: #084286;
-  --color-cenlae-footer: #084286;
-  --color-cenlae-bg-dark: #111827;
+
 
   --font-sans: 'Open Sans', sans-serif;
   --font-display: 'Open Sans', sans-serif;
@@ -32,22 +28,33 @@
 
 @layer base {
   /* 2. REGLAS GLOBALES DE TIPOGRAFÍA */
-  
+
   /* Todo el cuerpo del texto (Descripciones) será Medium (500) */
-  body, #root, p, span, div {
-    @apply font-sans font-medium antialiased; /* font-medium es peso 500 */
+  body,
+  #root,
+  p,
+  span,
+  div {
+    @apply font-sans font-medium antialiased;
+    /* font-medium es peso 500 */
   }
 
   /* Todos los títulos (h1-h6) serán SemiBold (600) */
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-sans font-semibold tracking-tight; /* font-semibold es peso 600 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans font-semibold tracking-tight;
+    /* font-semibold es peso 600 */
   }
-  
+
   /* Mantener colores base */
   body {
     @apply bg-background text-gray-900;
   }
-  
+
   .dark body {
     @apply bg-background-dark text-slate-200;
   }
@@ -74,11 +81,30 @@
   opacity: 0.4;
 }
 
-.glow-line:nth-child(1) { top: 30%; transform: rotate(5deg) scaleX(1.5); }
-.glow-line:nth-child(2) { top: 40%; transform: rotate(2deg) scaleX(1.5); }
-.glow-line:nth-child(3) { top: 50%; transform: rotate(0deg) scaleX(1.5); }
-.glow-line:nth-child(4) { top: 60%; transform: rotate(-2deg) scaleX(1.5); }
-.glow-line:nth-child(5) { top: 70%; transform: rotate(-5deg) scaleX(1.5); }
+.glow-line:nth-child(1) {
+  top: 30%;
+  transform: rotate(5deg) scaleX(1.5);
+}
+
+.glow-line:nth-child(2) {
+  top: 40%;
+  transform: rotate(2deg) scaleX(1.5);
+}
+
+.glow-line:nth-child(3) {
+  top: 50%;
+  transform: rotate(0deg) scaleX(1.5);
+}
+
+.glow-line:nth-child(4) {
+  top: 60%;
+  transform: rotate(-2deg) scaleX(1.5);
+}
+
+.glow-line:nth-child(5) {
+  top: 70%;
+  transform: rotate(-5deg) scaleX(1.5);
+}
 
 .particle {
   position: absolute;
@@ -120,7 +146,18 @@
   line-height: 1.5;
 }
 
-.token.keyword { color: #ff79c6; }
-.token.function { color: #8be9fd; }
-.token.string { color: #f1fa8c; }
-.token.comment { color: #6272a4; }
+.token.keyword {
+  color: #ff79c6;
+}
+
+.token.function {
+  color: #8be9fd;
+}
+
+.token.string {
+  color: #f1fa8c;
+}
+
+.token.comment {
+  color: #6272a4;
+}

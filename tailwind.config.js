@@ -25,10 +25,6 @@ export default {
                 "accent-blue": "#38bdf8",
                 "accent-purple": "#c084fc",
 
-                // CENLAE Colors
-                "cenlae-primary": "#154c8a",
-                "cenlae-footer": "#0b3c70",
-                "cenlae-bg-dark": "#111827",
             },
             fontFamily: {
                 display: ['Open Sans', 'sans-serif'],

@@ -1,0 +1,21 @@
+{
+    "Index": {
+        "title": "Urólogo Cirujano en Managua, Nicaragua",
+        "description": "Dr. Horacio Alemán - Especialista en Urología Avanzada, Cálculos Renales y Oncología en Managua, Nicaragua.",
+        "Hero": {
+            "specialty": "Urólogo Cirujano",
+            "mainTitle": "Dr. Horacio Alemán",
+            "subTitle": "Atención Médica Especializada",
+            "cta": "Agendar Cita"
+        },
+        "MedicalServices": {
+            "specialtiesBadge": "Especialidades",
+            "mainTitle": "Servicios Médicos",
+            "learnMore": "Saber más",
+            "specialtyBadge": "Especialidad Médica",
+            "treatmentsTitle": "Tratamientos y Procedimientos",
+            "cta": "Agendar Consulta",
+            "close": "Volver"
+        }
+    }
+}

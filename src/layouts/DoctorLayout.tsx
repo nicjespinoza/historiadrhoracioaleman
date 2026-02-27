@@ -24,7 +24,7 @@ export function DoctorLayout({ children, onLogout, currentUser }: DoctorLayoutPr
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const isFullPageScreen = ['/history/', '/consult/', '/agenda', '/patients'].some(path => location.pathname.includes(path));
+    const isFullPageScreen = ['/history/', '/consult/', '/agenda', '/patients', '/crearimagen'].some(path => location.pathname.includes(path));
 
     const links = [
         {
@@ -115,14 +115,11 @@ export const Logo = () => {
             href="#"
             className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
         >
-            <div className="h-5 w-6 bg-blue-600 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0 shadow-md shadow-blue-500/20" />
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-bold text-gray-800 whitespace-pre text-lg tracking-tight"
-            >
-                WebDesign JE
-            </motion.span>
+            <img
+                src="/images/logo-dr-horacio-aleman.png"
+                alt="Logo Dr. Horacio Aleman"
+                className="h-10 w-auto flex-shrink-0"
+            />
         </a>
     );
 };
@@ -133,7 +130,11 @@ export const LogoIcon = () => {
             href="#"
             className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
         >
-            <div className="h-5 w-6 bg-blue-600 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0 shadow-md shadow-blue-500/20" />
+            <img
+                src="/images/logo-dr-horacio-aleman.png"
+                alt="Logo"
+                className="h-8 w-8 object-contain flex-shrink-0"
+            />
         </a>
     );
 };

@@ -180,9 +180,9 @@ service cloud.firestore {
     // Validar formato de email
     function isValidEmail(email) {
       return email is string && 
-             email.size() >= 5 &&
-             email.size() <= 254 &&
-             email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+             (email.size() == 0 || (email.size() >= 5 &&
+              email.size() <= 254 &&
+              email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')));
     }
     
     // Validar datos de usuario
@@ -208,13 +208,13 @@ service cloud.firestore {
       let data = request.resource.data;
       return data.firstName is string &&
              data.firstName.size() > 0 &&
-             data.firstName.size() <= 50 &&
+             data.firstName.size() <= 100 &&
              data.lastName is string &&
              data.lastName.size() > 0 &&
-             data.lastName.size() <= 50 &&
+             data.lastName.size() <= 100 &&
              (!('email' in data) || isValidEmail(data.email)) &&
-             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
-             (!('birthDate' in data) || data.birthDate is timestamp);
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+             (!('birthDate' in data) || (data.birthDate is timestamp || data.birthDate is string));
     }
     
     // ============================================================
@@ -335,16 +335,10 @@ service cloud.firestore {
       // REGLAS DE ACCESO - BLINDADAS
       // --------------------------------------------------------
       
-      // CREATE: Usuario autenticado + email coincide + validaciones
-      allow create: if request.auth != null &&
-                      isNewEmailOwner() &&
+      // CREATE: Usuario privilegiado O propietario (email coincide)
+      allow create: if (isPrivileged() || (request.auth != null && isNewEmailOwner())) &&
                       hasRequiredPatientFields() &&
-                      request.resource.data.firstName.size() > 0 &&
-                      request.resource.data.firstName.size() <= 50 &&
-                      request.resource.data.lastName.size() > 0 &&
-                      request.resource.data.lastName.size() <= 50 &&
-                      isValidEmail(request.resource.data.email) &&
-                      (!('phone' in request.resource.data) || isValidPhone(request.resource.data.phone));
+                      isValidPatientData();
       
       // READ: Solo el propietario (por email) o usuarios privilegiados
       allow read: if (isEmailOwner() || isPrivileged()) && isNotDeleted();

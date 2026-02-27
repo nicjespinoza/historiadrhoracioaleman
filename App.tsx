@@ -9,8 +9,6 @@ import { PatientPortalRoutes } from './src/screens/PatientPortalRoutes';
 import { PaymentCallbackScreen } from './src/screens/PaymentCallbackScreen';
 
 import { AssistantDashboard } from './src/screens/AssistantDashboard';
-import CenlaePage from './src/screens/CenlaePage';
-import { DoctorProfilePage } from './src/screens/cenlae/DoctorProfilePage';
 
 const App = () => {
   return (
@@ -18,8 +16,6 @@ const App = () => {
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
-      <Route path="/cenlae" element={<CenlaePage />} />
-      <Route path="/perfil" element={<DoctorProfilePage />} />
 
       {/* Doctor Login Route */}
       <Route path="/app/doctor/login" element={<AuthPage />} />

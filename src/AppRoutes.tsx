@@ -10,8 +10,6 @@ import { PatientPortalRoutes } from './screens/PatientPortalRoutes';
 import { PaymentCallbackScreen } from './screens/PaymentCallbackScreen';
 
 import { AssistantDashboard } from './screens/AssistantDashboard';
-import CenlaePage from './screens/CenlaePage';
-import { DoctorProfilePage } from './screens/cenlae/DoctorProfilePage';
 
 import { IPProtectedArea } from '../app/components/auth/IPProtectedArea';
 
@@ -29,8 +27,6 @@ const AppRoutes = () => {
       {/* Public Routes - Landing is Next.js now, but we keep these just in case or for specific access */}
       {/* <Route path="/" element={<LandingPage />} /> */}
       <Route path="/auth" element={<AuthPage />} />
-      <Route path="/cenlae" element={<CenlaePage />} />
-      <Route path="/perfil" element={<DoctorProfilePage />} />
 
       {/* Doctor Login Route (Protected by IP) */}
       <Route

@@ -2,6 +2,7 @@ import { Patient, InitialHistory, SubsequentConsult, Appointment } from './src/t
 import { db } from './src/lib/firebase';
 import {
     collection,
+    collectionGroup,
     doc,
     getDocs,
     getDoc,
@@ -37,45 +38,41 @@ export const api = {
         const normalizedTerm = term.trim();
         if (!normalizedTerm) return [];
 
-        const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-        const capitalizedTerm = capitalize(normalizedTerm);
+        // Single query strategy to reduce costs
+        // We prioritize searching by lastName for more accurate medical results
+        let q = query(collection(db, 'patients'),
+            where('lastName', '>=', normalizedTerm),
+            where('lastName', '<=', normalizedTerm + '\uf8ff'),
+            limit(30)
+        );
 
-        // We build queries for both original and capitalized terms if they differ
-        const terms = Array.from(new Set([normalizedTerm, capitalizedTerm]));
+        if (patientType && patientType !== 'all') {
+            q = query(q, where('patientType', '==', patientType));
+        }
 
-        const buildQueries = (fieldName: string, limitCount: number) => {
-            return terms.map(t => {
-                let q = query(collection(db, 'patients'),
-                    where(fieldName, '>=', t),
-                    where(fieldName, '<=', t + '\uf8ff'),
-                    limit(limitCount)
-                );
-                if (patientType && patientType !== 'all') {
-                    q = query(q, where('patientType', '==', patientType));
-                }
-                return getDocs(q);
-            });
-        };
+        const snapshot = await getDocs(q);
+        const results = snapshot.docs.map(doc => docToData<Patient>(doc));
 
-        // Execute all queries in parallel
-        const results = await Promise.all([
-            ...buildQueries('lastName', 20),
-            ...buildQueries('firstName', 20),
-            ...buildQueries('email', 10),
-            ...buildQueries('phone', 10)
-        ]);
-
-        // Merge and deduplicate results
-        const uniquePatients = new Map<string, Patient>();
-        results.forEach(snap => {
-            snap.docs.forEach(doc => {
-                if (!uniquePatients.has(doc.id)) {
-                    uniquePatients.set(doc.id, docToData<Patient>(doc));
+        // If results are few, attempt a secondary look by firstName
+        if (results.length < 5) {
+            let q2 = query(collection(db, 'patients'),
+                where('firstName', '>=', normalizedTerm),
+                where('firstName', '<=', normalizedTerm + '\uf8ff'),
+                limit(10)
+            );
+            if (patientType && patientType !== 'all') {
+                q2 = query(q2, where('patientType', '==', patientType));
+            }
+            const snap2 = await getDocs(q2);
+            snap2.docs.forEach(doc => {
+                const data = docToData<Patient>(doc);
+                if (!results.find(r => r.id === data.id)) {
+                    results.push(data);
                 }
             });
-        });
+        }
 
-        return Array.from(uniquePatients.values());
+        return results;
     },
 
     getPatients: async (options?: { limitCount?: number, lastDoc?: any, searchTerm?: string, patientType?: string }): Promise<{ patients: Patient[], lastVisible: any }> => {
@@ -147,14 +144,9 @@ export const api = {
             const snapshot = await getDocs(collection(db, 'patients', patientId, 'histories'));
             return snapshot.docs.map(doc => docToData<InitialHistory>(doc));
         }
-        // If no patientId, get all histories across all patients (less efficient)
-        const patientsSnapshot = await getDocs(collection(db, 'patients'));
-        const allHistories: InitialHistory[] = [];
-        for (const patientDoc of patientsSnapshot.docs) {
-            const historiesSnapshot = await getDocs(collection(db, 'patients', patientDoc.id, 'histories'));
-            allHistories.push(...historiesSnapshot.docs.map(doc => docToData<InitialHistory>(doc)));
-        }
-        return allHistories;
+        // Optimized: Uses collectionGroup index for cross-patient history retrieval
+        const snapshot = await getDocs(query(collectionGroup(db, 'histories'), limit(100)));
+        return snapshot.docs.map(doc => docToData<InitialHistory>(doc));
     },
 
     createHistory: async (data: Omit<InitialHistory, 'id'>): Promise<InitialHistory> => {
@@ -177,13 +169,9 @@ export const api = {
             const snapshot = await getDocs(collection(db, 'patients', patientId, 'consults'));
             return snapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
         }
-        const patientsSnapshot = await getDocs(collection(db, 'patients'));
-        const allConsults: SubsequentConsult[] = [];
-        for (const patientDoc of patientsSnapshot.docs) {
-            const consultsSnapshot = await getDocs(collection(db, 'patients', patientDoc.id, 'consults'));
-            allConsults.push(...consultsSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc)));
-        }
-        return allConsults;
+        // Optimized: Uses collectionGroup for efficiency
+        const snapshot = await getDocs(query(collectionGroup(db, 'consults'), limit(100)));
+        return snapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
     },
 
     createConsult: async (data: Omit<SubsequentConsult, 'id'>): Promise<SubsequentConsult> => {

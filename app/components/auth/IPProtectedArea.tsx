@@ -16,6 +16,12 @@ export const IPProtectedArea: React.FC<IPProtectedAreaProps> = ({ children }) =>
 
     useEffect(() => {
         const checkIP = async () => {
+            // TEMPORARILY DISABLED FOR ONLINE TESTING
+            // To reactivate, remove these 3 lines:
+            setIsAuthorized(true);
+            setLoading(false);
+            return;
+
             try {
                 // 1. Get client IP
                 const response = await fetch('https://api4.ipify.org?format=json');

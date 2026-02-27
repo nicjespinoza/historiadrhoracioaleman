@@ -1,5 +1,0 @@
-:HL["/_next/static/chunks/ca3f03f61a8cfa30.css","style"]
-:HL["https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap","style"]
-:HL["https://fonts.googleapis.com/icon?family=Material+Icons+Outlined","style"]
-:HL["https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap","style"]
-0:{"buildId":"hi-cCr4vLfsjf52_zuyps","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"app","paramType":null,"paramKey":"app","hasRuntimePrefetch":false,"slots":{"children":{"name":"slug","paramType":"c","paramKey":"doctor/dashboard","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
