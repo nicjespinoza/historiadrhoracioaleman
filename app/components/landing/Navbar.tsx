@@ -4,14 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslations, useLocale } from 'next-intl';
-import { api } from '@/api';
 
 export const Navbar = () => {
-    const [darkMode, setDarkMode] = useState(false);
     const [theme, setTheme] = useState('light');
-    const t = useTranslations('Index');
-    const locale = useLocale();
+    const locale = 'es'; // Hardcoded for now to avoid next-intl complexities
     const pathname = usePathname();
     const router = useRouter();
     const [isLangOpen, setIsLangOpen] = useState(false);
@@ -22,11 +18,9 @@ export const Navbar = () => {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 setTheme('dark');
                 document.documentElement.classList.add('dark');
-                setDarkMode(true);
             } else {
                 setTheme('light');
                 document.documentElement.classList.remove('dark');
-                setDarkMode(false);
             }
         }
     }, []);
@@ -36,31 +30,21 @@ export const Navbar = () => {
             setTheme('dark');
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
-            setDarkMode(true);
         } else {
             setTheme('light');
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light');
-            setDarkMode(false);
         }
     };
 
     const changeLanguage = (newLocale: string) => {
-        const segments = pathname.split('/');
-        segments[1] = newLocale;
-        router.push(segments.join('/'));
+        // Simple language switcher for UI, doesn't change URL for now
         setIsLangOpen(false);
     };
 
-    const handleLogoClick = async (e: React.MouseEvent) => {
+    const handleLogoClick = (e: React.MouseEvent) => {
         e.preventDefault();
-
-        try {
-            // LOGIC FOR LOGO CLICK
-            router.push(`/${locale}`);
-        } catch (error) {
-            router.push(`/${locale}`);
-        }
+        router.push('/');
     };
 
     return (
@@ -122,7 +106,7 @@ export const Navbar = () => {
                         </div>
 
                         <div className="flex bg-gray-100 rounded-lg p-1">
-                            <Link href={`/${locale}`} className="px-5 py-2 rounded-md bg-green-700 text-white shadow-sm text-sm font-medium transition-all">Inicio</Link>
+                            <Link href="/" className="px-5 py-2 rounded-md bg-green-700 text-white shadow-sm text-sm font-medium transition-all">Inicio</Link>
                             <Link href="/app/doctor/login" className="px-5 py-2 rounded-md text-gray-600 hover:text-green-700 text-sm font-medium transition-all hover:bg-gray-200">Acceso</Link>
                         </div>
 

@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "dr-horacio-aleman"
-  }
+  },
+  "targets": {
+    "dr-horacio-aleman": {
+      "hosting": {
+        "dr-horacio-aleman": [
+          "dr-horacio-aleman"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

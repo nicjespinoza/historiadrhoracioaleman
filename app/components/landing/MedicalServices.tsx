@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -79,10 +78,7 @@ const services: Service[] = [
     },
 ];
 
-import { useTranslations } from 'next-intl';
-
 export const MedicalServices = () => {
-    const t = useTranslations('Index');
     const [selectedService, setSelectedService] = useState<Service | null>(null);
 
     // Lock body scroll when modal is open
@@ -99,8 +95,8 @@ export const MedicalServices = () => {
         <section className="py-20 lg:py-32 bg-[#00a63e] transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <span className="inline-block text-green-200/80 text-sm font-semibold tracking-[0.3em] uppercase mb-4">{t('MedicalServices.specialtiesBadge')}</span>
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">{t('MedicalServices.mainTitle')}</h2>
+                    <span className="inline-block text-green-200/80 text-sm font-semibold tracking-[0.3em] uppercase mb-4">Especialidades</span>
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">Servicios Médicos</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -109,7 +105,7 @@ export const MedicalServices = () => {
                             key={index}
                             service={service}
                             onClick={() => setSelectedService(service)}
-                            learnMoreText={t('MedicalServices.learnMore')}
+                            learnMoreText="Saber más"
                         />
                     ))}
                 </div>
@@ -120,7 +116,6 @@ export const MedicalServices = () => {
                 <ServiceModal
                     service={selectedService}
                     onClose={() => setSelectedService(null)}
-                    t={t}
                 />
             )}
         </section>
@@ -170,7 +165,7 @@ const ServiceCard = ({ service, onClick, learnMoreText }: { service: Service; on
 );
 
 /* ─────────────── Service Modal ─────────────── */
-const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () => void; t: any }) => {
+const ServiceModal = ({ service, onClose }: { service: Service; onClose: () => void; }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -200,7 +195,7 @@ const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () =
                 <button
                     onClick={handleClose}
                     className="absolute top-4 right-4 lg:top-8 lg:right-8 z-30 w-12 h-12 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/50 hover:text-white hover:bg-white/10 hover:border-white/30 hover:scale-105 transition-all duration-300 group shadow-2xl"
-                    aria-label={t('MedicalServices.close')}
+                    aria-label="Volver"
                 >
                     <span className="material-icons-outlined text-2xl group-hover:rotate-90 transition-transform duration-500">close</span>
                 </button>
@@ -241,7 +236,7 @@ const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () =
                                 </div>
                                 <div>
                                     <h4 className="text-[#00a63e] text-xs font-black tracking-[0.25em] uppercase">
-                                        {t('MedicalServices.specialtyBadge')}
+                                        Especialidad Médica
                                     </h4>
                                 </div>
                             </div>
@@ -263,7 +258,7 @@ const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () =
                             <div className="mb-12">
                                 <h4 className="text-white text-sm font-bold tracking-[0.15em] uppercase flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
                                     <span className="material-icons-outlined text-[#00a63e]">verified</span>
-                                    {t('MedicalServices.treatmentsTitle')}
+                                    Tratamientos y Procedimientos
                                 </h4>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
@@ -292,7 +287,7 @@ const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () =
                                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#00a63e] to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                     <span className="relative z-10 flex items-center gap-2">
                                         <span className="material-icons-outlined text-xl">calendar_month</span>
-                                        {t('MedicalServices.cta')}
+                                        Agendar Consulta
                                         <span className="material-icons-outlined text-base transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
                                     </span>
                                 </a>
@@ -301,7 +296,7 @@ const ServiceModal = ({ service, onClose, t }: { service: Service; onClose: () =
                                     onClick={handleClose}
                                     className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent hover:bg-white/5 text-gray-400 hover:text-white font-semibold rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 w-full sm:w-auto"
                                 >
-                                    {t('MedicalServices.close')}
+                                    Volver
                                 </button>
                             </div>
 
