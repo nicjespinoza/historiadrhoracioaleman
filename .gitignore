@@ -7,10 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build outputs
 dist
 dist-ssr
+out/
+*.tsbuildinfo
+
+# Next.js
+.next/
+
+# Firebase
+.firebase/
+
+# Cloud Functions build artifacts
+functions/node_modules
+functions/lib/
+
+# Secrets & Environment
+.env
+.env.local
 *.local
+functions/.env
+functions/.env.*
 
 # Editor directories and files
 .vscode/*
@@ -29,14 +50,7 @@ dist-ssr
 server/node_modules
 server/dist
 
-# Secrets
-.env
-.env.local
-.firebase/
+# Misc
 scripts/data/
-
-
-# Next.js build output
-.next/
-
-.next/ 
+react-doctor-log*.txt
+tsc_errors*.log
