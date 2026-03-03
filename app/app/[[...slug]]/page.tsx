@@ -21,7 +21,7 @@ export function generateStaticParams() {
 }
 
 export const dynamic = 'force-static';
-export const dynamicParams = false;
+// export const dynamicParams = false;
 
 export default function AppSPACatchAll() {
     return <ClientAppShell />;

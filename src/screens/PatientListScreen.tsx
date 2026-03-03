@@ -3,7 +3,6 @@ import { Users, UserPlus, Search, ArrowLeft, Trash2, AlertTriangle, X, ChevronLe
 import { useNavigate, Link } from 'react-router-dom';
 import { Patient } from '../types';
 import { api } from '../../api';
-import { GlassCard } from '../components/premium-ui/GlassCard';
 
 interface PatientListScreenProps {
     patients: Patient[];
@@ -100,22 +99,22 @@ export const PatientListScreen = ({
     const visiblePages = getVisiblePageNumbers();
 
     return (
-        <div className="min-h-screen p-4 md:p-8">
-            <GlassCard className="p-4 md:p-10 max-w-7xl mx-auto shadow-2xl">
+        <div className="min-h-screen p-4 md:p-8 liquid-bg-container">
+            <div className="max-w-7xl mx-auto relative z-10">
                 <div className="flex flex-col gap-6 mb-8">
                     {/* Header & Create Button */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h2 className="text-3xl font-bold text-cenlae-primary flex items-center gap-3">
-                            <Users className="text-blue-600" /> Pacientes
-                            <span className="text-base font-normal text-gray-500">
+                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <Users className="text-white" /> Pacientes
+                            <span className="text-base font-normal text-white/80">
                                 ({totalCount || filtered.length})
                             </span>
                         </h2>
                         <button
                             onClick={() => navigate('/app/register')}
-                            className="bg-green-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-green-700 transition shadow-lg shadow-green-600/20 w-full md:w-auto justify-center font-medium"
+                            className="bg-white text-green-600 px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-gray-100 transition shadow-lg shadow-black/10 w-full md:w-auto justify-center font-bold"
                         >
-                            <UserPlus size={20} /> Crear Nuevo
+                            <UserPlus size={20} className="text-green-600" /> Crear Nuevo
                         </button>
                     </div>
                     {/* Tabs & Search Row */}
@@ -224,43 +223,43 @@ export const PatientListScreen = ({
                     ))}
                     {visiblePatients.length === 0 && (
                         <div className="col-span-full text-center py-20">
-                            <div className="inline-block p-4 rounded-full bg-gray-100 mb-4 text-gray-400">
+                            <div className="inline-block p-4 rounded-full bg-white/10 mb-4 text-white/50">
                                 <Search size={40} />
                             </div>
-                            <p className="text-gray-500 font-medium">No se encontraron pacientes registrados.</p>
+                            <p className="text-white/70 font-medium">No se encontraron pacientes registrados.</p>
                         </div>
                     )}
                 </div>
 
                 {/* Server Side Pagination Controls (Next/Prev) */}
                 {isServerPagination && totalPages > 1 && !searchTerm && (
-                    <div className="flex flex-col items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex flex-col items-center justify-center gap-4 mt-8 pt-6 border-t border-white/20">
 
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => onPageChange?.(activePage - 1)}
                                 disabled={activePage === 1 || isLoading}
-                                className="p-3 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
+                                className="p-3 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
                             >
                                 <ChevronLeft size={20} />
                             </button>
 
-                            <span className="text-sm font-bold text-gray-600">
+                            <span className="text-sm font-bold text-white/90">
                                 Página {activePage} de {totalPages || 1}
                             </span>
 
                             <button
                                 onClick={() => onPageChange?.(activePage + 1)}
                                 disabled={activePage >= totalPages || isLoading}
-                                className="p-3 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
+                                className="p-3 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
                             >
                                 <ChevronRight size={20} />
                             </button>
                         </div>
 
                         {isLoading && (
-                            <div className="flex items-center gap-2 text-sm text-blue-600 font-medium animate-pulse">
-                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="flex items-center gap-2 text-sm text-white font-medium animate-pulse">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 Cargando pacientes...
                             </div>
                         )}
@@ -270,14 +269,14 @@ export const PatientListScreen = ({
 
                 {/* Pagination Controls (Client Side Fallback) */}
                 {!isServerPagination && totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t border-white/20">
                         {/* Previous Arrow */}
                         <button
                             onClick={() => setClientPage(prev => Math.max(1, prev - 1))}
                             disabled={activePage === 1}
                             className={`p-2 rounded-lg transition-all ${activePage === 1
-                                ? 'text-gray-300 cursor-not-allowed'
-                                : 'text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                                ? 'text-white/30 cursor-not-allowed'
+                                : 'text-white/80 hover:bg-white/10 hover:text-white'
                                 }`}
                             aria-label="Página anterior"
                         >
@@ -290,8 +289,8 @@ export const PatientListScreen = ({
                                 key={page}
                                 onClick={() => setClientPage(page)}
                                 className={`w-10 h-10 rounded-lg font-bold transition-all ${activePage === page
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                                    : 'text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                                    ? 'bg-white text-green-700 shadow-lg'
+                                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                                     }`}
                             >
                                 {page}
@@ -303,8 +302,8 @@ export const PatientListScreen = ({
                             onClick={() => setClientPage(prev => Math.min(totalPages, prev + 1))}
                             disabled={activePage === totalPages}
                             className={`p-2 rounded-lg transition-all ${activePage === totalPages
-                                ? 'text-gray-300 cursor-not-allowed'
-                                : 'text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                                ? 'text-white/30 cursor-not-allowed'
+                                : 'text-white/80 hover:bg-white/10 hover:text-white'
                                 }`}
                             aria-label="Página siguiente"
                         >
@@ -353,7 +352,7 @@ export const PatientListScreen = ({
                         </div>
                     </div>
                 )}
-            </GlassCard>
+            </div>
         </div>
     );
 };
