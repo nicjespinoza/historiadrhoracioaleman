@@ -11,7 +11,7 @@ import { functions } from '../lib/firebase';
 import { httpsCallable } from 'firebase/functions';
 import ReactSignatureCanvas from 'react-signature-canvas';
 
-const INPUT_CLASS = "w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-4 focus:ring-blue-100 focus:border-blue-500 block transition-all duration-200 outline-none placeholder-gray-400 hover:bg-white";
+const INPUT_CLASS = "w-full px-4 py-2.5 bg-white border border-2 border-black/10 text-gray-800 text-sm rounded-xl focus:ring-4 focus:ring-[#00a63e]/20 focus:border-[#00a63e] block transition-all duration-200 outline-none placeholder-gray-400 hover:bg-white";
 
 interface ProfileScreenProps {
     patients: Patient[];
@@ -192,7 +192,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     };
 
     if (!patient) {
-        return <div className="p-8 text-center text-gray-500">Paciente no encontrado.</div>;
+        return <div className="p-8 text-center text-gray-400">Paciente no encontrado.</div>;
     }
 
     // Merge props data with local lazy-loaded data
@@ -203,13 +203,13 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     if (!patient) return <div className="flex items-center justify-center min-h-screen">Paciente no encontrado</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Header / Banner */}
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-white border-b border-2 border-black/10">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div className="flex items-center gap-4">
-                            <button onClick={() => navigate('/app/patients')} className="bg-gray-100 hover:bg-gray-200 p-2 rounded-xl text-gray-600 transition-colors">
+                            <button onClick={() => navigate('/app/patients')} className="bg-gray-100 hover:bg-gray-200 p-2 rounded-xl text-gray-500 transition-colors">
                                 <ArrowLeft size={24} />
                             </button>
                             <div>
@@ -217,8 +217,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     {patient?.firstName} {patient?.lastName}
                                     {patient?.isOnline && <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Online" />}
                                 </h1>
-                                <p className="text-gray-500 flex items-center gap-2 mt-1">
-                                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm font-bold">Pac. {patient?.id?.slice(0, 6)}</span>
+                                <p className="text-gray-400 flex items-center gap-2 mt-1">
+                                    <span className="bg-gray-100 text-black px-2 py-0.5 rounded text-sm font-bold">Pac. {patient?.id?.slice(0, 6)}</span>
                                     • {patient?.birthDate ? calculateAge(patient.birthDate) : 'N/A'} años • {patient?.sex}
                                 </p>
                             </div>
@@ -226,19 +226,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         <div className="flex gap-3 w-full md:w-auto flex-wrap md:flex-nowrap">
                             <button
                                 onClick={handleAIAnalysis}
-                                className="flex-1 md:flex-none bg-indigo-600 text-white border border-indigo-400 px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2"
+                                className="flex-1 md:flex-none bg-[#00a63e] text-white border border-[#00a63e] px-6 py-3 rounded-xl font-bold hover:bg-[#008f36] transition shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
                             >
                                 <Brain size={20} /> Análisis IA
                             </button>
                             <button
                                 onClick={() => setShowAppointmentModal(true)}
-                                className="flex-1 md:flex-none bg-[#083c79] text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-[#0a4b96] transition shadow-lg flex items-center justify-center gap-2"
+                                className="flex-1 md:flex-none bg-[#000000] text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-[#00a63e] transition shadow-lg flex items-center justify-center gap-2"
                             >
                                 <Calendar size={20} /> Agendar
                             </button>
                             <button
                                 onClick={() => navigate(`/app/consult/${patient.id}`)}
-                                className="flex-1 md:flex-none bg-[#083c79] text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-[#0a4b96] transition shadow-lg flex items-center justify-center gap-2"
+                                className="flex-1 md:flex-none bg-[#000000] text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-[#00a63e] transition shadow-lg flex items-center justify-center gap-2"
                             >
                                 <Plus size={20} /> Nueva Consulta
                             </button>
@@ -249,22 +249,22 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                     <div className="flex gap-6 mt-8 overflow-x-auto">
                         <button
                             onClick={() => setCurrentTab('general')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
                         >
                             Información General
                         </button>
                         <button
                             onClick={() => setCurrentTab('prescriptions')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'prescriptions' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'prescriptions' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
                         >
                             <ClipboardList size={16} /> Recetas y Documentos
                             {prescriptions.length > 0 && (
-                                <span className="bg-[#083c79] text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">{prescriptions.length}</span>
+                                <span className="bg-[#000000] text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">{prescriptions.length}</span>
                             )}
                         </button>
                         <button
                             onClick={() => setCurrentTab('consents')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
                         >
                             <PenTool size={16} /> Consentimientos y Firmas
                         </button>
@@ -279,31 +279,31 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                         {/* Personal Information Column */}
                         <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <div className="bg-white p-6 border-2 border-black rounded-xl shadow-none border border-2 border-black/10">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h3 className="font-bold text-gray-900 text-lg">Información Personal</h3>
-                                    <button onClick={handleEditClick} className="text-gray-400 hover:text-blue-600 transition-colors bg-gray-50 p-2 rounded-lg hover:bg-blue-50">
+                                    <h3 className="font-bold text-[#000000] text-lg">Información Personal</h3>
+                                    <button onClick={handleEditClick} className="text-gray-400 hover:text-[#00a63e] transition-colors bg-white p-2 rounded-xl hover:bg-white">
                                         <Edit size={18} />
                                     </button>
                                 </div>
 
                                 <div className="space-y-4">
                                     <InputGroup label="Fecha de Nacimiento">
-                                        <div className="font-medium text-gray-900">{patient.birthDate}</div>
-                                        <div className="text-sm text-gray-500">Edad: {calculateAge(patient.birthDate)}</div>
+                                        <div className="font-medium text-[#000000]">{patient.birthDate}</div>
+                                        <div className="text-sm text-gray-400">Edad: {calculateAge(patient.birthDate)}</div>
                                     </InputGroup>
 
                                     <InputGroup label="Teléfono">
-                                        <div className="font-medium text-gray-900">{patient.phone || 'No registrado'}</div>
+                                        <div className="font-medium text-[#000000]">{patient.phone || 'No registrado'}</div>
                                     </InputGroup>
 
                                     <InputGroup label="Email">
-                                        <div className="font-medium text-gray-900 break-all">{patient.email || 'No registrado'}</div>
+                                        <div className="font-medium text-[#000000] break-all">{patient.email || 'No registrado'}</div>
                                     </InputGroup>
 
                                     {/* Collapsible Section */}
                                     <div className={`space-y-4 overflow-hidden transition-all duration-500 ease-in-out ${showFullInfo ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className="pt-4 border-t border-dashed border-gray-200 space-y-4">
+                                        <div className="pt-4 border-t border-dashed border-2 border-black/10 space-y-4">
                                             <InputGroup label="Estado Civil">
                                                 <div className="font-medium text-gray-700">{patient.civilStatus || 'No especificado'}</div>
                                             </InputGroup>
@@ -330,7 +330,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                     <button
                                         onClick={() => setShowFullInfo(!showFullInfo)}
-                                        className="w-full mt-2 py-2 text-sm font-bold text-[#083c79] hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-center gap-2"
+                                        className="w-full mt-2 py-2 text-sm font-bold text-[#000000] hover:bg-white rounded-xl transition-colors flex items-center justify-center gap-2"
                                     >
                                         {showFullInfo ? 'Ver menos' : 'Ver más información'}
                                         <ChevronDown size={16} className={`transition-transform duration-300 ${showFullInfo ? 'rotate-180' : ''}`} />
@@ -338,19 +338,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 </div>
                             </div>
 
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <h4 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Etiquetas</h4>
+                            <div className="bg-white p-6 border-2 border-black rounded-xl shadow-none border border-2 border-black/10">
+                                <h4 className="font-bold text-[#000000] mb-4 text-sm uppercase tracking-wide">Etiquetas</h4>
                                 <div className="flex flex-wrap gap-2">
-                                    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${patient.patientType === 'Historia Clinica' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                                    <span className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${patient.patientType === 'Historia Clinica' ? 'bg-white text-black border-2 border-black/10' : 'bg-green-50 text-green-700 border-green-100'}`}>
                                         {patient.patientType || 'Historia Clinica'}
                                     </span>
                                     {patient.isOnline && (
-                                        <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-green-50 text-green-700 border border-green-100 flex items-center gap-1">
+                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-100 flex items-center gap-1">
                                             <Globe size={10} /> Online
                                         </span>
                                     )}
                                     {patient.migrated && (
-                                        <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100 flex items-center gap-1">
+                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100 flex items-center gap-1">
                                             <Database size={10} /> Migrado
                                         </span>
                                     )}
@@ -361,14 +361,14 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         {/* Clinical Histories Column */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="flex justify-between items-center">
-                                <h3 className="font-bold text-gray-900 flex items-center gap-3 text-xl">
-                                    <div className="p-2 bg-green-100 text-green-700 rounded-lg">
+                                <h3 className="font-bold text-[#000000] flex items-center gap-3 text-xl">
+                                    <div className="p-2 bg-green-100 text-green-700 rounded-xl">
                                         <FileText size={24} />
                                     </div>
                                     Historias Clínicas
                                 </h3>
                                 {patientHistories.length === 0 && (
-                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20">
+                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-sm bg-green-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20">
                                         + Nueva Historia
                                     </button>
                                 )}
@@ -377,9 +377,9 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             {patientHistories.length > 0 ? (
                                 <div className="grid gap-4">
                                     {patientHistories.map(h => (
-                                        <div key={h.id} className={`relative p-5 rounded-2xl transition-all duration-300 group ${h.isValidated === false
+                                        <div key={h.id} className={`relative p-5 border-2 border-black rounded-xl transition-all duration-300 group ${h.isValidated === false
                                             ? 'bg-amber-50 border border-amber-200'
-                                            : 'bg-white border border-gray-100 hover:border-green-300 hover:shadow-xl hover:shadow-green-900/5'
+                                            : 'bg-white border border-2 border-black/10 hover:border-green-300 hover:shadow-xl hover:shadow-green-900/5'
                                             }`}>
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                                 <div className="flex-1">
@@ -399,10 +399,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                         </p>
                                                     ) : (
                                                         <div className="space-y-1">
-                                                            <p className="text-gray-900 font-medium text-lg leading-tight">
+                                                            <p className="text-[#000000] font-medium text-lg leading-tight">
                                                                 {Object.keys(h.motives || {}).filter(k => h.motives[k]).join(', ') || h.otherMotive || 'Consulta General'}
                                                             </p>
-                                                            <p className="text-gray-500 text-sm line-clamp-1">
+                                                            <p className="text-gray-400 text-sm line-clamp-1">
                                                                 {h.historyOfPresentIllness || 'Sin detalles adicionales...'}
                                                             </p>
                                                         </div>
@@ -421,7 +421,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
-                                                                className="w-10 h-10 rounded-xl bg-gray-50 text-gray-600 hover:bg-[#083c79] hover:text-white transition-all flex items-center justify-center pointer-events-auto"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-[#000000] hover:text-white transition-all flex items-center justify-center pointer-events-auto"
                                                                 title="Ver Detalles"
                                                             >
                                                                 <Eye size={18} />
@@ -431,19 +431,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                                     setSelectedHistoryId(h.id);
                                                                     setShowPrescriptionsModal(true);
                                                                 }}
-                                                                className="w-10 h-10 rounded-xl bg-gray-50 text-gray-600 hover:bg-green-600 hover:text-white transition-all flex items-center justify-center"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-green-600 hover:text-white transition-all flex items-center justify-center"
                                                                 title="Ver Recetas"
                                                             >
                                                                 <ClipboardList size={18} />
                                                             </button>
                                                             <button
                                                                 onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
-                                                                className="w-10 h-10 rounded-xl bg-gray-50 text-gray-600 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-[#008f36] hover:text-white transition-all flex items-center justify-center"
                                                                 title="Editar"
                                                             >
                                                                 <Edit size={18} />
                                                             </button>
-                                                            <button className="w-10 h-10 rounded-xl bg-gray-50 text-red-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center">
+                                                            <button className="w-10 h-10 rounded-xl bg-white text-red-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center">
                                                                 <Trash2 size={18} />
                                                             </button>
                                                         </div>
@@ -454,12 +454,12 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
-                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-2 border-black/10">
+                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                         <FileText size={32} />
                                     </div>
-                                    <p className="text-gray-500 font-medium mb-4">No hay historia clínica registrada</p>
-                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-[#083c79] font-bold hover:underline">
+                                    <p className="text-gray-400 font-medium mb-4">No hay historia clínica registrada</p>
+                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-[#000000] font-bold hover:underline">
                                         Crear Historia Inicial
                                     </button>
                                 </div>
@@ -467,11 +467,11 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         </div>
                     </div>
 
-                    <div className="bg-[#083c79] rounded-xl p-6 text-white shadow-lg overflow-hidden relative mx-8">
+                    <div className="bg-[#000000] rounded-xl p-6 text-white shadow-lg overflow-hidden relative mx-8">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
                         <div className="relative z-10">
                             <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                                <span className="bg-white/20 p-1.5 rounded-lg">🧬</span> Diseñar Enfermedad
+                                <span className="bg-white/20 p-1.5 rounded-xl">🧬</span> Diseñar Enfermedad
                             </h3>
                             <p className="text-blue-100 mb-4 text-sm max-w-md">
                                 Utiliza nuestra herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
@@ -485,7 +485,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                         alert('Error al crear nueva imagen');
                                     }
                                 }}
-                                className="bg-white text-blue-900 px-6 py-2.5 rounded-lg font-bold hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 mb-6"
+                                className="bg-white text-black px-6 py-2.5 rounded-xl font-bold hover:bg-white transition-colors shadow-lg flex items-center gap-2 mb-6"
                             >
                                 <span>Crear imagen 3D</span>
                                 <ArrowLeft className="rotate-180" size={18} />
@@ -496,7 +496,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     <div className="space-y-3">
                                         <h4 className="font-bold text-sm text-blue-200 uppercase tracking-widest border-b border-white/20 pb-1 mb-2">Imágenes Guardadas</h4>
                                         {snapshots.map(snap => (
-                                            <div key={snap.id} className="bg-white/10 p-3 rounded-lg border border-white/10 flex justify-between items-center group hover:bg-white/20 transition-colors">
+                                            <div key={snap.id} className="bg-white/10 p-3 rounded-xl border border-white/10 flex justify-between items-center group hover:bg-white/20 transition-colors">
                                                 <div>
                                                     <p className="font-bold text-sm">{snap.name}</p>
                                                     <p className="text-xs text-blue-200">{new Date(snap.createdAt).toLocaleDateString()}</p>
@@ -504,7 +504,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
-                                                        className="bg-blue-500 hover:bg-blue-600 p-1.5 rounded-md transition-colors" title="Ver"
+                                                        className="bg-white0 hover:bg-[#008f36] p-1.5 rounded-md transition-colors" title="Ver"
                                                     >
                                                         <Eye size={16} />
                                                     </button>
@@ -524,31 +524,31 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                     </div >
 
                     <div>
-                        <h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg mb-4">
+                        <h3 className="font-bold text-[#000000] flex items-center gap-2 text-lg mb-4">
                             <Stethoscope className="text-purple-600" /> Consultas de Seguimiento
                         </h3>
                         {patientConsults.length > 0 ? (
                             <div className="space-y-3">
                                 {patientConsults.map(c => (
-                                    <div key={c.id} className="bg-gray-50 p-4 rounded-xl border-2 border-black hover:border-purple-900 transition-colors group">
+                                    <div key={c.id} className="bg-white p-4 rounded-xl border-2 border-black hover:border-purple-900 transition-colors group">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <p className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{c.date} - {c.time}</p>
-                                                <p className="text-sm text-gray-600 mt-1">
+                                                <p className="font-bold text-[#000000] group-hover:text-purple-600 transition-colors">{c.date} - {c.time}</p>
+                                                <p className="text-sm text-gray-500 mt-1">
                                                     <span className="font-bold">Motivo consulta:</span> {Object.keys(c.motives || {}).filter(k => c.motives[k]).join(', ') || c.otherMotive || 'Sin motivo'}
                                                 </p>
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <button
                                                     onClick={() => navigate(`/app/consult/${patient.id}`)}
-                                                    className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors"
+                                                    className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors"
                                                 >
                                                     Ver
                                                 </button>
-                                                <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
                                                     Editar
                                                 </button>
-                                                <button className="bg-[#083c79] text-white px-4 py-1 rounded-lg text-xs font-medium hover:bg-[#0a4b96] transition-colors">
+                                                <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
                                                     Eliminar
                                                 </button>
                                             </div>
@@ -557,8 +557,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                                <p className="text-gray-500">No hay consultas registradas</p>
+                            <div className="text-center py-8 bg-white rounded-xl border border-dashed border-gray-300">
+                                <p className="text-gray-400">No hay consultas registradas</p>
                             </div>
                         )}
                     </div>
@@ -567,7 +567,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
             {/* Upcoming Appointments Section */}
             {appointments.filter(a => a.type === 'virtual' && (a.paymentStatus === 'paid' || a.paid)).length > 0 && (
-                <div className="rounded-2xl shadow-xl p-6 mb-8 text-white overflow-hidden relative mx-8" style={{ backgroundColor: '#083c79' }}>
+                <div className="border-2 border-black rounded-xl shadow-xl p-6 mb-8 text-white overflow-hidden relative mx-8" style={{ backgroundColor: '#083c79' }}>
                     <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                     <div className="relative z-10">
                         <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -578,7 +578,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             {appointments
                                 .filter(a => a.type === 'virtual' && (a.paymentStatus === 'paid' || a.paid))
                                 .map(apt => (
-                                    <div key={apt.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                    <div key={apt.id} className="bg-white p-4 rounded-xl border border-2 border-black/10 shadow-none">
                                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
@@ -596,7 +596,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                     ) : (
                                                         <>
                                                             <Clock size={14} className="text-gray-400" />
-                                                            <span className="text-gray-500">Sala no iniciada</span>
+                                                            <span className="text-gray-400">Sala no iniciada</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -647,15 +647,15 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             {currentTab === 'prescriptions' && (
                 <div className="p-8 max-w-7xl mx-auto space-y-8">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h3 className="font-bold text-gray-900 flex items-center gap-3 text-2xl">
-                            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                        <h3 className="font-bold text-[#000000] flex items-center gap-3 text-2xl">
+                            <div className="p-2 bg-gray-100 text-black rounded-xl">
                                 <ClipboardList size={24} />
                             </div>
                             Historial de Recetas y Documentos
                         </h3>
                         <button
                             onClick={() => navigate(`/app/prescription/new/${patient.id}`)}
-                            className="bg-[#083c79] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0a4b96] transition shadow-lg flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                            className="bg-[#000000] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#00a63e] transition shadow-lg flex items-center justify-center gap-2 hover:-translate-y-0.5"
                         >
                             <Plus size={20} /> Crear +
                         </button>
@@ -668,9 +668,9 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 const displayDate = p.date ? new Date(p.date).toLocaleDateString() : 'N/A';
 
                                 return (
-                                    <div key={p.id || idx} className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-[#083c79] transition-all group shadow-sm hover:shadow-xl relative overflow-hidden">
+                                    <div key={p.id || idx} className="bg-white border-2 border-2 border-black/10 border-2 border-black rounded-xl p-6 hover:border-[#000000] transition-all group shadow-none hover:shadow-xl relative overflow-hidden">
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-[#083c79] rounded-xl transition-colors">
+                                            <div className="p-3 bg-white text-gray-400 group-hover:bg-white group-hover:text-[#000000] rounded-xl transition-colors">
                                                 <FileText size={20} />
                                             </div>
                                             <div className="flex flex-col items-end">
@@ -679,11 +679,11 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                             </div>
                                         </div>
 
-                                        <h4 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{docType}</h4>
+                                        <h4 className="font-bold text-[#000000] text-lg mb-2 line-clamp-1">{docType}</h4>
 
                                         <div className="space-y-4 mb-6">
                                             {p.diagnostico && (
-                                                <div className="bg-gray-50 p-3 rounded-xl">
+                                                <div className="bg-white p-3 rounded-xl">
                                                     <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Diagnóstico</p>
                                                     <p className="text-sm text-gray-700 line-clamp-2">{p.diagnostico}</p>
                                                 </div>
@@ -698,7 +698,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                         <button
                                             onClick={() => navigate(`/app/prescriptions/${patient.id}/${p.legacyWixId || p.legacyId || p.id}`)}
-                                            className="w-full py-3 rounded-xl bg-[#083c79] text-white font-bold text-sm hover:bg-[#0a4b96] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10"
+                                            className="w-full py-3 rounded-xl bg-[#000000] text-white font-bold text-sm hover:bg-[#00a63e] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10"
                                         >
                                             Ver Documento Completo
                                             <ExternalLink size={16} />
@@ -708,12 +708,12 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             })}
                         </div>
                     ) : (
-                        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-gray-200">
-                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-2 border-black/10">
+                            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
                                 <ClipboardList size={40} />
                             </div>
-                            <h4 className="text-xl font-bold text-gray-900 mb-2">Sin recetas registradas</h4>
-                            <p className="text-gray-500 max-w-xs mx-auto">
+                            <h4 className="text-xl font-bold text-[#000000] mb-2">Sin recetas registradas</h4>
+                            <p className="text-gray-400 max-w-xs mx-auto">
                                 No se encontraron documentos asociados a este paciente en el sistema actual o migrado.
                             </p>
                         </div>
@@ -724,10 +724,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                 currentTab === 'consents' && (
                     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Sidebar: List */}
-                        <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-fit">
-                            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                                <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                    <FileText size={18} className="text-gray-500" /> Documentos Disponibles
+                        <div className="lg:col-span-1 bg-white border-2 border-black rounded-xl shadow-none border border-2 border-black/10 overflow-hidden h-fit">
+                            <div className="p-4 border-b border-2 border-black/10 bg-white/50">
+                                <h3 className="font-bold text-[#000000] flex items-center gap-2">
+                                    <FileText size={18} className="text-gray-400" /> Documentos Disponibles
                                 </h3>
                             </div>
                             <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
@@ -741,13 +741,13 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 // Reset signature when switching? Maybe better to keep if unsaved? For now, simple switch.
                                                 if (signatureRef) signatureRef.clear();
                                             }}
-                                            className={`w-full text-left p-4 hover:bg-gray-50 transition-colors flex items-start gap-3 group ${selectedConsent?.id === consent.id ? 'bg-blue-50/50 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
+                                            className={`w-full text-left p-4 hover:bg-white transition-colors flex items-start gap-3 group ${selectedConsent?.id === consent.id ? 'bg-white/50 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
                                         >
-                                            <div className={`mt-0.5 ${selectedConsent?.id === consent.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                            <div className={`mt-0.5 ${selectedConsent?.id === consent.id ? 'text-[#00a63e]' : 'text-gray-400 group-hover:text-gray-500'}`}>
                                                 {isSigned ? <CheckCircle size={18} className="text-green-500" /> : <Edit size={18} />}
                                             </div>
                                             <div>
-                                                <p className={`font-medium ${selectedConsent?.id === consent.id ? 'text-blue-900' : 'text-gray-700'}`}>
+                                                <p className={`font-medium ${selectedConsent?.id === consent.id ? 'text-black' : 'text-gray-700'}`}>
                                                     {consent.title}
                                                 </p>
                                                 <p className="text-xs text-gray-400 mt-1">
@@ -764,10 +764,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         <div className="lg:col-span-2 space-y-6">
                             {selectedConsent ? (
                                 <>
-                                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                                        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                                            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                                <Eye size={18} className="text-gray-500" /> Visualizando: {selectedConsent.title}
+                                    <div className="bg-white border-2 border-black rounded-xl shadow-none border border-2 border-black/10 overflow-hidden">
+                                        <div className="p-4 border-b border-2 border-black/10 flex justify-between items-center bg-white/50">
+                                            <h3 className="font-bold text-[#000000] flex items-center gap-2">
+                                                <Eye size={18} className="text-gray-400" /> Visualizando: {selectedConsent.title}
                                             </h3>
                                             {signedDocs.includes(selectedConsent.id) && (
                                                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
@@ -781,7 +781,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 <div className="text-center mb-8">
                                                     <h1 className="text-xl font-bold uppercase mb-1">República de Nicaragua</h1>
                                                     <h2 className="text-md font-bold text-gray-700 mb-2 underline">CONSENTIMIENTO INFORMADO ESPECIALIZADO EN UROLOGÍA</h2>
-                                                    <h3 className="text-lg text-blue-900 font-semibold">{selectedConsent.title}</h3>
+                                                    <h3 className="text-lg text-black font-semibold">{selectedConsent.title}</h3>
                                                 </div>
                                                 <div className="space-y-4 text-gray-800 text-sm leading-relaxed text-justify">
                                                     <p>
@@ -793,7 +793,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                     <p>
                                                         Asimismo, autorizo el tratamiento de mis datos personales de salud conforme a la <strong>Ley No. 787, Ley de Protección de Datos Personales</strong> de la República de Nicaragua, para los fines estrictamente médicos y legales de mi expediente clínico.
                                                     </p>
-                                                    <p className="mt-8 font-bold border-l-4 border-blue-600 pl-4 bg-blue-50 py-2">
+                                                    <p className="mt-8 font-bold border-l-4 border-blue-600 pl-4 bg-white py-2">
                                                         Mediante mi firma digital, expreso mi consentimiento libre, previo, expreso e informado para la realización de dicho acto médico.
                                                     </p>
                                                     <div className="mt-12 pt-8 border-t border-gray-300">
@@ -813,17 +813,17 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                     {/* Signature Pad */}
                                     {!signedDocs.includes(selectedConsent.id) && (
-                                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4">
-                                            <div className="p-4 border-b border-gray-100 bg-blue-50/30">
-                                                <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                                                    <PenTool size={18} className="text-blue-600" /> Panel de Firma
+                                        <div className="bg-white border-2 border-black rounded-xl shadow-none border border-2 border-black/10 overflow-hidden animate-in slide-in-from-bottom-4">
+                                            <div className="p-4 border-b border-2 border-black/10 bg-white/30">
+                                                <h3 className="font-bold text-[#000000] flex items-center gap-2">
+                                                    <PenTool size={18} className="text-[#00a63e]" /> Panel de Firma
                                                 </h3>
                                             </div>
                                             <div className="p-6">
-                                                <p className="text-sm text-gray-500 mb-4">
+                                                <p className="text-sm text-gray-400 mb-4">
                                                     Firme dentro del recuadro punteado usando su mouse o pantalla táctil.
                                                 </p>
-                                                <div className="border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:border-blue-400 transition-colors cursor-crosshair relative">
+                                                <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white hover:border-blue-400 transition-colors cursor-crosshair relative">
                                                     <ReactSignatureCanvas
                                                         ref={(ref) => setSignatureRef(ref)}
                                                         canvasProps={{
@@ -840,7 +840,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 <div className="flex justify-between items-center mt-4">
                                                     <button
                                                         onClick={() => signatureRef?.clear()}
-                                                        className="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
+                                                        className="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors px-3 py-2 rounded-xl hover:bg-red-50"
                                                     >
                                                         <Trash2 size={16} /> Borrar Firma
                                                     </button>
@@ -856,11 +856,11 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     )}
                                 </>
                             ) : (
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center h-full flex flex-col items-center justify-center text-gray-400 min-h-[400px]">
-                                    <div className="p-6 bg-gray-50 rounded-full mb-4">
+                                <div className="bg-white border-2 border-black rounded-xl shadow-none border border-2 border-black/10 p-12 text-center h-full flex flex-col items-center justify-center text-gray-400 min-h-[400px]">
+                                    <div className="p-6 bg-white rounded-full mb-4">
                                         <FileText size={48} className="text-gray-300" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-600 mb-2">Seleccione un documento</h3>
+                                    <h3 className="text-xl font-bold text-gray-500 mb-2">Seleccione un documento</h3>
                                     <p className="max-w-xs mx-auto">
                                         Elija un consentimiento de la lista lateral para visualizarlo y habilitar el panel de firma.
                                     </p>
@@ -908,9 +908,9 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         />
 
                         <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-                            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center z-10">
-                                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <ClipboardList className="text-[#083c79]" /> Recetas y Órdenes
+                            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-2 border-black/10 p-6 flex justify-between items-center z-10">
+                                <h2 className="text-xl font-bold text-[#000000] flex items-center gap-2">
+                                    <ClipboardList className="text-[#000000]" /> Recetas y Órdenes
                                 </h2>
                                 <button onClick={() => setShowPrescriptionsModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                                     <X size={20} />
@@ -930,8 +930,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                     if (!legacyText && linkedPrescriptions.length === 0) {
                                         return (
-                                            <div className="text-center py-10 text-gray-500">
-                                                <div className="bg-gray-50 dark:bg-gray-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                            <div className="text-center py-10 text-gray-400">
+                                                <div className="bg-white dark:bg-gray-800 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                                                     <FileText className="text-gray-400" size={32} />
                                                 </div>
                                                 <p>No hay recetas registradas para esta historia.</p>
@@ -943,25 +943,25 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                         <>
                                             {/* Legacy Text Content */}
                                             {legacyText && (
-                                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                                    <h3 className="font-bold text-[#083c79] mb-2 text-sm uppercase tracking-wide">Notas de Receta</h3>
+                                                <div className="bg-white p-4 rounded-xl border border-2 border-black/10">
+                                                    <h3 className="font-bold text-[#000000] mb-2 text-sm uppercase tracking-wide">Notas de Receta</h3>
                                                     <p className="whitespace-pre-wrap text-gray-700 text-sm">{legacyText}</p>
                                                 </div>
                                             )}
 
                                             {/* Structured Prescriptions */}
                                             {linkedPrescriptions.map((p, idx) => (
-                                                <div key={p.id || idx} className="border border-gray-200 rounded-xl overflow-hidden">
-                                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                                                <div key={p.id || idx} className="border border-2 border-black/10 rounded-xl overflow-hidden">
+                                                    <div className="bg-white px-4 py-2 border-b border-2 border-black/10 flex justify-between items-center">
                                                         <span className="font-bold text-gray-700 text-sm">Documento #{idx + 1}</span>
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-xs text-gray-500">{new Date(p.date).toLocaleDateString()}</span>
+                                                            <span className="text-xs text-gray-400">{new Date(p.date).toLocaleDateString()}</span>
                                                             <button
                                                                 onClick={() => {
                                                                     setShowPrescriptionsModal(false);
                                                                     navigate(`/app/prescriptions/${patient.id}/${p.legacyWixId || p.legacyId || p.id}`);
                                                                 }}
-                                                                className="p-1 hover:bg-white rounded text-blue-600 transition-colors"
+                                                                className="p-1 hover:bg-white rounded text-[#00a63e] transition-colors"
                                                                 title="Ver Documento Completo"
                                                             >
                                                                 <ExternalLink size={14} />
@@ -971,26 +971,26 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                     <div className="p-4 space-y-4">
                                                         {p.medications && (
                                                             <div>
-                                                                <h4 className="font-semibold text-gray-900 text-sm mb-1">Medicamentos:</h4>
-                                                                <p className="whitespace-pre-wrap text-gray-600 text-sm bg-gray-50 p-3 rounded-lg">{p.medications}</p>
+                                                                <h4 className="font-semibold text-[#000000] text-sm mb-1">Medicamentos:</h4>
+                                                                <p className="whitespace-pre-wrap text-gray-500 text-sm bg-white p-3 rounded-xl">{p.medications}</p>
                                                             </div>
                                                         )}
                                                         {p.labs && (
                                                             <div>
-                                                                <h4 className="font-semibold text-gray-900 text-sm mb-1">Exámenes:</h4>
-                                                                <p className="whitespace-pre-wrap text-gray-600 text-sm bg-gray-50 p-3 rounded-lg">{p.labs}</p>
+                                                                <h4 className="font-semibold text-[#000000] text-sm mb-1">Exámenes:</h4>
+                                                                <p className="whitespace-pre-wrap text-gray-500 text-sm bg-white p-3 rounded-xl">{p.labs}</p>
                                                             </div>
                                                         )}
                                                         {p.imaging && (
                                                             <div>
-                                                                <h4 className="font-semibold text-gray-900 text-sm mb-1">Radiología:</h4>
-                                                                <p className="whitespace-pre-wrap text-gray-600 text-sm bg-gray-50 p-3 rounded-lg">{p.imaging}</p>
+                                                                <h4 className="font-semibold text-[#000000] text-sm mb-1">Radiología:</h4>
+                                                                <p className="whitespace-pre-wrap text-gray-500 text-sm bg-white p-3 rounded-xl">{p.imaging}</p>
                                                             </div>
                                                         )}
                                                         {p.indications && (
                                                             <div>
-                                                                <h4 className="font-semibold text-gray-900 text-sm mb-1">Indicaciones:</h4>
-                                                                <p className="whitespace-pre-wrap text-gray-600 text-sm bg-gray-50 p-3 rounded-lg">{p.indications}</p>
+                                                                <h4 className="font-semibold text-[#000000] text-sm mb-1">Indicaciones:</h4>
+                                                                <p className="whitespace-pre-wrap text-gray-500 text-sm bg-white p-3 rounded-xl">{p.indications}</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -1001,10 +1001,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 })()}
                             </div>
 
-                            <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                            <div className="p-4 border-t border-2 border-black/10 bg-white flex justify-end">
                                 <button
                                     onClick={() => setShowPrescriptionsModal(false)}
-                                    className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                                    className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-medium hover:bg-white transition-colors"
                                 >
                                     Cerrar
                                 </button>
@@ -1024,17 +1024,17 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                         <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in zoom-in-95 duration-200">
                             {/* Header */}
-                            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center z-10">
+                            <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-2 border-black/10 p-6 flex justify-between items-center z-10">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                    <div className="w-12 h-12 bg-indigo-50 border-2 border-black rounded-xl flex items-center justify-center text-indigo-600">
                                         <Brain size={24} />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">Análisis IA</h2>
-                                        <p className="text-sm text-gray-500">Asistente Clínico Inteligente</p>
+                                        <h2 className="text-2xl font-bold text-[#000000]">Análisis IA</h2>
+                                        <p className="text-sm text-gray-400">Asistente Clínico Inteligente</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setShowAIModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600">
+                                <button onClick={() => setShowAIModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-500">
                                     <X size={24} />
                                 </button>
                             </div>
@@ -1046,15 +1046,15 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                             <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse"></div>
                                             <Loader2 size={48} className="text-indigo-600 animate-spin relative z-10" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">Analizando Historia Clínica...</h3>
-                                        <p className="text-gray-500 max-w-md mx-auto">
+                                        <h3 className="text-xl font-bold text-[#000000] mb-2">Analizando Historia Clínica...</h3>
+                                        <p className="text-gray-400 max-w-md mx-auto">
                                             Nuestra IA está procesando los antecedentes, consultas y signos vitales del paciente para generar insights médicos.
                                         </p>
                                     </div>
                                 ) : aiResult ? (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         {/* Summary Card */}
-                                        <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                                        <div className="bg-gradient-to-br from-indigo-50 to-white p-6 border-2 border-black rounded-xl border border-indigo-100 shadow-none">
                                             <h3 className="text-lg font-bold text-indigo-900 mb-3 flex items-center gap-2">
                                                 <ClipboardList size={20} className="text-indigo-600" />
                                                 Resumen Clínico
@@ -1066,7 +1066,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {/* Risks Card */}
-                                            <div className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm ring-1 ring-orange-50">
+                                            <div className="bg-white p-6 border-2 border-black rounded-xl border border-orange-100 shadow-none ring-1 ring-orange-50">
                                                 <h3 className="text-lg font-bold text-orange-800 mb-4 flex items-center gap-2">
                                                     <AlertTriangle size={20} className="text-orange-500" />
                                                     Riesgos Detectados
@@ -1082,7 +1082,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                             </div>
 
                                             {/* Recommendations Card */}
-                                            <div className="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm ring-1 ring-emerald-50">
+                                            <div className="bg-white p-6 border-2 border-black rounded-xl border border-emerald-100 shadow-none ring-1 ring-emerald-50">
                                                 <h3 className="text-lg font-bold text-emerald-800 mb-4 flex items-center gap-2">
                                                     <Lightbulb size={20} className="text-emerald-500" />
                                                     Recomendaciones
@@ -1119,10 +1119,10 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             {
                 isEditModalOpen && (
                     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                                <h3 className="text-xl font-bold text-gray-900">Editar Información del Paciente</h3>
-                                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                        <div className="bg-white border-2 border-black rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div className="p-6 border-b border-2 border-black/10 flex justify-between items-center sticky top-0 bg-white z-10">
+                                <h3 className="text-xl font-bold text-[#000000]">Editar Información del Paciente</h3>
+                                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-500">
                                     <X size={24} />
                                 </button>
                             </div>
@@ -1238,7 +1238,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 value="Historia Clinica"
                                                 checked={(editingPatient.patientType || 'Historia Clinica') === 'Historia Clinica'}
                                                 onChange={e => setEditingPatient({ ...editingPatient, patientType: e.target.value as any })}
-                                                className="w-4 h-4 text-blue-600"
+                                                className="w-4 h-4 text-[#00a63e]"
                                             />
                                             <span className="text-sm font-medium text-gray-700">Historia Clínica</span>
                                         </label>
@@ -1249,17 +1249,17 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 value="Recetario"
                                                 checked={editingPatient.patientType === 'Recetario'}
                                                 onChange={e => setEditingPatient({ ...editingPatient, patientType: e.target.value as any })}
-                                                className="w-4 h-4 text-blue-600"
+                                                className="w-4 h-4 text-[#00a63e]"
                                             />
                                             <span className="text-sm font-medium text-gray-700">Recetario</span>
                                         </label>
                                     </div>
                                 </InputGroup>
                             </div>
-                            <div className="p-6 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white z-10">
+                            <div className="p-6 border-t border-2 border-black/10 flex justify-end gap-3 sticky bottom-0 bg-white z-10">
                                 <button
                                     onClick={() => setIsEditModalOpen(false)}
-                                    className="px-6 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                                    className="px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -1278,7 +1278,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             {
                 deleteSnapshotId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-red-600 p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-red-500 animate-in zoom-in-95 duration-200">
+                        <div className="bg-red-600 p-6 border-2 border-black rounded-xl shadow-2xl max-w-sm w-full border border-red-500 animate-in zoom-in-95 duration-200">
                             <h3 className="text-white font-bold text-lg mb-6 text-center leading-snug">
                                 ¿Estás seguro de que deseas eliminar permanentemente esta imagen?
                             </h3>
@@ -1300,7 +1300,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                             console.error(e);
                                         }
                                     }}
-                                    className="bg-white text-red-600 px-6 py-2 rounded-xl font-bold transition-all shadow-md hover:bg-gray-100 hover:shadow-lg hover:scale-105 border-b-4 border-gray-200 hover:border-gray-300"
+                                    className="bg-white text-red-600 px-6 py-2 rounded-xl font-bold transition-all shadow-md hover:bg-gray-100 hover:shadow-lg hover:scale-105 border-b-4 border-2 border-black/10 hover:border-gray-300"
                                 >
                                     Aceptar
                                 </button>
