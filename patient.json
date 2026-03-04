@@ -1,0 +1,13 @@
+{
+    "firstName": "Juan",
+    "lastName": "Perez",
+    "email": "juan@test.com",
+    "phone": "12345678",
+    "registrationSource": "manual",
+    "birthDate": "1990-01-01",
+    "ageDetails": "33",
+    "sex": "Masculino",
+    "profession": "Tester",
+    "address": "Test Address",
+    "initialReason": "Checkup"
+}
