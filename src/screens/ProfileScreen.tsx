@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool, ChevronDown, Globe, Database, AlertCircle, ShieldCheck, ExternalLink } from 'lucide-react';
+import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Image as ImageIcon, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool, ChevronDown, Globe, Database, AlertCircle, ShieldCheck, ExternalLink, MapPin, Target, Droplet, Hexagon, Minimize2, Shield } from 'lucide-react';
 import { Patient, InitialHistory, SubsequentConsult } from '../types';
 import { calculateAge } from '../lib/helpers';
 import { api } from '../../api';
@@ -31,6 +31,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const [editingPatient, setEditingPatient] = useState<Partial<Patient>>({});
     const [snapshots, setSnapshots] = useState<any[]>([]);
     const [deleteSnapshotId, setDeleteSnapshotId] = useState<string | null>(null);
+    const [deletePrescriptionId, setDeletePrescriptionId] = useState<string | null>(null);
+    const [allObservations, setAllObservations] = useState<any[]>([]);
 
     // Local state for lazy loaded data
     const [localHistories, setLocalHistories] = useState<InitialHistory[]>([]);
@@ -59,6 +61,9 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
             }).catch(console.error);
             // Load Prescriptions (legacy & new)
             api.getPrescriptions(patientId).then(setPrescriptions).catch(console.error);
+
+            // Load All Observations for Disease Design view
+            api.getObservations(patientId).then(setAllObservations).catch(console.error);
 
             // Lazy Load Histories & Consults if not provided via props (or if empty due to optimization)
             if (histories.filter(h => h.patientId === patientId).length === 0) {
@@ -134,6 +139,58 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const [selectedConsent, setSelectedConsent] = useState<any>(null);
     const [signatureRef, setSignatureRef] = useState<any>(null);
     const [signedDocs, setSignedDocs] = useState<string[]>([]);
+
+    const translateLocation = (loc: string) => {
+        if (!loc) return 'Localización general';
+        const lower = loc.toLowerCase();
+
+        // Specific checks for mesh artifacts
+        const isLeft = lower.includes('left') || lower.includes('izq') || lower.includes('l_') || lower.includes('_l') || lower.includes(' iz') || lower.includes('_left') || lower.includes('366');
+        const isRight = lower.includes('right') || lower.includes('der') || lower.includes('r_') || lower.includes('_r') || lower.includes(' de') || lower.includes('_right') || lower.includes('365');
+        const side = isRight ? 'Derecho' : isLeft ? 'Izquierdo' : '';
+
+        if (lower.includes('kidney') || lower.includes('renal') || lower.includes('riñon') || lower.includes('surface') || lower.includes('vein') || lower.includes('artery')) {
+            // Most "surface" or "vein/artery" in this urology context refer to the kidneys if no other organ is mentioned
+            if (lower.includes('ureter')) return `Uréter ${side}`.trim();
+            if (lower.includes('bladder') || lower.includes('vejiga') || lower.includes('vesic')) return 'Vejiga';
+            if (lower.includes('urethr') || lower.includes('uretra')) return 'Uretra';
+            return `Riñón ${side}`.trim();
+        }
+
+        if (lower.includes('ureter')) return `Uréter ${side}`.trim();
+        if (lower.includes('bladder') || lower.includes('vejiga') || lower.includes('vesic')) return 'Vejiga';
+        if (lower.includes('urethr') || lower.includes('uretra')) return 'Uretra';
+        if (lower.includes('prostat')) return 'Próstata';
+        if (lower.includes('pene')) return 'Pene';
+        if (lower.includes('uter')) return 'Útero';
+        if (lower.includes('ovari')) return 'Ovario';
+        if (lower.includes('vagina')) return 'Vagina';
+
+        return loc.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+    };
+
+    const translateMarkerType = (type: string) => {
+        const types: any = {
+            piedra: 'Piedra',
+            litiasis: 'Litiasis',
+            tumor: 'Tumor',
+            quiste: 'Quiste',
+            estenosis: 'Estenosis',
+            line: 'Trazo',
+            marker: 'Gral'
+        };
+        return types[type] || 'Hallazgo';
+    };
+
+    const markerIcons: any = {
+        marker: MapPin,
+        tumor: Target,
+        quiste: Droplet,
+        piedra: Hexagon,
+        litiasis: Shield,
+        estenosis: Minimize2,
+        line: PenTool
+    };
 
     const CONSENTS_LIST = [
         { id: '1', title: 'Consentimiento para Cistoscopia y Procedimientos Urológicos' },
@@ -259,7 +316,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         >
                             <ClipboardList size={16} /> Recetas y Documentos
                             {prescriptions.length > 0 && (
-                                <span className={`text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1 ${currentTab === 'prescriptions' ? 'bg-[#00a63e]' : 'bg-[#000000]'}`}>{prescriptions.length}</span>
+                                <span className={`text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1 ${(currentTab === 'prescriptions' || currentTab === 'general') ? 'bg-[#00a63e]' : 'bg-[#000000]'}`}>{prescriptions.length}</span>
                             )}
                         </button>
                         <button
@@ -468,11 +525,14 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             <div className="bg-[#000000] rounded-xl p-6 text-white shadow-lg overflow-hidden relative border-2 border-black">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
                                 <div className="relative z-10">
-                                    <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                                        <span className="bg-white/20 p-1.5 rounded-xl">🧬</span> Diseñar Enfermedad
+                                    <h3 className="text-xl font-bold mb-2 flex items-center gap-3">
+                                        <div className="p-2 bg-white/10 rounded-xl">
+                                            <Brain size={20} className="text-[#00a63e]" />
+                                        </div>
+                                        Diseñar Enfermedad
                                     </h3>
                                     <p className="text-white mb-4 text-sm max-w-md">
-                                        Utiliza nuestra herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
+                                        Utiliza esta herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
                                     </p>
                                     <div className="flex flex-wrap gap-4 items-center">
                                         <button
@@ -491,26 +551,89 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                         </button >
 
                                         {snapshots.length > 0 && (
-                                            <div className="flex gap-2">
-                                                {snapshots.map(snap => (
-                                                    <div key={snap.id} className="bg-white/10 p-2 rounded-xl border border-white/10 flex items-center gap-2 group hover:bg-white/20 transition-colors">
-                                                        <span className="font-bold text-xs text-white">{snap.name}</span>
-                                                        <div className="flex gap-1">
-                                                            <button
-                                                                onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
-                                                                className="bg-white text-black hover:bg-gray-100 p-1 rounded-md transition-colors" title="Ver"
-                                                            >
-                                                                <Eye size={14} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setDeleteSnapshotId(snap.id)}
-                                                                className="bg-red-500 hover:bg-red-600 text-white p-1 rounded-md transition-colors" title="Eliminar"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
+                                            <div className="flex flex-col gap-3 w-full mt-4">
+                                                {snapshots.map((snap, idx) => {
+                                                    const snapObs = allObservations.filter(o => o.snapshotId === snap.id);
+                                                    return (
+                                                        <div key={snap.id || idx} className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 group hover:bg-white/[0.06] transition-all">
+                                                            <div className="flex justify-between items-center">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 bg-[#00a63e]/10 text-[#00a63e] rounded-xl flex items-center justify-center border border-[#00a63e]/20 group-hover:scale-105 transition-transform">
+                                                                        <ImageIcon size={18} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-[13px] font-black text-white tracking-tight leading-none mb-1.5">
+                                                                            {snapObs.length > 0
+                                                                                ? Array.from(new Set(snapObs.map(o => translateLocation(o.location || o.organ)))).join(', ')
+                                                                                : (snap.name || `Estudio 3D #${idx + 1}`)}
+                                                                        </p>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Clock size={8} className="text-[#00a63e]" />
+                                                                            <span className="text-[9px] text-[#00a63e] font-black uppercase tracking-[0.1em]">
+                                                                                {new Date(snap.createdAt).toLocaleDateString('es-HN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-1.5">
+                                                                    <button
+                                                                        onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
+                                                                        className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                                                                        title="Explorar"
+                                                                    >
+                                                                        <Eye size={18} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => setDeleteSnapshotId(snap.id)}
+                                                                        className="w-10 h-10 flex items-center justify-center text-red-400/60 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                                                                        title="Eliminar"
+                                                                    >
+                                                                        <Trash2 size={18} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {snapObs.length > 0 ? (
+                                                                <div className="mt-4 overflow-hidden rounded-xl border border-white/5 bg-black/20">
+                                                                    <table className="w-full text-left border-collapse">
+                                                                        <thead>
+                                                                            <tr className="border-b border-white/5 bg-white/[0.02]">
+                                                                                <th className="px-4 py-2 text-[8px] font-black text-white/40 uppercase tracking-widest">Hallazgo</th>
+                                                                                <th className="px-4 py-2 text-[8px] font-black text-white/40 uppercase tracking-widest">Ubicación</th>
+                                                                                <th className="px-4 py-2 text-[8px] font-black text-white/40 uppercase tracking-widest">Comentario</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {snapObs.map((o, oIdx) => {
+                                                                                const Icon = markerIcons[o.markerType || 'marker'] || MapPin;
+                                                                                return (
+                                                                                    <tr key={oIdx} className="border-b border-white/[0.02] last:border-0 hover:bg-white/[0.02] transition-colors">
+                                                                                        <td className="px-4 py-2.5">
+                                                                                            <div className="flex items-center gap-2">
+                                                                                                <Icon size={12} className="text-[#00a63e]" />
+                                                                                                <span className="text-[10px] font-bold text-white uppercase tracking-tight">{translateMarkerType(o.markerType || 'hallazgo')}</span>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td className="px-4 py-2.5">
+                                                                                            <span className="text-[11px] text-white/70 font-medium">{translateLocation(o.location || o.organ)}</span>
+                                                                                        </td>
+                                                                                        <td className="px-4 py-2.5">
+                                                                                            <p className="text-[10px] text-white/40 italic truncate max-w-[150px]" title={o.note}>
+                                                                                                {o.note || '---'}
+                                                                                            </p>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                );
+                                                                            })}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-[10px] text-white/20 italic text-center mt-2 px-4 py-2 bg-white/5 rounded-xl border border-dashed border-white/5">Sin hallazgos detallados</p>
+                                                            )}
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
@@ -695,10 +818,16 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
                                         <button
                                             onClick={() => navigate(`/app/prescriptions/${patient.id}/${p.legacyWixId || p.legacyId || p.id}`)}
-                                            className="w-full py-3 rounded-xl bg-[#000000] text-white font-bold text-sm hover:bg-[#00a63e] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10"
+                                            className="w-full py-3 rounded-xl bg-[#000000] text-white font-bold text-sm hover:bg-[#00a63e] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10 mb-2"
                                         >
                                             Ver Documento Completo
                                             <ExternalLink size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeletePrescriptionId(p.id)}
+                                            className="w-full py-2 rounded-xl text-red-500 font-bold text-xs hover:bg-red-50 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-red-100"
+                                        >
+                                            <Trash2 size={14} /> Eliminar Registro
                                         </button>
                                     </div>
                                 );
@@ -1298,6 +1427,47 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                         }
                                     }}
                                     className="bg-white text-red-600 px-6 py-2 rounded-xl font-bold transition-all shadow-md hover:bg-gray-100 hover:shadow-lg hover:scale-105 border-b-4 border-2 border-black/10 hover:border-gray-300"
+                                >
+                                    Aceptar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {/* Delete Prescription Confirmation Modal */}
+            {
+                deletePrescriptionId && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <div className="bg-white p-8 border-4 border-black rounded-3xl shadow-2xl max-w-sm w-full animate-in zoom-in-95 duration-200">
+                            <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <AlertTriangle size={40} />
+                            </div>
+                            <h3 className="text-black font-extrabold text-2xl mb-4 text-center leading-tight">
+                                ¿Eliminar Registro?
+                            </h3>
+                            <p className="text-gray-500 text-center text-sm mb-8">
+                                Esta acción es permanente y eliminará el documento de la base de datos completamente.
+                            </p>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setDeletePrescriptionId(null)}
+                                    className="flex-1 bg-gray-100 text-gray-500 px-6 py-3 rounded-2xl font-bold transition-all hover:bg-gray-200"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            await api.deletePrescription(patient.id, deletePrescriptionId);
+                                            setPrescriptions(prev => prev.filter(p => p.id !== deletePrescriptionId));
+                                            setDeletePrescriptionId(null);
+                                        } catch (e) {
+                                            alert('Error al eliminar');
+                                            console.error(e);
+                                        }
+                                    }}
+                                    className="flex-1 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg hover:bg-red-700 active:scale-95"
                                 >
                                     Aceptar
                                 </button>

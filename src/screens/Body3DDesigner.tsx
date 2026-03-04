@@ -1,7 +1,7 @@
 import React, { useState, Suspense, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Html, Center, Bounds, useBounds, Environment, ContactShadows, Line } from '@react-three/drei';
-import { ArrowLeft, Save, X, AlertTriangle, Trash2, MessageSquarePlus, MapPin, Clock, ChevronDown, PenTool, Target, Droplet, Hexagon, Minimize2, Maximize2 } from 'lucide-react';
+import { ArrowLeft, Save, X, AlertTriangle, Trash2, MessageSquarePlus, MapPin, Clock, Edit, ChevronDown, PenTool, Target, Droplet, Hexagon, Minimize2, Maximize2, Shield } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import * as THREE from 'three';
@@ -467,15 +467,58 @@ export const Body3DDesigner = () => {
     const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
     const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
     const [isDrawingMode, setIsDrawingMode] = useState(false);
-    const [drawTool, setDrawTool] = useState<'marker' | 'line' | 'tumor' | 'quiste' | 'piedra' | 'estenosis'>('marker');
+    const [drawTool, setDrawTool] = useState<'marker' | 'line' | 'tumor' | 'quiste' | 'piedra' | 'estenosis' | 'litiasis'>('piedra');
     const [isCreatingObservation, setIsCreatingObservation] = useState(false);
     const [selectedObsId, setSelectedObsId] = useState<string | null>(null);
+    const [obsLocation, setObsLocation] = useState<string>('');
+    const [isEditingObs, setIsEditingObs] = useState(false);
+
+    const translateLocation = (loc: string) => {
+        if (!loc) return 'Localización general';
+        const lower = loc.toLowerCase();
+
+        // Specific checks for mesh artifacts
+        const isLeft = lower.includes('left') || lower.includes('izq') || lower.includes('l_') || lower.includes('_l') || lower.includes(' iz') || lower.includes('_left') || lower.includes('366');
+        const isRight = lower.includes('right') || lower.includes('der') || lower.includes('r_') || lower.includes('_r') || lower.includes(' de') || lower.includes('_right') || lower.includes('365');
+        const side = isRight ? 'Derecho' : isLeft ? 'Izquierdo' : '';
+
+        if (lower.includes('kidney') || lower.includes('renal') || lower.includes('riñon') || lower.includes('surface') || lower.includes('vein') || lower.includes('artery')) {
+            if (lower.includes('ureter')) return `Uréter ${side}`.trim();
+            if (lower.includes('bladder') || lower.includes('vejiga') || lower.includes('vesic')) return 'Vejiga';
+            if (lower.includes('urethr') || lower.includes('uretra')) return 'Uretra';
+
+            // If it contains "365" it's right kidney in some models, "366" is left. 
+            // Better to rely on "side" if detected, otherwise default to Riñón.
+            return `Riñón ${side}`.trim();
+        }
+
+        if (lower.includes('ureter')) return `Uréter ${side}`.trim();
+        if (lower.includes('bladder') || lower.includes('vejiga') || lower.includes('vesic')) return 'Vejiga';
+        if (lower.includes('urethr') || lower.includes('uretra')) return 'Uretra';
+        if (lower.includes('prostat')) return 'Próstata';
+        if (lower.includes('pene')) return 'Pene';
+        return loc.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+    };
+
+    const translateMarkerType = (type: string) => {
+        const types: any = {
+            piedra: 'Piedra',
+            litiasis: 'Litiasis',
+            tumor: 'Tumor',
+            quiste: 'Quiste',
+            estenosis: 'Estenosis',
+            line: 'Trazo',
+            marker: 'Gral'
+        };
+        return types[type] || 'Hallazgo';
+    };
 
     const anomalyIcons: any = {
         marker: MapPin,
         tumor: Target,
         quiste: Droplet,
         piedra: Hexagon,
+        litiasis: Shield,
         estenosis: Minimize2,
         line: PenTool
     };
@@ -517,6 +560,7 @@ export const Body3DDesigner = () => {
                 markerType: drawTool !== 'line' ? drawTool : 'marker',
                 note,
                 organ: selectedModel?.id || 'anatomy',
+                location: obsLocation,
                 color: obsColor,
                 scale: obsScale,
                 snapshotId
@@ -614,14 +658,16 @@ export const Body3DDesigner = () => {
                                                 <AnatomyModel
                                                     modelPath={selectedModel.path}
                                                     modelId={selectedModel.id}
-                                                    onPointClick={(pt: any) => {
+                                                    onPointClick={(pt: any, loc: string) => {
                                                         if (drawTool !== 'line') {
                                                             setMarker(pt);
+                                                            setObsLocation(loc);
                                                             setIsCreatingObservation(true);
                                                         }
                                                     }}
-                                                    onPathDrawn={(path: THREE.Vector3[]) => {
+                                                    onPathDrawn={(path: THREE.Vector3[], loc: string) => {
                                                         setDrawnPaths(prev => [...prev, path]);
+                                                        setObsLocation(loc);
                                                         setIsCreatingObservation(true);
                                                     }}
                                                     currentMarker={marker}
@@ -665,65 +711,103 @@ export const Body3DDesigner = () => {
                                                 <Icon size={20} />
                                             </div>
                                             <div>
-                                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Editar Registro</h3>
+                                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
+                                                    {isEditingObs ? 'Editar Registro' : translateLocation(obs.location || obs.organ)}
+                                                </h3>
                                                 <div className="flex items-center gap-2 text-[8px] text-white/30 uppercase font-black">
                                                     <Clock size={8} />
                                                     <span>{obs.createdAt ? new Date(obs.createdAt).toLocaleString('es-HN', { day: '2-digit', month: 'short' }) : 'Reciente'}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button onClick={() => setSelectedObsId(null)} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-white/40 transition-colors"><X size={14} /></button>
-                                    </div>
-
-                                    {/* Edit Anomaly Type */}
-                                    <div className="grid grid-cols-6 gap-2">
-                                        {Object.entries(anomalyIcons).map(([type, IconComponent]: [any, any]) => (
-                                            <button
-                                                key={type}
-                                                onClick={() => handleUpdate(obs.id, { markerType: type })}
-                                                className={`h-9 rounded-xl flex items-center justify-center transition-all border ${obs.markerType === type ? 'bg-white/10 border-white/20' : 'bg-white/5 border-transparent opacity-40 hover:opacity-80'}`}
-                                            >
-                                                <IconComponent size={14} style={{ color: obs.markerType === type ? obs.color : 'white' }} />
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    {/* Edit Scale */}
-                                    <div className="space-y-2 px-1">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-[8px] text-white/40 uppercase font-black">Escala</span>
-                                            <span className="text-[10px] text-emerald-400 font-black">{(obs.scale || 1).toFixed(1)}</span>
+                                        <div className="flex gap-2">
+                                            {!isEditingObs && (
+                                                <button
+                                                    onClick={() => setIsEditingObs(true)}
+                                                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#00a63e]/10 hover:bg-[#00a63e] text-[#00a63e] hover:text-white transition-all"
+                                                    title="Editar"
+                                                >
+                                                    <Edit size={12} />
+                                                </button>
+                                            )}
+                                            <button onClick={() => { setSelectedObsId(null); setIsEditingObs(false); }} className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-white/40 transition-colors"><X size={12} /></button>
                                         </div>
-                                        <input
-                                            type="range" min="0.3" max="5" step="0.1"
-                                            value={obs.scale || 1}
-                                            onChange={e => handleUpdate(obs.id, { scale: Number(e.target.value) })}
-                                            className="w-full accent-emerald-500 h-1 bg-white/10 rounded-full appearance-none cursor-pointer"
-                                        />
                                     </div>
 
-                                    {/* Edit Note */}
-                                    <textarea
-                                        value={obs.note}
-                                        onChange={e => handleUpdate(obs.id, { note: e.target.value })}
-                                        className="w-full h-24 bg-black/20 border border-white/5 rounded-2xl p-4 text-[11px] outline-none focus:border-emerald-500/30 transition-all resize-none text-white/80 placeholder-white/10"
-                                        placeholder="Editar nota..."
-                                    />
+                                    {!isEditingObs && (
+                                        <div className="flex flex-col gap-3">
+                                            <div className="px-4 py-3 bg-white/5 border border-white/5 rounded-xl">
+                                                <p className="text-[10px] text-white/70 leading-relaxed italic">
+                                                    &quot;{obs.note || 'Sin comentarios'}&quot;
+                                                </p>
+                                            </div>
 
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => { handleDelete(obs.id); setSelectedObsId(null); }}
-                                            className="flex-1 py-3 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/10 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] transition-all"
-                                        >
-                                            Eliminar
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedObsId(null)}
-                                            className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 border border-white/5 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] transition-all"
-                                        >
-                                            Cerrar
-                                        </button>
-                                    </div>
+                                            <div className="flex items-center justify-between mt-1">
+                                                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00a63e]/10 rounded-lg border border-[#00a63e]/10">
+                                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: obs.color || '#00a63e' }}></div>
+                                                    <span className="text-[8px] text-[#00a63e] font-black uppercase tracking-widest">
+                                                        {translateMarkerType(obs.markerType || 'hallazgo')}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[8px] text-white/20 font-medium">Ref: {obs.id?.slice(-4).toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {isEditingObs && (
+                                        <>
+
+                                            {/* Edit Anomaly Type */}
+                                            <div className="grid grid-cols-6 gap-2">
+                                                {Object.entries(anomalyIcons).map(([type, IconComponent]: [any, any]) => (
+                                                    <button
+                                                        key={type}
+                                                        onClick={() => handleUpdate(obs.id, { markerType: type })}
+                                                        className={`h-9 rounded-xl flex items-center justify-center transition-all border ${obs.markerType === type ? 'bg-white/10 border-white/20' : 'bg-white/5 border-transparent opacity-40 hover:opacity-80'}`}
+                                                    >
+                                                        <IconComponent size={14} style={{ color: obs.markerType === type ? obs.color : 'white' }} />
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {/* Edit Scale */}
+                                            <div className="space-y-2 px-1">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-[8px] text-white/40 uppercase font-black">Escala</span>
+                                                    <span className="text-[10px] text-emerald-400 font-black">{(obs.scale || 1).toFixed(1)}</span>
+                                                </div>
+                                                <input
+                                                    type="range" min="0.3" max="5" step="0.1"
+                                                    value={obs.scale || 1}
+                                                    onChange={e => handleUpdate(obs.id, { scale: Number(e.target.value) })}
+                                                    className="w-full accent-emerald-500 h-1 bg-white/10 rounded-full appearance-none cursor-pointer"
+                                                />
+                                            </div>
+
+                                            {/* Edit Note */}
+                                            <textarea
+                                                value={obs.note}
+                                                onChange={e => handleUpdate(obs.id, { note: e.target.value })}
+                                                className="w-full h-24 bg-black/20 border border-white/5 rounded-2xl p-4 text-[11px] outline-none focus:border-emerald-500/30 transition-all resize-none text-white/80 placeholder-white/10"
+                                                placeholder="Editar nota..."
+                                            />
+
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => { handleDelete(obs.id); setSelectedObsId(null); }}
+                                                    className="flex-1 py-3 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/10 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] transition-all"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                                <button
+                                                    onClick={() => setSelectedObsId(null)}
+                                                    className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white/60 border border-white/5 rounded-xl text-[8px] font-black uppercase tracking-[0.2em] transition-all"
+                                                >
+                                                    Cerrar
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </>
                             );
                         })()}
@@ -746,7 +830,7 @@ export const Body3DDesigner = () => {
                                         : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/5'
                                         }`}
                                 >
-                                    <Icon size={20} style={{ color: obs.color || '#10B981' }} className={isSelected ? 'animate-pulse' : 'opacity-60'} />
+                                    <Icon size={16} style={{ color: obs.color || '#00a63e' }} className={isSelected ? 'animate-pulse' : 'opacity-40'} />
                                 </button>
                             );
                         })}
@@ -768,25 +852,25 @@ export const Body3DDesigner = () => {
                         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-50" />
 
                         {/* 1. Anomalies Group */}
-                        <div className="flex items-center gap-2 pr-6 border-r border-white/10 relative z-10">
+                        <div className="flex items-center gap-1.5 pr-6 border-r border-white/10 relative z-10">
                             {[
-                                { id: 'marker', icon: MapPin, label: 'Gral', color: '#10B981' },
+                                { id: 'piedra', icon: Hexagon, label: 'Piedra', color: '#F59E0B' },
                                 { id: 'tumor', icon: Target, label: 'Tumor', color: '#EF4444' },
                                 { id: 'quiste', icon: Droplet, label: 'Quiste', color: '#3B82F6' },
-                                { id: 'piedra', icon: Hexagon, label: 'Piedra', color: '#F59E0B' },
+                                { id: 'litiasis', icon: Shield, label: 'Litiasis', color: '#FCD34D' },
                                 { id: 'estenosis', icon: Minimize2, label: 'Estenosis', color: '#A855F7' },
                                 { id: 'line', icon: PenTool, label: 'Trazo', color: '#10B981' },
                             ].map(t => (
                                 <button
                                     key={t.id}
                                     onClick={() => setDrawTool(t.id as any)}
-                                    className={`group/btn flex flex-col items-center justify-center w-16 h-16 rounded-2xl transition-all ${drawTool === t.id
-                                        ? 'bg-white/10 text-white shadow-lg border border-white/10 scale-110'
-                                        : 'text-white/30 hover:text-white/60 hover:bg-white/5'
+                                    className={`group/btn flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all ${drawTool === t.id
+                                        ? 'bg-white/10 text-white border border-white/10 scale-105'
+                                        : 'text-white/20 hover:text-white/50 hover:bg-white/5'
                                         }`}
                                 >
-                                    <t.icon size={18} style={{ color: drawTool === t.id ? t.color : 'inherit' }} />
-                                    <span className={`text-[8px] font-black mt-1.5 uppercase tracking-tighter transition-all ${drawTool === t.id ? 'opacity-100 scale-100 text-emerald-400' : 'opacity-40 scale-75 group-hover/btn:opacity-100 group-hover/btn:scale-100'}`}>{t.label}</span>
+                                    <t.icon size={16} style={{ color: drawTool === t.id ? t.color : 'inherit' }} />
+                                    <span className={`text-[7px] font-black mt-1.5 uppercase tracking-tighter transition-all ${drawTool === t.id ? 'opacity-100 text-[#00a63e]' : 'opacity-0 scale-75 group-hover/btn:opacity-40 group-hover/btn:scale-100'}`}>{t.label}</span>
                                 </button>
                             ))}
                         </div>

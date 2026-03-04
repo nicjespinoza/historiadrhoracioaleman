@@ -252,7 +252,7 @@ export const api = {
         return { id: docRef.id, ...data } as SubsequentConsult;
     },
 
-    createObservation: async (patientId: string, data: { coordinates: { x: number, y: number, z: number }, note: string, organ: string, color?: string, scale?: number, drawnPath?: { x: number, y: number, z: number }[], drawnPaths?: any[], snapshotId?: string, hasMarker?: boolean, markerType?: string }) => {
+    createObservation: async (patientId: string, data: { coordinates: { x: number, y: number, z: number }, note: string, organ: string, location?: string, color?: string, scale?: number, drawnPath?: { x: number, y: number, z: number }[], drawnPaths?: any[], snapshotId?: string, hasMarker?: boolean, markerType?: string }) => {
         const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
         const docRef = await addDoc(collection(db, 'patients', patientId, 'observations'), {
             ...cleanData,
@@ -369,6 +369,20 @@ export const api = {
             const dateB = new Date(b.date || b.createdAt || b.fecharegistro || 0).getTime();
             return dateB - dateA;
         });
+    },
+
+    deletePrescription: async (patientId: string, id: string) => {
+        try {
+            await deleteDoc(doc(db, 'patients', patientId, 'prescriptions', id));
+        } catch (e) {
+            console.warn("Could not delete from subcollection:", e);
+        }
+        try {
+            await deleteDoc(doc(db, 'prescriptions', id));
+        } catch (e) {
+            console.warn("Could not delete from root collection:", e);
+        }
+        return { success: true };
     },
 
     createPrescription: async (patientId: string, data: any): Promise<any> => {
