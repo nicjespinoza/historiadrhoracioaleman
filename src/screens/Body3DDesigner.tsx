@@ -10,7 +10,7 @@ import { Patient } from '../types';
 // --- MODELS CONFIG ---
 const MALE_MODELS = [
     { id: 'ureta1', label: 'Uretra', path: '/models/ureta3.glb', color: '#10B981' },
-    { id: 'pene', label: 'Pene', path: '/models/pene.glb', color: '#3B82F6' },
+    { id: 'pene', label: 'Pene', path: '/models/pene1.glb', color: '#3B82F6' },
     { id: 'prostata', label: 'Próstata', path: '/models/prostata.glb', color: '#8B5CF6' },
 ];
 const FEMALE_MODELS = [
@@ -607,7 +607,7 @@ export const Body3DDesigner = () => {
                                     <pointLight position={[10, 10, 10]} intensity={4.5} />
                                     <pointLight position={[-10, 5, -10]} intensity={2.5} />
                                     <spotLight position={[0, 15, 0]} angle={0.3} intensity={3} />
-                                    <Environment preset="city" />
+                                    <Environment files="/hdri/city.hdr" />
                                     <Bounds fit clip margin={0.4}>
                                         <AutoFit>
                                             <Center>
