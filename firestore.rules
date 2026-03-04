@@ -35,14 +35,8 @@ service cloud.firestore {
     // Check if user is a doctor OR admin (full privileged access)
     function isPrivileged() {
       // return isDoctor() || isAdmin();
-      // DEV MODE: Allow all authenticated users + Explicit email overrides
-      return isAuthenticated() && (
-        true || // DEV MODE: Remove this 'true' in strict production if needed
-        request.auth.token.email.matches('^dr.*') || 
-        request.auth.token.email.matches('^horacio.*') ||
-        request.auth.token.email == 'horaciouro@gmail.com' ||
-        request.auth.token.email == 'admin@drhoraciouro.com'
-      );
+      // DEV MODE: Allow all authenticated users
+      return isAuthenticated();
     }
     
     // Check if user is doctor, admin, or assistant (semi-privileged access)
@@ -71,23 +65,14 @@ service cloud.firestore {
     
     // Verificar que el rol no está siendo cambiado a uno privilegiado sin autorización
     function isRoleChangeValid() {
-      // Si no hay campo 'role' en la solicitud, es válido (no se está cambiando el rol)
-      let hasRoleField = 'role' in request.resource.data;
-      
-      // Si tiene campo role, verificar que no sea privilegiado O el usuario sea admin
-      return !hasRoleField || 
+      return !('role' in request.resource.data) || 
              !isPrivilegedRole(request.resource.data.role) || 
              isAdmin();
     }
     
     // Verificar que el rol es inmutable durante actualizaciones (excepto para admins)
     function isRoleImmutableOnUpdate() {
-      // Si el documento existente tiene un rol
-      let existingRole = resource.data.role;
-      let newRole = request.resource.data.role;
-      
-      // El rol debe permanecer igual O el usuario debe ser admin
-      return existingRole == newRole || isAdmin();
+      return resource.data.role == request.resource.data.role || isAdmin();
     }
     
     // ============================================================
@@ -96,7 +81,6 @@ service cloud.firestore {
     
     // Verificar que la fecha de la cita es en el futuro
     function isAppointmentDateInFuture() {
-      // La fecha debe ser un timestamp y ser posterior a la hora actual
       return request.resource.data.date is timestamp &&
              request.resource.data.date > request.time;
     }
@@ -106,12 +90,8 @@ service cloud.firestore {
       return request.resource.data.patientId == request.auth.uid;
     }
     
-    // Validación completa para creación de citas por pacientes
     function isValidPatientAppointmentCreation() {
-      return isAuthenticated() &&
-             isValidPatientForAppointment() &&
-             isAppointmentDateInFuture() &&
-             hasRequiredAppointmentFields();
+      return (isAuthenticated() && request.resource.data.patientId == request.auth.uid) || isPrivileged();
     }
     
     // ============================================================
@@ -162,7 +142,7 @@ service cloud.firestore {
     
     // Verificar que el documento no está marcado como eliminado
     function isNotDeleted() {
-      return !('deleted' in resource.data) || resource.data.deleted != true;
+      return !('deleted' in resource.data) || resource.data.deleted == false;
     }
     
     // Verificar que un update preserva los campos críticos de soft delete
@@ -172,6 +152,10 @@ service cloud.firestore {
              resource.data.deleted != true ||
              (request.resource.data.deleted == true && isAdmin());
     }
+    
+    // ============================================================
+    // SOFT DELETE HELPERS
+    // ============================================================
     
     // ============================================================
     // SUGERENCIA 5: VALIDACIÓN DE ESTRUCTURA DE DATOS
@@ -205,16 +189,15 @@ service cloud.firestore {
     
     // Validar datos de paciente
     function isValidPatientData() {
-      let data = request.resource.data;
-      return data.firstName is string &&
-             data.firstName.size() > 0 &&
-             data.firstName.size() <= 50 &&
-             data.lastName is string &&
-             data.lastName.size() > 0 &&
-             data.lastName.size() <= 50 &&
-             (!('email' in data) || isValidEmail(data.email)) &&
-             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
-             (!('birthDate' in data) || data.birthDate is timestamp);
+      return request.resource.data.firstName is string &&
+             request.resource.data.firstName.size() > 0 &&
+             request.resource.data.firstName.size() <= 50 &&
+             request.resource.data.lastName is string &&
+             request.resource.data.lastName.size() > 0 &&
+             request.resource.data.lastName.size() <= 50 &&
+             (!('email' in request.resource.data) || isValidEmail(request.resource.data.email)) &&
+             (!('phone' in request.resource.data) || (request.resource.data.phone is string && request.resource.data.phone.size() <= 20)) &&
+             (!('birthDate' in request.resource.data) || request.resource.data.birthDate is timestamp);
     }
     
     // ============================================================
@@ -251,11 +234,6 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
-    // DEFAULT RULE: DENY ALL
-    // ============================================================
-    match /{document=**} {
-      allow read, write: if false;
-    }
     
     // ============================================================
     // SUGERENCIA 4: AUDIT LOGS COLLECTION (HISTORIAL DE CAMBIOS)
@@ -347,7 +325,7 @@ service cloud.firestore {
                       (!('phone' in request.resource.data) || isValidPhone(request.resource.data.phone));
       
       // READ: Solo el propietario (por email) o usuarios privilegiados
-      allow read: if (isEmailOwner() || isPrivileged()) && isNotDeleted();
+      allow read: if isPrivileged();
       
       // UPDATE: Propietario o privilegiados + NO modificar campos críticos
       allow update: if ((isEmailOwner() && criticalFieldsUnchanged()) || isPrivileged()) && 
@@ -363,13 +341,13 @@ service cloud.firestore {
       // --------------------------------------------------------
       match /histories/{historyId} {
         // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
-        allow read: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
+        allow read: if isPrivileged();
         
         // Crear historiales: Propietario o usuarios privilegiados
-        allow create: if isOwner(patientId) || isPrivileged();
+        allow create: if isPrivileged();
         
         // Actualizar: Propietario o usuarios privilegiados
-        allow update: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
+        allow update: if isPrivileged();
         
         // Eliminar: ⛔ DESHABILITADO - Historiales médicos no se eliminan
         allow delete: if false;
@@ -380,13 +358,13 @@ service cloud.firestore {
       // --------------------------------------------------------
       match /consults/{consultId} {
         // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
-        allow read: if (isOwner(patientId) || isPrivileged()) && isNotDeleted();
+        allow read: if isPrivileged();
         
         // Crear consultas: Solo usuarios privilegiados (doctores/admin)
         allow create: if isPrivileged();
         
         // Actualizar: Solo usuarios privilegiados
-        allow update: if isPrivileged() && isNotDeleted();
+        allow update: if isPrivileged();
         
         // Eliminar: ⛔ DESHABILITADO
         allow delete: if false;
@@ -397,7 +375,7 @@ service cloud.firestore {
       // --------------------------------------------------------
       match /observations/{observationId} {
         // SEGURIDAD: Solo el propietario o usuarios privilegiados
-        allow read: if isOwner(patientId) || isPrivileged();
+        allow read: if isPrivileged();
         allow create: if isPrivileged();
         allow update: if isPrivileged();
         allow delete: if isPrivileged();
@@ -408,13 +386,13 @@ service cloud.firestore {
       // --------------------------------------------------------
       match /prescriptions/{prescriptionId} {
         // SEGURIDAD: Solo el propietario del paciente o usuarios privilegiados
-        allow read: if isOwner(patientId) || isPrivileged();
+        allow read: if isPrivileged();
         
         // Crear recetas: Solo usuarios privilegiados (doctores/admin)
         allow create: if isPrivileged();
         
         // Actualizar: Solo usuarios privilegiados
-        allow update: if isPrivileged() && isNotDeleted();
+        allow update: if isPrivileged();
         
         // Eliminar: ⛔ DESHABILITADO
         allow delete: if false;
@@ -425,11 +403,33 @@ service cloud.firestore {
       // --------------------------------------------------------
       match /snapshots/{snapshotId} {
         // SEGURIDAD: Solo el propietario o usuarios privilegiados
-        allow read: if isOwner(patientId) || isPrivileged();
+        allow read: if isPrivileged();
         allow create: if isPrivileged();
         allow update: if isPrivileged();
         allow delete: if isPrivileged();
       }
+    }
+    
+    // ============================================================
+    // MIGRATED ROOT COLLECTIONS (LEGACY COMPATIBILITY)
+    // ============================================================
+    
+    // Initial Histories (Legacy)
+    match /initialHistories/{historyId} {
+      allow read: if isPrivileged() || (isAuthenticated() && resource.data.patientId == request.auth.uid);
+      allow write: if isPrivileged();
+    }
+
+    // Subsequent Consults (Legacy)
+    match /subsequentConsults/{consultId} {
+      allow read: if isPrivileged() || (isAuthenticated() && resource.data.patientId == request.auth.uid);
+      allow write: if isPrivileged();
+    }
+
+    // Prescriptions (Legacy)
+    match /prescriptions/{prescriptionId} {
+      allow read: if isPrivileged() || (isAuthenticated() && resource.data.patientId == request.auth.uid);
+      allow write: if isPrivileged();
     }
     
     // ============================================================

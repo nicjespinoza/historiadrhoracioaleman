@@ -102,7 +102,7 @@ function parseWixDateToString(dateString) {
     try {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '';
-        return date.toISOString().split('T')[0]; // YYYY-MM-DD
+        return date.toISOString(); // Keep full timestamp for better sorting
     } catch (error) {
         return '';
     }
@@ -195,6 +195,7 @@ function mapPatient(wixPatient) {
         createdAt: parseWixDateToString(wixPatient['Created Date']) || new Date().toISOString(),
         registrationSource: 'manual',
         isOnline: false,
+        migrated: true,
 
         // Campos adicionales
         civilStatus: cleanString(wixPatient['Estado civil']) || 'Soltero',

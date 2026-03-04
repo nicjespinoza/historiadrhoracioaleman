@@ -17,11 +17,12 @@ export function generateStaticParams() {
         { slug: ['reports'] },
         { slug: ['auth'] },
         { slug: ['payment', 'callback'] },
+        { slug: ['crearimagen'] },
+        { slug: ['profile'] },
     ];
 }
 
 export const dynamic = 'force-static';
-// export const dynamicParams = false;
 
 export default function AppSPACatchAll() {
     return <ClientAppShell />;

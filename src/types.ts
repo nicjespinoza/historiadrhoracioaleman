@@ -23,6 +23,8 @@ export interface Patient {
   companion: string; // Acompañante
   patientType: 'Historia Clinica' | 'Recetario';
   migrated?: boolean;
+  legacyId?: string;
+  legacyWixId?: string;
 }
 
 // Helper to store dynamic checkbox data

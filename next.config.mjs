@@ -5,7 +5,8 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
-    output: 'export',
+    // Solo requerir export para producción, permitiendo desarrollo local en las rutas dinámicas sin errores
+    output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
     images: {
         unoptimized: true,
         qualities: [75, 90],

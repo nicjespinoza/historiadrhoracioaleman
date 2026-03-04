@@ -99,7 +99,7 @@ export const PatientListScreen = ({
     const visiblePages = getVisiblePageNumbers();
 
     return (
-        <div className="min-h-screen p-4 md:p-8 liquid-bg-container">
+        <div className="min-h-screen p-4 md:p-8 bg-[#2E7618]">
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="flex flex-col gap-6 mb-8">
                     {/* Header & Create Button */}
@@ -112,9 +112,9 @@ export const PatientListScreen = ({
                         </h2>
                         <button
                             onClick={() => navigate('/app/register')}
-                            className="bg-white text-green-600 px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-gray-100 transition shadow-lg shadow-black/10 w-full md:w-auto justify-center font-bold"
+                            className="bg-white text-[#2E7618] px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-gray-100 transition shadow-lg shadow-black/10 w-full md:w-auto justify-center font-black uppercase tracking-wider"
                         >
-                            <UserPlus size={20} className="text-green-600" /> Crear Nuevo
+                            <UserPlus size={20} className="text-[#2E7618]" /> Crear Nuevo
                         </button>
                     </div>
                     {/* Tabs & Search Row */}
@@ -158,9 +158,9 @@ export const PatientListScreen = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {visiblePatients.map(p => (
                         <div key={p.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all group relative overflow-hidden">
-                            {/* Migrated Badge */}
-                            {p.migrated && (
-                                <div className="absolute top-0 right-0 bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-bl-xl z-10 flex items-center gap-1">
+                            {/* Migrated Badge - Now in Theme Blue */}
+                            {(p.migrated || p.legacyId || p.legacyWixId) && (
+                                <div className="absolute top-0 right-0 bg-blue-50 text-[#083c79] text-[9px] font-black px-3 py-1.5 rounded-bl-xl z-10 flex items-center gap-1 border-l border-b border-blue-100/50 tracking-widest">
                                     <Globe size={10} /> MIGRADO
                                 </div>
                             )}

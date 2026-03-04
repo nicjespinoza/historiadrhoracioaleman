@@ -79,7 +79,8 @@ export const api = {
     },
 
     getPatients: async (options?: { limitCount?: number, lastDoc?: any, searchTerm?: string, patientType?: string }): Promise<{ patients: Patient[], lastVisible: any }> => {
-        let q = query(collection(db, 'patients'), orderBy('lastName'), orderBy('firstName'));
+        // Build base query
+        let q = query(collection(db, 'patients'), orderBy('createdAt', 'desc'));
 
         if (options?.patientType && options.patientType !== 'all') {
             q = query(q, where('patientType', '==', options.patientType));
@@ -93,11 +94,16 @@ export const api = {
             q = query(q, limit(options.limitCount));
         }
 
-        const snapshot = await getDocs(q);
-        const patients = snapshot.docs.map(doc => docToData<Patient>(doc));
-        const lastVisible = snapshot.docs[snapshot.docs.length - 1];
-
-        return { patients, lastVisible };
+        try {
+            const snapshot = await getDocs(q);
+            const patients = snapshot.docs.map(doc => docToData<Patient>(doc));
+            const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+            return { patients, lastVisible };
+        } catch (e: any) {
+            console.error("Error fetching patients list:", e);
+            // Return empty list on permission error to avoid component crash
+            return { patients: [], lastVisible: null };
+        }
     },
 
     getPatientsCount: async (patientType?: string): Promise<number> => {
@@ -133,6 +139,13 @@ export const api = {
         await deleteDoc(doc(db, 'patients', id));
     },
 
+    getPatientById: async (id: string): Promise<Patient | null> => {
+        const docRef = doc(db, 'patients', id);
+        const snapshot = await getDoc(docRef);
+        if (!snapshot.exists()) return null;
+        return docToData<Patient>(snapshot);
+    },
+
     getPatientStatus: async (id: string): Promise<{ canChat: boolean }> => {
         const docRef = doc(db, 'patients', id);
         const snapshot = await getDoc(docRef);
@@ -144,17 +157,41 @@ export const api = {
     // ==================== HISTORIES (Subcollection) ====================
     getHistories: async (patientId?: string): Promise<InitialHistory[]> => {
         if (patientId) {
-            const snapshot = await getDocs(collection(db, 'patients', patientId, 'histories'));
-            return snapshot.docs.map(doc => docToData<InitialHistory>(doc));
+            // Fetch from subcollection
+            let subData: InitialHistory[] = [];
+            try {
+                const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'histories'));
+                subData = subSnapshot.docs.map(doc => docToData<InitialHistory>(doc));
+            } catch (e) {
+                console.warn("Error fetching histories from subcollection:", e);
+            }
+
+            // Fetch from legacy root collection
+            let rootData: InitialHistory[] = [];
+            try {
+                const rootSnapshot = await getDocs(query(collection(db, 'initialHistories'), where('patientId', '==', patientId)));
+                rootData = rootSnapshot.docs.map(doc => docToData<InitialHistory>(doc));
+            } catch (e) {
+                console.warn("Error fetching histories from root collection:", e);
+            }
+
+            // Combine and sort by date descending
+            const all = [...subData, ...rootData];
+            return all.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         }
         // If no patientId, get all histories across all patients (less efficient)
-        const patientsSnapshot = await getDocs(collection(db, 'patients'));
-        const allHistories: InitialHistory[] = [];
-        for (const patientDoc of patientsSnapshot.docs) {
-            const historiesSnapshot = await getDocs(collection(db, 'patients', patientDoc.id, 'histories'));
-            allHistories.push(...historiesSnapshot.docs.map(doc => docToData<InitialHistory>(doc)));
+        try {
+            const patientsSnapshot = await getDocs(collection(db, 'patients'));
+            const allHistories: InitialHistory[] = [];
+            for (const patientDoc of patientsSnapshot.docs) {
+                const histories = await api.getHistories(patientDoc.id);
+                allHistories.push(...histories);
+            }
+            return allHistories;
+        } catch (e) {
+            console.error("Critical error in getHistories:", e);
+            return [];
         }
-        return allHistories;
     },
 
     createHistory: async (data: Omit<InitialHistory, 'id'>): Promise<InitialHistory> => {
@@ -174,16 +211,40 @@ export const api = {
     // ==================== CONSULTS (Subcollection) ====================
     getConsults: async (patientId?: string): Promise<SubsequentConsult[]> => {
         if (patientId) {
-            const snapshot = await getDocs(collection(db, 'patients', patientId, 'consults'));
-            return snapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
+            // Fetch from subcollection
+            let subData: SubsequentConsult[] = [];
+            try {
+                const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'consults'));
+                subData = subSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
+            } catch (e) {
+                console.warn("Error fetching consults from subcollection:", e);
+            }
+
+            // Fetch from legacy root collection
+            let rootData: SubsequentConsult[] = [];
+            try {
+                const rootSnapshot = await getDocs(query(collection(db, 'subsequentConsults'), where('patientId', '==', patientId)));
+                rootData = rootSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
+            } catch (e) {
+                console.warn("Error fetching consults from root collection:", e);
+            }
+
+            // Combine and sort by date descending
+            const all = [...subData, ...rootData];
+            return all.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         }
-        const patientsSnapshot = await getDocs(collection(db, 'patients'));
-        const allConsults: SubsequentConsult[] = [];
-        for (const patientDoc of patientsSnapshot.docs) {
-            const consultsSnapshot = await getDocs(collection(db, 'patients', patientDoc.id, 'consults'));
-            allConsults.push(...consultsSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc)));
+        try {
+            const patientsSnapshot = await getDocs(collection(db, 'patients'));
+            const allConsults: SubsequentConsult[] = [];
+            for (const patientDoc of patientsSnapshot.docs) {
+                const consults = await api.getConsults(patientDoc.id);
+                allConsults.push(...consults);
+            }
+            return allConsults;
+        } catch (e) {
+            console.error("Critical error in getConsults:", e);
+            return [];
         }
-        return allConsults;
     },
 
     createConsult: async (data: Omit<SubsequentConsult, 'id'>): Promise<SubsequentConsult> => {
@@ -191,30 +252,41 @@ export const api = {
         return { id: docRef.id, ...data } as SubsequentConsult;
     },
 
-    // ==================== OBSERVATIONS (Subcollection) ====================
-    createObservation: async (patientId: string, data: { coordinates: { x: number, y: number, z: number }, note: string, organ: string, snapshotId?: string }) => {
+    createObservation: async (patientId: string, data: { coordinates: { x: number, y: number, z: number }, note: string, organ: string, color?: string, scale?: number, drawnPath?: { x: number, y: number, z: number }[], drawnPaths?: any[], snapshotId?: string, hasMarker?: boolean, markerType?: string }) => {
+        const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
         const docRef = await addDoc(collection(db, 'patients', patientId, 'observations'), {
-            ...data,
+            ...cleanData,
             createdAt: new Date().toISOString()
         });
         return { id: docRef.id, ...data };
     },
 
     getObservations: async (patientId: string, snapshotId?: string) => {
-        const obsCollection = collection(db, 'patients', patientId, 'observations');
-        let snapshot;
-        if (snapshotId) {
-            const q = query(obsCollection, where('snapshotId', '==', snapshotId));
-            snapshot = await getDocs(q);
-        } else {
-            snapshot = await getDocs(obsCollection);
+        try {
+            const obsCollection = collection(db, 'patients', patientId, 'observations');
+            let snapshot;
+            if (snapshotId) {
+                const q = query(obsCollection, where('snapshotId', '==', snapshotId));
+                snapshot = await getDocs(q);
+            } else {
+                snapshot = await getDocs(obsCollection);
+            }
+            return snapshot.docs.map(doc => docToData<any>(doc));
+        } catch (e) {
+            console.warn("Error fetching observations:", e);
+            return [];
         }
-        return snapshot.docs.map(doc => docToData<any>(doc));
     },
 
     deleteObservation: async (patientId: string, id: string) => {
         await deleteDoc(doc(db, 'patients', patientId, 'observations', id));
         return { success: true };
+    },
+
+    updateObservation: async (patientId: string, id: string, data: Partial<{ note: string, color: string, scale: number, markerType: string }>) => {
+        const docRef = doc(db, 'patients', patientId, 'observations', id);
+        await updateDoc(docRef, data);
+        return { id, ...data };
     },
 
     // ==================== SNAPSHOTS (Subcollection) ====================
@@ -227,8 +299,13 @@ export const api = {
     },
 
     getSnapshots: async (patientId: string) => {
-        const snapshot = await getDocs(collection(db, 'patients', patientId, 'snapshots'));
-        return snapshot.docs.map(doc => docToData<any>(doc));
+        try {
+            const snapshot = await getDocs(collection(db, 'patients', patientId, 'snapshots'));
+            return snapshot.docs.map(doc => docToData<any>(doc));
+        } catch (e) {
+            console.warn("Error fetching snapshots:", e);
+            return [];
+        }
     },
 
     deleteSnapshot: async (patientId: string, id: string) => {
@@ -238,14 +315,76 @@ export const api = {
 
     // ==================== PRESCRIPTIONS (Subcollection) ====================
     getPrescriptions: async (patientId: string) => {
-        const snapshot = await getDocs(collection(db, 'patients', patientId, 'prescriptions'));
-        return snapshot.docs.map(doc => docToData<any>(doc));
+        let patientData: any = null;
+        try {
+            const patientDoc = await getDoc(doc(db, 'patients', patientId));
+            patientData = patientDoc.exists() ? patientDoc.data() : null;
+        } catch (e) {
+            console.warn("Could not fetch patient document in getPrescriptions:", e);
+        }
+
+        const legacyId = patientData?.legacyId || patientData?.HA_ID || patientData?.Idunico;
+
+        // Fetch from patient subcollection (item-linked documents)
+        let subcollPrescs: any[] = [];
+        try {
+            const subcollSnapshot = await getDocs(collection(db, 'patients', patientId, 'prescriptions'));
+            subcollPrescs = subcollSnapshot.docs.map(doc => ({ id: doc.id, ...docToData<any>(doc) }));
+        } catch (e) {
+            console.warn("Could not fetch prescriptions subcollection:", e);
+        }
+
+        // Fetch from root collection (migrated prescriptions) by Firestore ID
+        let rootByIdPrescs: any[] = [];
+        try {
+            const rootByIdSnapshot = await getDocs(query(collection(db, 'prescriptions'), where('patientId', '==', patientId)));
+            rootByIdPrescs = rootByIdSnapshot.docs.map(doc => ({ id: doc.id, ...docToData<any>(doc) }));
+        } catch (e) {
+            // This often fails if security rules aren't deployed for root 'prescriptions'
+            console.warn("Could not fetch prescriptions from root by patientId:", e);
+        }
+
+        // Fetch from root collection by Legacy ID (HAXXXXX)
+        let rootByLegacyPrescs: any[] = [];
+        if (legacyId) {
+            try {
+                const rootByLegacySnapshot = await getDocs(query(collection(db, 'prescriptions'), where('legacyPatientId', '==', legacyId)));
+                rootByLegacyPrescs = rootByLegacySnapshot.docs.map(doc => ({ id: doc.id, ...docToData<any>(doc) }));
+            } catch (e) {
+                console.warn("Could not fetch prescriptions from root by legacyId:", e);
+            }
+        }
+
+        // Combine all results, removing duplicates by document ID
+        const combinedMap = new Map();
+        [...subcollPrescs, ...rootByIdPrescs, ...rootByLegacyPrescs].forEach(p => {
+            combinedMap.set(p.id, p);
+        });
+
+        const all = Array.from(combinedMap.values());
+
+        // Sort by date descending
+        return all.sort((a, b) => {
+            const dateA = new Date(a.date || a.createdAt || a.fecharegistro || 0).getTime();
+            const dateB = new Date(b.date || b.createdAt || b.fecharegistro || 0).getTime();
+            return dateB - dateA;
+        });
+    },
+
+    createPrescription: async (patientId: string, data: any): Promise<any> => {
+        const docRef = await addDoc(collection(db, 'patients', patientId, 'prescriptions'), { ...data, patientId, createdAt: new Date().toISOString() });
+        return { id: docRef.id, ...data };
     },
 
     // ==================== APPOINTMENTS (Root Collection) ====================
     getAppointments: async (): Promise<Appointment[]> => {
-        const snapshot = await getDocs(collection(db, 'appointments'));
-        return snapshot.docs.map(doc => docToData<Appointment>(doc));
+        try {
+            const snapshot = await getDocs(collection(db, 'appointments'));
+            return snapshot.docs.map(doc => docToData<Appointment>(doc));
+        } catch (e) {
+            console.error("Error fetching appointments:", e);
+            return [];
+        }
     },
 
     createAppointment: async (data: Omit<Appointment, 'id'>): Promise<Appointment> => {

@@ -11,6 +11,8 @@ import { SpecialtyHistoryScreen } from './SpecialtyHistoryScreen';
 import { ConsultScreen } from './ConsultScreen';
 import { ReportScreen } from './ReportScreen';
 import { Body3DDesigner } from './Body3DDesigner';
+import { PrescriptionViewer } from './PrescriptionViewer';
+import { CreatePrescriptionScreen } from './CreatePrescriptionScreen';
 import { Patient, InitialHistory, SubsequentConsult, ModalContent, User } from '../types';
 import { api } from '../../api';
 import { useAuth } from '../context/AuthContext';
@@ -267,6 +269,9 @@ export const DoctorDashboard = () => {
                             <Route path="body-designer" element={<Body3DDesigner />} />
                             <Route path="crearimagen/:patientId" element={<Body3DDesigner />} />
                             <Route path="crearimagen/:patientId/:snapshotId" element={<Body3DDesigner />} />
+
+                            <Route path="prescriptions/:patientId/:prescriptionId" element={<PrescriptionViewer />} />
+                            <Route path="prescription/new/:patientId" element={<CreatePrescriptionScreen patients={patients} />} />
 
                             {/* DEBUG: Show 404 instead of redirect to catch routing errors */}
                             <Route path="*" element={

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool, ChevronDown, Globe, Database, AlertCircle, ShieldCheck } from 'lucide-react';
+import { User, FileText, Stethoscope, ArrowLeft, Plus, Calendar, Edit, X, Save, Trash2, Eye, Video, Clock, CheckCircle, Brain, Lightbulb, AlertTriangle, ClipboardList, Loader2, PenTool, ChevronDown, Globe, Database, AlertCircle, ShieldCheck, ExternalLink } from 'lucide-react';
 import { Patient, InitialHistory, SubsequentConsult } from '../types';
 import { calculateAge } from '../lib/helpers';
 import { api } from '../../api';
@@ -25,7 +25,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const navigate = useNavigate();
 
     // UI States
-    const [currentTab, setCurrentTab] = useState<'general' | 'consents' | 'stats'>('general');
+    const [currentTab, setCurrentTab] = useState<'general' | 'consents' | 'stats' | 'prescriptions'>('general');
     const [showFullInfo, setShowFullInfo] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingPatient, setEditingPatient] = useState<Partial<Patient>>({});
@@ -57,21 +57,18 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                 const patientApts = all.filter((a: any) => a.patientId === patientId);
                 setAppointments(patientApts);
             }).catch(console.error);
+            // Load Prescriptions (legacy & new)
+            api.getPrescriptions(patientId).then(setPrescriptions).catch(console.error);
+
             // Lazy Load Histories & Consults if not provided via props (or if empty due to optimization)
             if (histories.filter(h => h.patientId === patientId).length === 0) {
                 api.getHistories(patientId).then(data => {
-                    // We can't update the parent state easily from here without a huge refactor, 
-                    // so we should probably use a local state merge or assume the parent keeps them empty
-                    // Actually, better to use local state for this screen's display if parent doesn't have them.
                     setLocalHistories(data);
                 });
 
                 api.getConsults(patientId).then(data => {
                     setLocalConsults(data);
                 });
-
-                // Load Prescriptions (legacy & new)
-                api.getPrescriptions(patientId).then(setPrescriptions).catch(console.error);
             }
         }
     }, [patientId, histories]); // Dependencies
@@ -178,7 +175,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
         try {
             const generateAI = httpsCallable(functions, 'generateAIAnalysis');
-            const result = await generateAI({ patientId: patient.id });
+            const result = await generateAI({ patientId: patient?.id });
             const data = result.data as any;
             setAiResult({
                 summary: data.summary,
@@ -203,6 +200,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
     const patientHistories = [...histories.filter(h => h.patientId === safePatientId), ...localHistories];
     const patientConsults = [...consults.filter(c => c.patientId === safePatientId), ...localConsults];
 
+    if (!patient) return <div className="flex items-center justify-center min-h-screen">Paciente no encontrado</div>;
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Header / Banner */}
@@ -215,12 +214,12 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             </button>
                             <div>
                                 <h1 className="text-3xl font-bold text-cenlae-primary flex items-center gap-2">
-                                    {patient.firstName} {patient.lastName}
-                                    {patient.isOnline && <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Online" />}
+                                    {patient?.firstName} {patient?.lastName}
+                                    {patient?.isOnline && <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Online" />}
                                 </h1>
                                 <p className="text-gray-500 flex items-center gap-2 mt-1">
-                                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm font-bold">Pac. {patient.id.slice(0, 6)}</span>
-                                    • {calculateAge(patient.birthDate)} años • {patient.sex}
+                                    <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm font-bold">Pac. {patient?.id?.slice(0, 6)}</span>
+                                    • {patient?.birthDate ? calculateAge(patient.birthDate) : 'N/A'} años • {patient?.sex}
                                 </p>
                             </div>
                         </div>
@@ -253,6 +252,15 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                             className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             Información General
+                        </button>
+                        <button
+                            onClick={() => setCurrentTab('prescriptions')}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'prescriptions' ? 'text-[#083c79] border-b-2 border-[#083c79]' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            <ClipboardList size={16} /> Recetas y Documentos
+                            {prescriptions.length > 0 && (
+                                <span className="bg-[#083c79] text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">{prescriptions.length}</span>
+                            )}
                         </button>
                         <button
                             onClick={() => setCurrentTab('consents')}
@@ -635,7 +643,83 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
 
 
 
-            {/* TAB: Consent Manager */}
+            {/* TAB: Prescriptions Content */}
+            {currentTab === 'prescriptions' && (
+                <div className="p-8 max-w-7xl mx-auto space-y-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h3 className="font-bold text-gray-900 flex items-center gap-3 text-2xl">
+                            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                                <ClipboardList size={24} />
+                            </div>
+                            Historial de Recetas y Documentos
+                        </h3>
+                        <button
+                            onClick={() => navigate(`/app/prescription/new/${patient.id}`)}
+                            className="bg-[#083c79] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0a4b96] transition shadow-lg flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                        >
+                            <Plus size={20} /> Crear +
+                        </button>
+                    </div>
+
+                    {prescriptions.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {prescriptions.map((p, idx) => {
+                                const docType = Array.isArray(p.documentTypes) ? p.documentTypes[0] : (p.documentTypes || p.Tipo?.[0] || 'Recetario Médico');
+                                const displayDate = p.date ? new Date(p.date).toLocaleDateString() : 'N/A';
+
+                                return (
+                                    <div key={p.id || idx} className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-[#083c79] transition-all group shadow-sm hover:shadow-xl relative overflow-hidden">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-3 bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-[#083c79] rounded-xl transition-colors">
+                                                <FileText size={20} />
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{displayDate}</span>
+                                                <span className="text-[10px] text-gray-300 font-medium">#{p.legacyId || p.id?.slice(0, 8)}</span>
+                                            </div>
+                                        </div>
+
+                                        <h4 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{docType}</h4>
+
+                                        <div className="space-y-4 mb-6">
+                                            {p.diagnostico && (
+                                                <div className="bg-gray-50 p-3 rounded-xl">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Diagnóstico</p>
+                                                    <p className="text-sm text-gray-700 line-clamp-2">{p.diagnostico}</p>
+                                                </div>
+                                            )}
+                                            {p.prescriptionText || p.recetas || p.Recetas ? (
+                                                <div className="bg-green-50/50 p-3 rounded-xl border border-green-100">
+                                                    <p className="text-[10px] font-bold text-green-600 uppercase mb-1">Indicaciones / Receta</p>
+                                                    <p className="text-sm text-gray-700 line-clamp-3">{p.prescriptionText || p.recetas || p.Recetas}</p>
+                                                </div>
+                                            ) : null}
+                                        </div>
+
+                                        <button
+                                            onClick={() => navigate(`/app/prescriptions/${patient.id}/${p.legacyWixId || p.legacyId || p.id}`)}
+                                            className="w-full py-3 rounded-xl bg-[#083c79] text-white font-bold text-sm hover:bg-[#0a4b96] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10"
+                                        >
+                                            Ver Documento Completo
+                                            <ExternalLink size={16} />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-gray-200">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                <ClipboardList size={40} />
+                            </div>
+                            <h4 className="text-xl font-bold text-gray-900 mb-2">Sin recetas registradas</h4>
+                            <p className="text-gray-500 max-w-xs mx-auto">
+                                No se encontraron documentos asociados a este paciente en el sistema actual o migrado.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
             {
                 currentTab === 'consents' && (
                     <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -870,7 +954,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                 <div key={p.id || idx} className="border border-gray-200 rounded-xl overflow-hidden">
                                                     <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
                                                         <span className="font-bold text-gray-700 text-sm">Documento #{idx + 1}</span>
-                                                        <span className="text-xs text-gray-500">{new Date(p.date).toLocaleDateString()}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs text-gray-500">{new Date(p.date).toLocaleDateString()}</span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setShowPrescriptionsModal(false);
+                                                                    navigate(`/app/prescriptions/${patient.id}/${p.legacyWixId || p.legacyId || p.id}`);
+                                                                }}
+                                                                className="p-1 hover:bg-white rounded text-blue-600 transition-colors"
+                                                                title="Ver Documento Completo"
+                                                            >
+                                                                <ExternalLink size={14} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <div className="p-4 space-y-4">
                                                         {p.medications && (

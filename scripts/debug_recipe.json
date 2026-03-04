@@ -1,0 +1,27 @@
+{
+  "ID": "ed86d9af-b88b-4937-9543-ede3f2a812df",
+  "Created Date": "2026-03-02T22:47:35Z",
+  "Updated Date": "2026-03-03T00:43:00Z",
+  "Owner": "afa0fd57-22b7-4a4f-bf06-9ee0b81ce15a",
+  "User Name": "Flor de Maria  Nurinda Ortega",
+  "Registrarcliente": "Paciente historia",
+  "Generatedid": "HI49391",
+  "Sexo": "Femenino",
+  "Idunico": "HA33290",
+  "Recetas Editar (Item)": "/recetas/editar/hi49391",
+  "usuario": "Activo",
+  "Tipo": [
+    "Orden de ingreso"
+  ],
+  "fecharegistro": "2026-03-02T22:47:35Z",
+  "Examen": "",
+  "Radio": "",
+  "Recetas": "",
+  "Fechanacimiento": "1983-03-12T06:00:00Z",
+  "Idpaciente": "89193414-fe5a-466e-a4cb-b4bdfca08975",
+  "constancia": "",
+  "diagnostico": "Litiasis Ureteral Proximal Izquierdo con Repercusión obstructiva\nlitiasis  11 *7 *9 mm",
+  "procedimiento": "Ureterorenoscopia mas litotricia láser thulium mas colocación de de jj izquierdo",
+  "indicaciones": "1.\tAcudir al Centro  NIMEC,   a las 4 am, con compania familiar. \n2.\tAyunas inician día previo a su cirugía a las 10 pm del día  2 de marzo de 2025, a las 10 pm  \n3.\tBaño con clorhexidina jabón día de cirugía \n4.\tAcudir con compañía. \n5.     Presentar estudios presop y valoraciones pre operatoria por cardiología \n\nNIMED Direccion Pizza Valenti los robles, 2 cuadras arriba 1/2 cuadra la sur managua",
+  "Recetas Imprimir (Item)": "/recetas/imprimir/hi49391"
+}

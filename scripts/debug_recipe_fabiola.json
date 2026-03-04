@@ -1,0 +1,28 @@
+{
+  "ID": "bd595d7c-027b-453d-aff1-48dbece3fc0d",
+  "Created Date": "2026-03-02T17:48:06Z",
+  "Updated Date": "2026-03-02T18:03:04Z",
+  "Owner": "afa0fd57-22b7-4a4f-bf06-9ee0b81ce15a",
+  "User Name": "Fabiola Carolina  Palacios Baltodano",
+  "Registrarcliente": "Paciente historia",
+  "Generatedid": "HI84589",
+  "Sexo": "Femenino",
+  "Idunico": "HA68072",
+  "Recetas Editar (Item)": "/recetas/editar/hi84589",
+  "usuario": "Activo",
+  "Tipo": [
+    "Recetario medico",
+    "Estudios radiologicos"
+  ],
+  "fecharegistro": "2026-03-02T17:48:06Z",
+  "Examen": "",
+  "Radio": "Pielotac \nlitiasis renal bilateral \ncontrol y decidir conducta subsecuente",
+  "Recetas": "1- LithoLyte. \n1 sobre oral cada 12 horas por 1 mes \n1 mes\n\n2- Enantyum liquido \n1 sobre oral cada 12 horas por 5 días \n10 tabletas \n\n3- Ciprofloxacina \n500 mg oral cada 12 horas por  7 días \n14 tabletas",
+  "Fechanacimiento": "1991-03-04T06:00:00Z",
+  "Idpaciente": "e19b6c82-bee9-42df-9783-9bf5aa6ee304",
+  "constancia": "",
+  "diagnostico": "",
+  "procedimiento": "",
+  "indicaciones": "",
+  "Recetas Imprimir (Item)": "/recetas/imprimir/hi84589"
+}
