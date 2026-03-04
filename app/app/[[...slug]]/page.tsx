@@ -19,6 +19,7 @@ export function generateStaticParams() {
         { slug: ['payment', 'callback'] },
         { slug: ['crearimagen'] },
         { slug: ['profile'] },
+        { slug: [] },
     ];
 }
 
