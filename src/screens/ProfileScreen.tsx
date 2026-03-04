@@ -213,7 +213,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 <ArrowLeft size={24} />
                             </button>
                             <div>
-                                <h1 className="text-3xl font-bold text-cenlae-primary flex items-center gap-2">
+                                <h1 className="text-3xl font-bold text-[#00a63e] flex items-center gap-2">
                                     {patient?.firstName} {patient?.lastName}
                                     {patient?.isOnline && <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Online" />}
                                 </h1>
@@ -249,22 +249,22 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                     <div className="flex gap-6 mt-8 overflow-x-auto">
                         <button
                             onClick={() => setCurrentTab('general')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap ${currentTab === 'general' ? 'text-[#00a63e] border-b-2 border-[#00a63e]' : 'text-[#000000] hover:text-[#00a63e]/70'}`}
                         >
                             Información General
                         </button>
                         <button
                             onClick={() => setCurrentTab('prescriptions')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'prescriptions' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'prescriptions' ? 'text-[#00a63e] border-b-2 border-[#00a63e]' : 'text-[#000000] hover:text-[#00a63e]/70'}`}
                         >
                             <ClipboardList size={16} /> Recetas y Documentos
                             {prescriptions.length > 0 && (
-                                <span className="bg-[#000000] text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">{prescriptions.length}</span>
+                                <span className={`text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-1 ${currentTab === 'prescriptions' ? 'bg-[#00a63e]' : 'bg-[#000000]'}`}>{prescriptions.length}</span>
                             )}
                         </button>
                         <button
                             onClick={() => setCurrentTab('consents')}
-                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#000000] border-b-2 border-[#000000]' : 'text-gray-400 hover:text-gray-700'}`}
+                            className={`pb-3 font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${currentTab === 'consents' ? 'text-[#00a63e] border-b-2 border-[#00a63e]' : 'text-[#000000] hover:text-[#00a63e]/70'}`}
                         >
                             <PenTool size={16} /> Consentimientos y Firmas
                         </button>
@@ -338,19 +338,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 </div>
                             </div>
 
-                            <div className="bg-white p-6 border-2 border-black rounded-xl shadow-none border border-2 border-black/10">
+                            <div className="bg-white p-6 border-2 border-black rounded-xl shadow-none">
                                 <h4 className="font-bold text-[#000000] mb-4 text-sm uppercase tracking-wide">Etiquetas</h4>
                                 <div className="flex flex-wrap gap-2">
-                                    <span className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${patient.patientType === 'Historia Clinica' ? 'bg-white text-black border-2 border-black/10' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                                    <span className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${patient.patientType === 'Historia Clinica' ? 'bg-[#00a63e] text-white border-2 border-black/10' : 'bg-[#00a63e] text-white border-green-100'}`}>
                                         {patient.patientType || 'Historia Clinica'}
                                     </span>
                                     {patient.isOnline && (
-                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-green-50 text-green-700 border border-green-100 flex items-center gap-1">
+                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#00a63e] text-white border border-green-100 flex items-center gap-1">
                                             <Globe size={10} /> Online
                                         </span>
                                     )}
                                     {patient.migrated && (
-                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100 flex items-center gap-1">
+                                        <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#00a63e] text-white border border-purple-100 flex items-center gap-1">
                                             <Database size={10} /> Migrado
                                         </span>
                                     )}
@@ -362,13 +362,13 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                         <div className="lg:col-span-2 space-y-6">
                             <div className="flex justify-between items-center">
                                 <h3 className="font-bold text-[#000000] flex items-center gap-3 text-xl">
-                                    <div className="p-2 bg-green-100 text-green-700 rounded-xl">
+                                    <div className="p-2 bg-green-100 text-[#00a63e] rounded-xl border-2 border-black">
                                         <FileText size={24} />
                                     </div>
                                     Historias Clínicas
                                 </h3>
                                 {patientHistories.length === 0 && (
-                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-sm bg-green-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20">
+                                    <button onClick={() => navigate(`/app/history/${patient.id}`)} className="text-sm bg-[#00a63e] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#008f36] transition-colors shadow-lg shadow-green-900/20">
                                         + Nueva Historia
                                     </button>
                                 )}
@@ -378,8 +378,8 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                 <div className="grid gap-4">
                                     {patientHistories.map(h => (
                                         <div key={h.id} className={`relative p-5 border-2 border-black rounded-xl transition-all duration-300 group ${h.isValidated === false
-                                            ? 'bg-amber-50 border border-amber-200'
-                                            : 'bg-white border border-2 border-black/10 hover:border-green-300 hover:shadow-xl hover:shadow-green-900/5'
+                                            ? 'bg-amber-50 border-amber-200'
+                                            : 'bg-white hover:border-[#00a63e] hover:shadow-xl hover:shadow-green-900/5'
                                             }`}>
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                                 <div className="flex-1">
@@ -421,7 +421,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
-                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-[#000000] hover:text-white transition-all flex items-center justify-center pointer-events-auto"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 border-2 border-black/10 hover:bg-[#000000] hover:text-white transition-all flex items-center justify-center pointer-events-auto"
                                                                 title="Ver Detalles"
                                                             >
                                                                 <Eye size={18} />
@@ -431,19 +431,19 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                                                     setSelectedHistoryId(h.id);
                                                                     setShowPrescriptionsModal(true);
                                                                 }}
-                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-green-600 hover:text-white transition-all flex items-center justify-center"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 border-2 border-black/10 hover:bg-[#00a63e] hover:text-white transition-all flex items-center justify-center"
                                                                 title="Ver Recetas"
                                                             >
                                                                 <ClipboardList size={18} />
                                                             </button>
                                                             <button
                                                                 onClick={() => navigate(`/app/history/${patient.id}`, { state: { history: h } })}
-                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 hover:bg-[#008f36] hover:text-white transition-all flex items-center justify-center"
+                                                                className="w-10 h-10 rounded-xl bg-white text-gray-500 border-2 border-black/10 hover:bg-[#008f36] hover:text-white transition-all flex items-center justify-center"
                                                                 title="Editar"
                                                             >
                                                                 <Edit size={18} />
                                                             </button>
-                                                            <button className="w-10 h-10 rounded-xl bg-white text-red-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center">
+                                                            <button className="w-10 h-10 rounded-xl bg-white text-red-400 border-2 border-black/10 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center">
                                                                 <Trash2 size={18} />
                                                             </button>
                                                         </div>
@@ -454,7 +454,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-2 border-black/10">
+                                <div className="text-center py-12 bg-white rounded-xl border-dashed border-2 border-black">
                                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                         <FileText size={32} />
                                     </div>
@@ -464,103 +464,100 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     </button>
                                 </div>
                             )}
-                        </div>
-                    </div>
+                            {/* Diseñar Enfermedad Section inside column */}
+                            <div className="bg-[#000000] rounded-xl p-6 text-white shadow-lg overflow-hidden relative border-2 border-black">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                                        <span className="bg-white/20 p-1.5 rounded-xl">🧬</span> Diseñar Enfermedad
+                                    </h3>
+                                    <p className="text-white mb-4 text-sm max-w-md">
+                                        Utiliza nuestra herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 items-center">
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    const newSnap = await api.createSnapshot(patient.id);
+                                                    navigate(`/app/crearimagen/${patient.id}/${newSnap.id}`);
+                                                } catch (e) {
+                                                    alert('Error al crear nueva imagen');
+                                                }
+                                            }}
+                                            className="bg-[#00a63e] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#008f36] transition-colors shadow-lg flex items-center gap-2"
+                                        >
+                                            <span>Crear imagen 3D</span>
+                                            <ArrowLeft className="rotate-180" size={18} />
+                                        </button >
 
-                    <div className="bg-[#000000] rounded-xl p-6 text-white shadow-lg overflow-hidden relative mx-8">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                        <div className="relative z-10">
-                            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                                <span className="bg-white/20 p-1.5 rounded-xl">🧬</span> Diseñar Enfermedad
-                            </h3>
-                            <p className="text-blue-100 mb-4 text-sm max-w-md">
-                                Utiliza nuestra herramienta de modelado 3D para visualizar y marcar áreas afectadas en el cuerpo humano.
-                            </p>
-                            <button
-                                onClick={async () => {
-                                    try {
-                                        const newSnap = await api.createSnapshot(patient.id);
-                                        navigate(`/app/crearimagen/${patient.id}/${newSnap.id}`);
-                                    } catch (e) {
-                                        alert('Error al crear nueva imagen');
-                                    }
-                                }}
-                                className="bg-white text-black px-6 py-2.5 rounded-xl font-bold hover:bg-white transition-colors shadow-lg flex items-center gap-2 mb-6"
-                            >
-                                <span>Crear imagen 3D</span>
-                                <ArrowLeft className="rotate-180" size={18} />
-                            </button >
+                                        {snapshots.length > 0 && (
+                                            <div className="flex gap-2">
+                                                {snapshots.map(snap => (
+                                                    <div key={snap.id} className="bg-white/10 p-2 rounded-xl border border-white/10 flex items-center gap-2 group hover:bg-white/20 transition-colors">
+                                                        <span className="font-bold text-xs text-white">{snap.name}</span>
+                                                        <div className="flex gap-1">
+                                                            <button
+                                                                onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
+                                                                className="bg-white text-black hover:bg-gray-100 p-1 rounded-md transition-colors" title="Ver"
+                                                            >
+                                                                <Eye size={14} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setDeleteSnapshotId(snap.id)}
+                                                                className="bg-red-500 hover:bg-red-600 text-white p-1 rounded-md transition-colors" title="Eliminar"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div >
+                            </div >
 
-                            {
-                                snapshots.length > 0 && (
+                            {/* Consultas de Seguimiento Section inside column */}
+                            <div>
+                                <h3 className="font-bold text-[#000000] flex items-center gap-2 text-lg mb-4">
+                                    <Stethoscope className="text-[#00a63e]" /> Consultas de Seguimiento
+                                </h3>
+                                {patientConsults.length > 0 ? (
                                     <div className="space-y-3">
-                                        <h4 className="font-bold text-sm text-blue-200 uppercase tracking-widest border-b border-white/20 pb-1 mb-2">Imágenes Guardadas</h4>
-                                        {snapshots.map(snap => (
-                                            <div key={snap.id} className="bg-white/10 p-3 rounded-xl border border-white/10 flex justify-between items-center group hover:bg-white/20 transition-colors">
-                                                <div>
-                                                    <p className="font-bold text-sm">{snap.name}</p>
-                                                    <p className="text-xs text-blue-200">{new Date(snap.createdAt).toLocaleDateString()}</p>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => navigate(`/app/crearimagen/${patient.id}/${snap.id}`)}
-                                                        className="bg-white0 hover:bg-[#008f36] p-1.5 rounded-md transition-colors" title="Ver"
-                                                    >
-                                                        <Eye size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setDeleteSnapshotId(snap.id)}
-                                                        className="bg-red-500 hover:bg-red-600 p-1.5 rounded-md transition-colors" title="Eliminar"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
+                                        {patientConsults.map(c => (
+                                            <div key={c.id} className="bg-white p-4 rounded-xl border-2 border-black hover:border-[#00a63e] transition-colors group">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className="font-bold text-[#000000] group-hover:text-[#00a63e] transition-colors">{c.date} - {c.time}</p>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            <span className="font-bold">Motivo consulta:</span> {Object.keys(c.motives || {}).filter(k => c.motives[k]).join(', ') || c.otherMotive || 'Sin motivo'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <button
+                                                            onClick={() => navigate(`/app/consult/${patient.id}`)}
+                                                            className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors"
+                                                        >
+                                                            Ver
+                                                        </button>
+                                                        <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
+                                                            Editar
+                                                        </button>
+                                                        <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
+                                                            Eliminar
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                )
-                            }
-                        </div >
-                    </div >
-
-                    <div>
-                        <h3 className="font-bold text-[#000000] flex items-center gap-2 text-lg mb-4">
-                            <Stethoscope className="text-purple-600" /> Consultas de Seguimiento
-                        </h3>
-                        {patientConsults.length > 0 ? (
-                            <div className="space-y-3">
-                                {patientConsults.map(c => (
-                                    <div key={c.id} className="bg-white p-4 rounded-xl border-2 border-black hover:border-purple-900 transition-colors group">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="font-bold text-[#000000] group-hover:text-purple-600 transition-colors">{c.date} - {c.time}</p>
-                                                <p className="text-sm text-gray-500 mt-1">
-                                                    <span className="font-bold">Motivo consulta:</span> {Object.keys(c.motives || {}).filter(k => c.motives[k]).join(', ') || c.otherMotive || 'Sin motivo'}
-                                                </p>
-                                            </div>
-                                            <div className="flex flex-col gap-2">
-                                                <button
-                                                    onClick={() => navigate(`/app/consult/${patient.id}`)}
-                                                    className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors"
-                                                >
-                                                    Ver
-                                                </button>
-                                                <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
-                                                    Editar
-                                                </button>
-                                                <button className="bg-[#000000] text-white px-4 py-1 rounded-xl text-xs font-medium hover:bg-[#00a63e] transition-colors">
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        </div>
+                                ) : (
+                                    <div className="text-center py-8 bg-white rounded-xl border-dashed border-2 border-black">
+                                        <p className="text-gray-400">No hay consultas registradas</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
-                        ) : (
-                            <div className="text-center py-8 bg-white rounded-xl border border-dashed border-gray-300">
-                                <p className="text-gray-400">No hay consultas registradas</p>
-                            </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             )}
