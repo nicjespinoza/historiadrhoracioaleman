@@ -34,7 +34,8 @@ export const ReportScreen = ({ patients, histories, consults }: ReportScreenProp
   };
 
   patients.forEach(p => {
-    const age = parseInt(p.ageDetails.split(' ')[0]); // Approx
+    const ageStr = p.ageDetails ? p.ageDetails.split(' ')[0] : '0';
+    const age = parseInt(ageStr) || 0;
     if (age <= 18) ageGroups['0-18']++;
     else if (age <= 30) ageGroups['19-30']++;
     else if (age <= 50) ageGroups['31-50']++;

@@ -65,7 +65,15 @@ interface SpecialtyHistoryScreenProps {
 export const SpecialtyHistoryScreen = ({ patients, setHistories }: SpecialtyHistoryScreenProps) => {
     const { patientId } = useParams<{ patientId: string }>();
     const navigate = useNavigate();
-    const patient = patients.find(p => p.id === patientId);
+    const [localPatient, setLocalPatient] = useState<Patient | null>(null);
+
+    React.useEffect(() => {
+        if (patientId && !patients.find(p => p.id === patientId)) {
+            api.getPatientById(patientId).then(p => { if (p) setLocalPatient(p); }).catch(console.error);
+        }
+    }, [patientId, patients]);
+
+    const patient = patients.find(p => p.id === patientId) || localPatient;
 
     const [h, setH] = useState<InitialHistory>({
         id: Math.random().toString(36),

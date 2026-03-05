@@ -13,6 +13,8 @@ import { ReportScreen } from './ReportScreen';
 import { Body3DDesigner } from './Body3DDesigner';
 import { PrescriptionViewer } from './PrescriptionViewer';
 import { CreatePrescriptionScreen } from './CreatePrescriptionScreen';
+import { HistoryViewer } from './HistoryViewer';
+import { ConsultViewer } from './ConsultViewer';
 import { Patient, InitialHistory, SubsequentConsult, ModalContent, User } from '../types';
 import { api } from '../../api';
 import { useAuth } from '../context/AuthContext';
@@ -240,7 +242,19 @@ export const DoctorDashboard = () => {
                                     }}
                                 />
                             } />
+
+                            {/* New History Viewer Route (More specific, MUST come before general history) */}
+                            <Route path="history/view/:patientId/:historyId" element={
+                                <HistoryViewer />
+                            } />
+
                             <Route path="history/:patientId" element={
+                                <InitialHistoryScreen
+                                    patients={patients}
+                                    setHistories={setHistories}
+                                />
+                            } />
+                            <Route path="history/edit/:patientId/:historyId" element={
                                 <InitialHistoryScreen
                                     patients={patients}
                                     setHistories={setHistories}
@@ -253,6 +267,15 @@ export const DoctorDashboard = () => {
                                 />
                             } />
                             <Route path="consult/:patientId" element={
+                                <ConsultScreen
+                                    patients={patients}
+                                    setConsults={setConsults}
+                                />
+                            } />
+                            <Route path="consult/view/:patientId/:consultId" element={
+                                <ConsultViewer />
+                            } />
+                            <Route path="consult/edit/:patientId/:consultId" element={
                                 <ConsultScreen
                                     patients={patients}
                                     setConsults={setConsults}
@@ -272,6 +295,7 @@ export const DoctorDashboard = () => {
 
                             <Route path="prescriptions/:patientId/:prescriptionId" element={<PrescriptionViewer />} />
                             <Route path="prescription/new/:patientId" element={<CreatePrescriptionScreen patients={patients} />} />
+                            <Route path="prescription/edit/:patientId/:prescriptionId" element={<CreatePrescriptionScreen patients={patients} />} />
 
                             {/* DEBUG: Show 404 instead of redirect to catch routing errors */}
                             <Route path="*" element={

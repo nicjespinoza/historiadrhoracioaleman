@@ -8,6 +8,7 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
+    setDoc,
     query,
     where,
     limit,
@@ -154,44 +155,23 @@ export const api = {
         return { canChat: data?.isOnline ?? false };
     },
 
-    // ==================== HISTORIES (Subcollection) ====================
+    // ==================== HISTORIES (Subcollection ONLY) ====================
     getHistories: async (patientId?: string): Promise<InitialHistory[]> => {
-        if (patientId) {
-            // Fetch from subcollection
-            let subData: InitialHistory[] = [];
-            try {
-                const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'histories'));
-                subData = subSnapshot.docs.map(doc => docToData<InitialHistory>(doc));
-            } catch (e) {
-                console.warn("Error fetching histories from subcollection:", e);
-            }
+        if (!patientId) return [];
 
-            // Fetch from legacy root collection
-            let rootData: InitialHistory[] = [];
-            try {
-                const rootSnapshot = await getDocs(query(collection(db, 'initialHistories'), where('patientId', '==', patientId)));
-                rootData = rootSnapshot.docs.map(doc => docToData<InitialHistory>(doc));
-            } catch (e) {
-                console.warn("Error fetching histories from root collection:", e);
-            }
-
-            // Combine and sort by date descending
-            const all = [...subData, ...rootData];
-            return all.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-        }
-        // If no patientId, get all histories across all patients (less efficient)
+        let subData: InitialHistory[] = [];
         try {
-            const patientsSnapshot = await getDocs(collection(db, 'patients'));
-            const allHistories: InitialHistory[] = [];
-            for (const patientDoc of patientsSnapshot.docs) {
-                const histories = await api.getHistories(patientDoc.id);
-                allHistories.push(...histories);
-            }
-            return allHistories;
+            const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'histories'));
+            subData = subSnapshot.docs.map(doc => docToData<InitialHistory>(doc));
         } catch (e) {
-            console.error("Critical error in getHistories:", e);
-            return [];
+            console.warn("Error fetching histories from subcollection:", e);
         }
+
+        return subData.sort((a: any, b: any) => {
+            const dateA = new Date(a.date || a.createdAt || 0).getTime();
+            const dateB = new Date(b.date || b.createdAt || 0).getTime();
+            return dateB - dateA;
+        });
     },
 
     createHistory: async (data: Omit<InitialHistory, 'id'>): Promise<InitialHistory> => {
@@ -200,7 +180,6 @@ export const api = {
     },
 
     updateHistory: async (id: string, data: Partial<InitialHistory>): Promise<InitialHistory> => {
-        // Need patientId to locate the subcollection
         if (!data.patientId) throw new Error('patientId required to update history');
         const docRef = doc(db, 'patients', data.patientId, 'histories', id);
         await updateDoc(docRef, data);
@@ -208,43 +187,55 @@ export const api = {
         return docToData<InitialHistory>(updated);
     },
 
-    // ==================== CONSULTS (Subcollection) ====================
-    getConsults: async (patientId?: string): Promise<SubsequentConsult[]> => {
-        if (patientId) {
-            // Fetch from subcollection
-            let subData: SubsequentConsult[] = [];
-            try {
-                const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'consults'));
-                subData = subSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
-            } catch (e) {
-                console.warn("Error fetching consults from subcollection:", e);
-            }
-
-            // Fetch from legacy root collection
-            let rootData: SubsequentConsult[] = [];
-            try {
-                const rootSnapshot = await getDocs(query(collection(db, 'subsequentConsults'), where('patientId', '==', patientId)));
-                rootData = rootSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
-            } catch (e) {
-                console.warn("Error fetching consults from root collection:", e);
-            }
-
-            // Combine and sort by date descending
-            const all = [...subData, ...rootData];
-            return all.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-        }
+    deleteHistory: async (patientId: string, id: string) => {
         try {
-            const patientsSnapshot = await getDocs(collection(db, 'patients'));
-            const allConsults: SubsequentConsult[] = [];
-            for (const patientDoc of patientsSnapshot.docs) {
-                const consults = await api.getConsults(patientDoc.id);
-                allConsults.push(...consults);
-            }
-            return allConsults;
+            await deleteDoc(doc(db, 'patients', patientId, 'histories', id));
         } catch (e) {
-            console.error("Critical error in getConsults:", e);
-            return [];
+            console.warn("Could not delete history:", e);
         }
+        return { success: true };
+    },
+
+    // ==================== CONSULTS (Subcollection ONLY) ====================
+    getConsults: async (patientId?: string): Promise<SubsequentConsult[]> => {
+        if (!patientId) return [];
+
+        let subData: SubsequentConsult[] = [];
+        try {
+            const subSnapshot = await getDocs(collection(db, 'patients', patientId, 'consults'));
+            subData = subSnapshot.docs.map(doc => docToData<SubsequentConsult>(doc));
+        } catch (e) {
+            console.warn("Error fetching consults from subcollection:", e);
+        }
+
+        return subData.sort((a: any, b: any) => {
+            const dateA = new Date(a.date || a.createdAt || 0).getTime();
+            const dateB = new Date(b.date || b.createdAt || 0).getTime();
+            return dateB - dateA;
+        });
+    },
+
+    deleteConsult: async (patientId: string, id: string) => {
+        try {
+            await deleteDoc(doc(db, 'patients', patientId, 'consults', id));
+        } catch (e) {
+            console.warn("Could not delete consult:", e);
+        }
+        return { success: true };
+    },
+
+    getConsultById: async (patientId: string, id: string): Promise<SubsequentConsult | null> => {
+        const docRef = doc(db, 'patients', patientId, 'consults', id);
+        const snapshot = await getDoc(docRef);
+        if (!snapshot.exists()) return null;
+        return docToData<SubsequentConsult>(snapshot);
+    },
+
+    updateConsult: async (patientId: string, id: string, data: Partial<SubsequentConsult>): Promise<SubsequentConsult> => {
+        const docRef = doc(db, 'patients', patientId, 'consults', id);
+        await updateDoc(docRef, data);
+        const updated = await getDoc(docRef);
+        return docToData<SubsequentConsult>(updated);
     },
 
     createConsult: async (data: Omit<SubsequentConsult, 'id'>): Promise<SubsequentConsult> => {
@@ -252,6 +243,14 @@ export const api = {
         return { id: docRef.id, ...data } as SubsequentConsult;
     },
 
+    getHistoryById: async (patientId: string, id: string): Promise<InitialHistory | null> => {
+        const docRef = doc(db, 'patients', patientId, 'histories', id);
+        const snapshot = await getDoc(docRef);
+        if (!snapshot.exists()) return null;
+        return docToData<InitialHistory>(snapshot);
+    },
+
+    // ==================== OBSERVATIONS (Subcollection) ====================
     createObservation: async (patientId: string, data: { coordinates: { x: number, y: number, z: number }, note: string, organ: string, location?: string, color?: string, scale?: number, drawnPath?: { x: number, y: number, z: number }[], drawnPaths?: any[], snapshotId?: string, hasMarker?: boolean, markerType?: string }) => {
         const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
         const docRef = await addDoc(collection(db, 'patients', patientId, 'observations'), {
@@ -313,19 +312,8 @@ export const api = {
         return { success: true };
     },
 
-    // ==================== PRESCRIPTIONS (Subcollection) ====================
+    // ==================== PRESCRIPTIONS (Subcollection ONLY) ====================
     getPrescriptions: async (patientId: string) => {
-        let patientData: any = null;
-        try {
-            const patientDoc = await getDoc(doc(db, 'patients', patientId));
-            patientData = patientDoc.exists() ? patientDoc.data() : null;
-        } catch (e) {
-            console.warn("Could not fetch patient document in getPrescriptions:", e);
-        }
-
-        const legacyId = patientData?.legacyId || patientData?.HA_ID || patientData?.Idunico;
-
-        // Fetch from patient subcollection (item-linked documents)
         let subcollPrescs: any[] = [];
         try {
             const subcollSnapshot = await getDocs(collection(db, 'patients', patientId, 'prescriptions'));
@@ -334,39 +322,10 @@ export const api = {
             console.warn("Could not fetch prescriptions subcollection:", e);
         }
 
-        // Fetch from root collection (migrated prescriptions) by Firestore ID
-        let rootByIdPrescs: any[] = [];
-        try {
-            const rootByIdSnapshot = await getDocs(query(collection(db, 'prescriptions'), where('patientId', '==', patientId)));
-            rootByIdPrescs = rootByIdSnapshot.docs.map(doc => ({ id: doc.id, ...docToData<any>(doc) }));
-        } catch (e) {
-            // This often fails if security rules aren't deployed for root 'prescriptions'
-            console.warn("Could not fetch prescriptions from root by patientId:", e);
-        }
-
-        // Fetch from root collection by Legacy ID (HAXXXXX)
-        let rootByLegacyPrescs: any[] = [];
-        if (legacyId) {
-            try {
-                const rootByLegacySnapshot = await getDocs(query(collection(db, 'prescriptions'), where('legacyPatientId', '==', legacyId)));
-                rootByLegacyPrescs = rootByLegacySnapshot.docs.map(doc => ({ id: doc.id, ...docToData<any>(doc) }));
-            } catch (e) {
-                console.warn("Could not fetch prescriptions from root by legacyId:", e);
-            }
-        }
-
-        // Combine all results, removing duplicates by document ID
-        const combinedMap = new Map();
-        [...subcollPrescs, ...rootByIdPrescs, ...rootByLegacyPrescs].forEach(p => {
-            combinedMap.set(p.id, p);
-        });
-
-        const all = Array.from(combinedMap.values());
-
         // Sort by date descending
-        return all.sort((a, b) => {
-            const dateA = new Date(a.date || a.createdAt || a.fecharegistro || 0).getTime();
-            const dateB = new Date(b.date || b.createdAt || b.fecharegistro || 0).getTime();
+        return subcollPrescs.sort((a, b) => {
+            const dateA = new Date(a.date || a.createdAt || 0).getTime();
+            const dateB = new Date(b.date || b.createdAt || 0).getTime();
             return dateB - dateA;
         });
     },
@@ -375,12 +334,7 @@ export const api = {
         try {
             await deleteDoc(doc(db, 'patients', patientId, 'prescriptions', id));
         } catch (e) {
-            console.warn("Could not delete from subcollection:", e);
-        }
-        try {
-            await deleteDoc(doc(db, 'prescriptions', id));
-        } catch (e) {
-            console.warn("Could not delete from root collection:", e);
+            console.warn("Could not delete prescription:", e);
         }
         return { success: true };
     },
@@ -388,6 +342,12 @@ export const api = {
     createPrescription: async (patientId: string, data: any): Promise<any> => {
         const docRef = await addDoc(collection(db, 'patients', patientId, 'prescriptions'), { ...data, patientId, createdAt: new Date().toISOString() });
         return { id: docRef.id, ...data };
+    },
+
+    updatePrescription: async (patientId: string, id: string, data: Partial<any>): Promise<any> => {
+        const docRef = doc(db, 'patients', patientId, 'prescriptions', id);
+        await updateDoc(docRef, data);
+        return { id, ...data };
     },
 
     // ==================== APPOINTMENTS (Root Collection) ====================
@@ -422,17 +382,8 @@ export const api = {
         await deleteDoc(doc(db, 'appointments', id));
     },
 
-    // ==================== PATIENT AUTH ====================
-    // NOTE: All patient authentication is now handled via Firebase Auth.
-    // Use the useAuth() hook from src/context/AuthContext.tsx:
-    //   - signUp(email, password) for registration
-    //   - signIn(email, password) for login  
-    //   - logout() for logout
-
-
     // ==================== PAYMENT (Cloud Function) ====================
     initiatePayment: async (data: { appointmentId: string, patientId: string, amount: number, gateway: string }) => {
-        // Import functions dynamically to avoid circular dependency
         const { getFunctions, httpsCallable } = await import('firebase/functions');
         const functions = getFunctions();
         const initiatePaymentFn = httpsCallable(functions, 'initiatePayment');
@@ -451,12 +402,11 @@ export const api = {
 
     setRole: async (userId: string, role: string) => {
         const docRef = doc(db, 'users', userId);
-        // Use setDoc with merge to create if not exists
         const { setDoc } = await import('firebase/firestore');
         await setDoc(docRef, {
             role,
             updatedAt: new Date().toISOString(),
-            email: 'admin@webdesign.com', // hardcoded for safety based on screenshot
+            email: 'admin@webdesign.com',
             name: 'Admin'
         }, { merge: true });
         return { success: true };
@@ -465,14 +415,11 @@ export const api = {
     // ==================== IP AUTHORIZATION ====================
     checkIPAccess: async (ip: string): Promise<boolean> => {
         try {
-            // We check the 'authorized_ips' collection
-            // The document ID can be the IP itself for direct lookup
             const docRef = doc(db, 'authorized_ips', ip);
             const snapshot = await getDoc(docRef);
 
             if (snapshot.exists()) return true;
 
-            // Optional: Also search by a field if IDs are names
             const q = query(collection(db, 'authorized_ips'), where('ip', '==', ip));
             const querySnapshot = await getDocs(q);
             return !querySnapshot.empty;
@@ -480,5 +427,143 @@ export const api = {
             console.error("Error checking IP access:", error);
             return false;
         }
+    },
+
+    // ==================== GOOGLE CALENDAR ====================
+    connectGoogleCalendar: async () => {
+        const { getAuth, GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
+        const auth = getAuth();
+        const provider = new GoogleAuthProvider();
+
+        provider.addScope('https://www.googleapis.com/auth/calendar.events');
+        provider.addScope('https://www.googleapis.com/auth/calendar.readonly');
+
+        provider.setCustomParameters({
+            prompt: 'consent'
+        });
+
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential?.accessToken;
+
+            if (token && auth.currentUser) {
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await setDoc(userRef, {
+                    googleCalendarToken: token,
+                    googleCalendarConnected: true,
+                    googleCalendarSyncAt: new Date().toISOString()
+                }, { merge: true });
+                alert('¡Google Calendar conectado y permisos otorgados con éxito!');
+            }
+        } catch (error: any) {
+            console.error("Error Google Auth:", error);
+            alert("Error al conectar con Google: " + error.message);
+        }
+    },
+
+    disconnectGoogleCalendar: async () => {
+        try {
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            if (!auth.currentUser) return;
+
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                googleCalendarConnected: false,
+                googleCalendarToken: null
+            });
+            alert('Sesión de Google Calendar cerrada.');
+        } catch (error: any) {
+            console.error("Error disconnecting Google Calendar:", error);
+        }
+    },
+
+    syncToGoogleCalendar: async (appointment: any, patientInfo: any) => {
+        try {
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            if (!auth.currentUser) return;
+
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            if (!userData?.googleCalendarConnected || !userData?.googleCalendarToken) {
+                console.warn("Google Calendar no está conectado");
+                return;
+            }
+
+            const startTime = `${appointment.date}T${appointment.time}:00`;
+            const end = new Date(new Date(startTime).getTime() + 30 * 60000);
+            const endTime = end.toISOString().split('.')[0];
+
+            const event = {
+                'summary': appointment.title || patientInfo.idunico || patientInfo.id,
+                'description': appointment.description || appointment.reason || '',
+                'start': { 'dateTime': startTime, 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone },
+                'end': { 'dateTime': endTime, 'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone },
+            };
+
+            const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${userData.googleCalendarToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                console.error("GC Error:", err);
+            } else {
+                const data = await response.json();
+                console.log("GC Event created:", data.id);
+                const aptRef = doc(db, 'appointments', appointment.id);
+                await updateDoc(aptRef, { googleEventId: data.id });
+            }
+        } catch (error) {
+            console.error("Sync Error:", error);
+        }
+    },
+
+    getGoogleCalendarEvents: async (timeMin: string, timeMax: string) => {
+        try {
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            if (!auth.currentUser) return [];
+
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            if (!userData?.googleCalendarConnected || !userData?.googleCalendarToken) return [];
+
+            const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`;
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${userData.googleCalendarToken}` }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Google Calendar API Error:", errorData);
+                return [];
+            }
+            const data = await response.json();
+            return (data.items || []).map((item: any) => ({
+                id: item.id,
+                date: (item.start.dateTime || item.start.date).split('T')[0],
+                time: item.start.dateTime ? item.start.dateTime.split('T')[1].substring(0, 5) : '00:00',
+                reason: item.summary,
+                type: 'Google Calendar',
+                isExternal: true
+            }));
+        } catch (error) {
+            console.error("Fetch GC Events Error:", error);
+            return [];
+        }
     }
 };
+
+

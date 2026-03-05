@@ -21,7 +21,7 @@ interface CreatePrescriptionScreenProps {
 }
 
 export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> = ({ patients }) => {
-    const { patientId } = useParams();
+    const { patientId, prescriptionId } = useParams();
     const navigate = useNavigate();
 
     const [patient, setPatient] = useState<Patient | null>(null);
@@ -43,12 +43,11 @@ export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> =
     });
 
     useEffect(() => {
-        const loadPatient = async () => {
+        const loadInitialData = async () => {
             if (!patientId) return;
 
-            // Try to find in provided array first
+            // Load Patient
             let foundPatient = patients?.find(p => p.id === patientId);
-
             if (!foundPatient) {
                 try {
                     const docSnap = await getDoc(doc(db, 'patients', patientId));
@@ -59,12 +58,63 @@ export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> =
                     console.error("Error loading patient:", error);
                 }
             }
-
             setPatient(foundPatient || null);
+
+            // Load Prescription if in edit mode
+            if (prescriptionId) {
+                try {
+                    const prescSnap = await getDoc(doc(db, 'patients', patientId, 'prescriptions', prescriptionId));
+                    if (prescSnap.exists()) {
+                        const data = prescSnap.data();
+
+                        // Smart mapping for legacy fields
+                        const recetario = data.recetarioMedico || data.Recetas || data.recetas || data.prescriptionText || '';
+                        const radio = data.estudiosRadiologicos || data.Radio || data.radio || '';
+                        const lab = data.examenLaboratorio || data.Examen || data.examen || '';
+                        const constancia = data.constanciaMedica || data.constancia || data.Constancia || '';
+
+                        const oi = data.ordenIngreso || {};
+                        const diag = oi.diagnostico || data.diagnostico || data.Diagnostico || '';
+                        const proc = oi.procedimiento || data.procedimiento || data.Procedimiento || '';
+                        const ind = oi.indicacionesPreQuirurgicas || data.indicaciones || data.Indicaciones || '';
+
+                        // Infer selected types if documentTypes is missing (migrated data)
+                        let types = data.documentTypes || [];
+                        if (types.length === 0) {
+                            if (recetario) types.push('Recetario Medico');
+                            if (radio) types.push('Estudios Radiologicos');
+                            if (lab) types.push('Examen de Laboratorio');
+                            if (constancia) types.push('Constancia Medica');
+                            if (diag || proc || ind) types.push('Orden de Ingreso');
+
+                            // Also check legacy 'Tipo' array
+                            if (data.Tipo && Array.isArray(data.Tipo)) {
+                                types = [...new Set([...types, ...data.Tipo])];
+                            }
+                        }
+
+                        setSelectedTypes(types);
+                        setFormData({
+                            recetarioMedico: recetario,
+                            estudiosRadiologicos: radio,
+                            examenLaboratorio: lab,
+                            constanciaMedica: constancia,
+                            ordenIngreso: {
+                                diagnostico: diag,
+                                procedimiento: proc,
+                                indicacionesPreQuirurgicas: ind
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error loading prescription:", e);
+                }
+            }
+
             setLoading(false);
         };
-        loadPatient();
-    }, [patientId, patients]);
+        loadInitialData();
+    }, [patientId, prescriptionId, patients]);
 
     const toggleType = (type: string) => {
         setSelectedTypes(prev =>
@@ -82,12 +132,9 @@ export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> =
         try {
             // Prepare the payload based on selected types
             const payload: any = {
-                date: new Date().toISOString(),
                 documentTypes: selectedTypes,
+                updatedAt: new Date().toISOString()
             };
-
-            // Mapping form data into legacy/current fields so they display correctly
-            // in ProfileScreen (which expects 'diagnostico' and 'prescriptionText' or 'Recetas')
 
             const compiledTexts: string[] = [];
 
@@ -116,7 +163,12 @@ export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> =
             // Combine everything into a displayable text property for ProfileScreen
             payload.prescriptionText = compiledTexts.join('\n\n');
 
-            await api.createPrescription(patientId, payload);
+            if (prescriptionId) {
+                await api.updatePrescription(patientId, prescriptionId, payload);
+            } else {
+                payload.date = new Date().toISOString();
+                await api.createPrescription(patientId, payload);
+            }
 
             navigate(`/app/profile/${patientId}`);
         } catch (error) {
@@ -153,7 +205,9 @@ export const CreatePrescriptionScreen: React.FC<CreatePrescriptionScreenProps> =
                             <ArrowLeft size={24} />
                         </button>
                         <div>
-                            <h1 className="text-3xl font-light tracking-wide font-sans text-white">Crear Orden Médica</h1>
+                            <h1 className="text-3xl font-light tracking-wide font-sans text-white">
+                                {prescriptionId ? 'Editar Orden Médica' : 'Crear Orden Médica'}
+                            </h1>
                             <p className="text-gray-400 mt-1 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#00a63e]"></span>
                                 Paciente: <span className="font-semibold text-white">{patient.firstName} {patient.lastName}</span>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Clock, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, X, Trash2, Edit2, MapPin } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, X, Trash2, Edit2, MapPin, Globe, LogOut } from 'lucide-react';
 import { api } from '../../api';
 import { Patient, Appointment } from '../types';
 import { GlassCard } from '../components/premium-ui/GlassCard';
@@ -14,6 +14,7 @@ export const AgendaScreen = ({ patients: propPatients = [] }: AgendaScreenProps)
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [localPatients, setLocalPatients] = useState<Patient[]>([]);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [isGoogleConnected, setIsGoogleConnected] = useState(false);
 
     // Merge prop patients with fetched patients
     const patients = propPatients.length > 0 ? propPatients : localPatients;
@@ -24,19 +25,43 @@ export const AgendaScreen = ({ patients: propPatients = [] }: AgendaScreenProps)
 
     const loadData = async () => {
         try {
-            // Load appointments
+            // Check Google Connection
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            let isGC = false;
+            if (auth.currentUser) {
+                const docSnap = await api.getUser(auth.currentUser.uid);
+                isGC = !!docSnap?.googleCalendarConnected;
+                setIsGoogleConnected(isGC);
+            }
+
+            // Load local appointments
             const apps = await api.getAppointments();
             const mappedApps = apps.map((a, i) => ({
                 ...a,
                 confirmed: a.confirmed ?? (i % 2 === 0),
                 uniqueId: a.uniqueId || `CITA-${1000 + i}`
             }));
-            setAppointments(mappedApps);
+
+            // Load GC events if connected
+            let allApps = [...mappedApps];
+            if (isGC) {
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const timeMin = `${year}-${month}-01T00:00:00Z`;
+                const lastDay = new Date(year, currentDate.getMonth() + 1, 0).getDate();
+                const timeMax = `${year}-${month}-${lastDay}T23:59:59Z`;
+
+                const gcEvents = await api.getGoogleCalendarEvents(timeMin, timeMax);
+                allApps = [...allApps, ...gcEvents];
+            }
+
+            setAppointments(allApps);
 
             // Load patients if not provided via props
             if (propPatients.length === 0) {
-                const fetchedPatients = await api.getPatients();
-                setLocalPatients(fetchedPatients);
+                const result = await api.getPatients({ limitCount: 200 });
+                setLocalPatients(result.patients);
             }
         } catch (error) {
             console.error("Error loading agenda data:", error);
@@ -138,11 +163,44 @@ export const AgendaScreen = ({ patients: propPatients = [] }: AgendaScreenProps)
         <div className="min-h-screen font-sans bg-[#083c79]">
             <div className="p-4 md:p-8 w-full max-w-[95%] mx-auto space-y-12">
                 {/* Header */}
-                <div>
-                    <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-                        <CalendarIcon className="text-white" /> Agenda Médica
-                    </h2>
-                    <p className="text-blue-100">Vista general de citas y disponibilidad</p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                            <CalendarIcon className="text-white" /> Agenda Médica
+                        </h2>
+                        <p className="text-blue-100">Vista general de citas y disponibilidad</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={async () => {
+                                await api.connectGoogleCalendar();
+                                loadData();
+                            }}
+                            className={`${isGoogleConnected ? 'bg-green-50 text-green-700' : 'bg-white text-[#083c79]'} px-6 py-3 rounded-xl font-bold hover:brightness-105 transition shadow-xl flex items-center gap-2`}
+                        >
+                            {isGoogleConnected ? (
+                                <>
+                                    <CheckCircle size={20} /> Google Calendar Conectado
+                                </>
+                            ) : (
+                                <>
+                                    <Globe size={20} /> Conectar Google Calendar
+                                </>
+                            )}
+                        </button>
+                        {isGoogleConnected && (
+                            <button
+                                onClick={async () => {
+                                    await api.disconnectGoogleCalendar();
+                                    loadData();
+                                }}
+                                title="Cerrar sesión de Google Calendar"
+                                className="bg-white/10 text-white p-3 rounded-xl hover:bg-white/20 transition border border-white/20"
+                            >
+                                <LogOut size={20} />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -192,14 +250,15 @@ export const AgendaScreen = ({ patients: propPatients = [] }: AgendaScreenProps)
                                                             <div
                                                                 key={apt.id}
                                                                 onClick={() => setSelectedDayAppointments(dayApts)}
-                                                                className="text-[10px] p-1.5 rounded-md bg-[#083c79] text-white shadow-sm hover:brightness-110 transition-all cursor-pointer border-none"
+                                                                className={`text-[10px] p-1.5 rounded-md shadow-sm hover:brightness-110 transition-all cursor-pointer border-none ${(apt as any).isExternal ? 'bg-orange-500 text-white' : 'bg-[#083c79] text-white'}`}
                                                             >
                                                                 <div className="pl-1">
                                                                     <div className="flex justify-between items-center mb-0.5">
                                                                         <span className="font-bold">{apt.time}</span>
+                                                                        {(apt as any).isExternal && <Globe size={10} />}
                                                                     </div>
                                                                     <div className="font-medium truncate opacity-90">
-                                                                        {patient ? `${patient.firstName} ${patient.lastName}` : 'Desconocido'}
+                                                                        {(apt as any).isExternal ? apt.reason : (patient ? `${patient.firstName} ${patient.lastName}` : 'Desconocido')}
                                                                     </div>
                                                                 </div>
                                                             </div>

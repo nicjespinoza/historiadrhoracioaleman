@@ -59,7 +59,7 @@ export const patientSchema = z.object({
     firstName: z.string().min(1, 'El nombre es requerido'),
     lastName: z.string().min(1, 'Los apellidos son requeridos'),
     birthDate: z.string().min(1, 'La fecha de nacimiento es requerida'),
-sex: z.enum(['Masculino', 'Femenino'] as const, {
+    sex: z.enum(['Masculino', 'Femenino'] as const, {
         message: 'Seleccione el sexo',
     }),
     profession: z.string().default(''),
@@ -262,6 +262,7 @@ export const initialHistorySchema = z.object({
     cardiopathy: z.boolean().default(false),
     allergies: z.boolean().default(false),
     surgeries: z.boolean().default(false),
+    pathologicalDetails: z.record(z.string(), z.string()).default({}),
     otherPathological: z.string().default(''),
 
     // ============================================
@@ -271,6 +272,7 @@ export const initialHistorySchema = z.object({
     alcohol: z.boolean().default(false),
     drugs: z.boolean().default(false),
     medications: z.boolean().default(false),
+    nonPathologicalDetails: z.record(z.string(), z.string()).default({}),
 
     // ============================================
     // Examen Físico y Notas (Strings)
@@ -285,8 +287,21 @@ export const initialHistorySchema = z.object({
     assessment: z.string().default(''), // Avaluo
     diagnosis: z.string().default(''),
     labStudies: z.string().default(''),
-    examOrders: z.string().default(''),
-    radiologyStudies: z.string().default(''),
+    labImages: z.array(z.string()).default([]),
+    medicalOrder: z.object({
+        selectedTypes: z.array(z.string()).default([]),
+        recetarioMedico: z.string().default(''),
+        estudiosRadiologicos: z.string().default(''),
+        examenLaboratorio: z.string().default(''),
+        constanciaMedica: z.string().default(''),
+        ordenIngreso: z.object({
+            diagnostico: z.string().default(''),
+            procedimiento: z.string().default(''),
+            indicacionesPreQuirurgicas: z.string().default('')
+        }).default({})
+    }).default({}),
+    examOrders: z.string().default(''), // Legacy
+    radiologyStudies: z.string().default(''), // Legacy
 
     // ============================================
     // Vital Signs
@@ -369,6 +384,8 @@ export const subsequentConsultSchema = z.object({
     otherMotive: z.string().default(''),
     evolutionTime: z.string().default(''),
     historyOfPresentIllness: z.string().default(''),
+    pathologicalDetails: z.record(z.string(), z.string()).default({}),
+    nonPathologicalDetails: z.record(z.string(), z.string()).default({}),
 
     // ============================================
     // Vital Signs (same as InitialHistory)
@@ -392,6 +409,19 @@ export const subsequentConsultSchema = z.object({
     assessment: z.string().default(''), // Avaluo
     diagnosis: z.string().default(''),
     labStudies: z.string().default(''),
+    labImages: z.array(z.string()).default([]),
+    medicalOrder: z.object({
+        selectedTypes: z.array(z.string()).default([]),
+        recetarioMedico: z.string().default(''),
+        estudiosRadiologicos: z.string().default(''),
+        examenLaboratorio: z.string().default(''),
+        constanciaMedica: z.string().default(''),
+        ordenIngreso: z.object({
+            diagnostico: z.string().default(''),
+            procedimiento: z.string().default(''),
+            indicacionesPreQuirurgicas: z.string().default('')
+        }).default({})
+    }).default({}),
     examOrders: z.string().default(''),
     radiologyStudies: z.string().default(''),
 
@@ -460,6 +490,8 @@ export const getDefaultInitialHistoryValues = (patientId: string): InitialHistor
     alcohol: false,
     drugs: false,
     medications: false,
+    pathologicalDetails: {},
+    nonPathologicalDetails: {},
 
     // Examen Físico y Notas
     currentIllnessHistory: '',
@@ -472,6 +504,19 @@ export const getDefaultInitialHistoryValues = (patientId: string): InitialHistor
     assessment: '',
     diagnosis: '',
     labStudies: '',
+    labImages: [],
+    medicalOrder: {
+        selectedTypes: [],
+        recetarioMedico: '',
+        estudiosRadiologicos: '',
+        examenLaboratorio: '',
+        constanciaMedica: '',
+        ordenIngreso: {
+            diagnostico: '',
+            procedimiento: '',
+            indicacionesPreQuirurgicas: ''
+        }
+    },
     examOrders: '',
     radiologyStudies: '',
 
@@ -515,7 +560,22 @@ export const getDefaultSubsequentConsultValues = (patientId: string): Subsequent
     assessment: '',
     diagnosis: '',
     labStudies: '',
+    labImages: [],
+    medicalOrder: {
+        selectedTypes: [],
+        recetarioMedico: '',
+        estudiosRadiologicos: '',
+        examenLaboratorio: '',
+        constanciaMedica: '',
+        ordenIngreso: {
+            diagnostico: '',
+            procedimiento: '',
+            indicacionesPreQuirurgicas: ''
+        }
+    },
     examOrders: '',
     radiologyStudies: '',
+    pathologicalDetails: {},
+    nonPathologicalDetails: {},
 });
 

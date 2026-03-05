@@ -49,6 +49,19 @@ export interface AnthropometricData {
   imc: string;
 }
 
+export interface MedicalOrder {
+  selectedTypes: string[];
+  recetarioMedico: string;
+  estudiosRadiologicos: string;
+  examenLaboratorio: string;
+  constanciaMedica: string;
+  ordenIngreso: {
+    diagnostico: string;
+    procedimiento: string;
+    indicacionesPreQuirurgicas: string;
+  };
+}
+
 export interface PhysicalExam {
   fc: string;
   fr: string;
@@ -82,6 +95,7 @@ export interface InitialHistory {
   cardiopathy: boolean;
   allergies: boolean;
   surgeries: boolean;
+  pathologicalDetails: Record<string, string>;
   otherPathological: string;
 
   // ============================================
@@ -91,6 +105,7 @@ export interface InitialHistory {
   alcohol: boolean;
   drugs: boolean;
   medications: boolean;
+  nonPathologicalDetails: Record<string, string>;
 
   // ============================================
   // Examen Físico y Notas (Strings)
@@ -105,6 +120,8 @@ export interface InitialHistory {
   assessment: string; // Avaluo
   diagnosis: string;
   labStudies: string;
+  labImages: string[];
+  medicalOrder: MedicalOrder;
   examOrders: string;
   radiologyStudies: string;
 
@@ -190,8 +207,11 @@ export interface SubsequentConsult {
   time: string;
   motives: CheckboxData;
   otherMotive: string;
+  consultReason?: string;
   evolutionTime: string;
   historyOfPresentIllness: string;
+  pathologicalDetails: Record<string, string>;
+  nonPathologicalDetails: Record<string, string>;
 
   // ============================================
   // Vital Signs (same as InitialHistory)
@@ -211,6 +231,8 @@ export interface SubsequentConsult {
   assessment: string; // Avaluo
   diagnosis: string;
   labStudies: string;
+  labImages: string[];
+  medicalOrder: MedicalOrder;
   examOrders: string;
   radiologyStudies: string;
 
@@ -245,6 +267,8 @@ export interface Appointment {
   reason: string;
   confirmed?: boolean;
   uniqueId?: string; // e.g., "CITA-123"
+  googleEventId?: string;
+  description?: string;
 }
 
 export type ViewState = 'login' | 'patients' | 'register' | 'history' | 'profile' | 'consult' | 'report' | 'agenda' | 'patient-login' | 'patient-register' | 'patient-dashboard';

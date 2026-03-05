@@ -241,7 +241,7 @@ export const PrescriptionViewer = () => {
 
                         <div className="absolute bottom-4 left-6 right-6">
                             <p className="text-[11px] font-black text-gray-800 uppercase text-center mt-10">
-                                NIMED Direccion Pizza Valenti los robles, 2 cuadras arriba 1/2 cuadra la sur managua
+                                Clínica Palermo, DGI central 1c al lago, Consultorio Urológico
                             </p>
                         </div>
                     </div>
