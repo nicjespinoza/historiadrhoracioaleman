@@ -629,14 +629,7 @@ export const ProfileScreen = ({ patients, histories = [], consults = [], onPatie
                                     </p>
                                     <div className="flex flex-wrap gap-4 items-center">
                                         <button
-                                            onClick={async () => {
-                                                try {
-                                                    const newSnap = await api.createSnapshot(patient.id);
-                                                    navigate(`/app/crearimagen/${patient.id}/${newSnap.id}`);
-                                                } catch (e) {
-                                                    alert('Error al crear nueva imagen');
-                                                }
-                                            }}
+                                            onClick={() => navigate(`/app/crearimagen/${patient.id}/new`)}
                                             className="bg-[#00a63e] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#008f36] transition-colors shadow-lg flex items-center gap-2"
                                         >
                                             <span>Crear imagen 3D</span>

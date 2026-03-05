@@ -472,6 +472,8 @@ export const Body3DDesigner = () => {
     const [selectedObsId, setSelectedObsId] = useState<string | null>(null);
     const [obsLocation, setObsLocation] = useState<string>('');
     const [isEditingObs, setIsEditingObs] = useState(false);
+    const [stagedObservations, setStagedObservations] = useState<any[]>([]);
+    const [isSavingAll, setIsSavingAll] = useState(false);
 
     const translateLocation = (loc: string) => {
         if (!loc) return 'Localización general';
@@ -525,7 +527,7 @@ export const Body3DDesigner = () => {
 
     // Fetch patient info + observations
     useEffect(() => {
-        if (!patientId) return;
+        if (!patientId || snapshotId === 'new') return;
         api.getObservations(patientId, snapshotId).then(setObservations).catch(console.error);
         // Fetch patient details to get sex
         const fetchPatient = async () => {
@@ -545,36 +547,74 @@ export const Body3DDesigner = () => {
     const availableModels = patient?.sex === 'Femenino' ? FEMALE_MODELS : MALE_MODELS;
     const selectedModel = availableModels.find(m => m.id === selectedModelId) || availableModels[0];
 
-    const handleSave = useCallback(async () => {
+    const handleStage = useCallback(() => {
         const hasDrawnPaths = drawnPaths.length > 0;
-        if ((!marker && !hasDrawnPaths) || !patientId || !note.trim()) return;
+        if ((!marker && !hasDrawnPaths) || !note.trim()) return;
 
         const coords = marker ? { x: marker.x, y: marker.y, z: marker.z } : { x: drawnPaths[0][0].x, y: drawnPaths[0][0].y, z: drawnPaths[0][0].z };
 
+        const tempId = 'temp_' + Math.random().toString(36).substr(2, 9);
+        const newObs = {
+            id: tempId,
+            coordinates: coords,
+            drawnPaths: hasDrawnPaths ? drawnPaths.map(path => ({ points: path.map(p => ({ x: p.x, y: p.y, z: p.z })) })) : undefined,
+            hasMarker: !!marker,
+            markerType: drawTool !== 'line' ? drawTool : 'marker',
+            note,
+            organ: selectedModel?.id || 'anatomy',
+            location: obsLocation,
+            color: obsColor,
+            scale: obsScale,
+            createdAt: new Date().toISOString(),
+            isStaged: true
+        };
+
+        setStagedObservations(prev => [...prev, newObs]);
+        setDrawnPaths([]);
+        setMarker(null);
+        setNote('');
+        setIsCreatingObservation(false);
+        setIsDrawingMode(false);
+    }, [marker, note, selectedModel, drawnPaths, obsColor, obsScale, drawTool, obsLocation]);
+
+    const handleSaveAll = useCallback(async () => {
+        if (!patientId) return;
+        if (stagedObservations.length === 0) {
+            navigate(-1);
+            return;
+        }
+
+        setIsSavingAll(true);
         try {
-            const newObs = await api.createObservation(patientId, {
-                coordinates: coords,
-                // Nested arrays are NOT supported in Firebase, so we map the array of vectors to an object containing an array.
-                drawnPaths: hasDrawnPaths ? drawnPaths.map(path => ({ points: path.map(p => ({ x: p.x, y: p.y, z: p.z })) })) : undefined,
-                hasMarker: !!marker,
-                markerType: drawTool !== 'line' ? drawTool : 'marker',
-                note,
-                organ: selectedModel?.id || 'anatomy',
-                location: obsLocation,
-                color: obsColor,
-                scale: obsScale,
-                snapshotId
-            });
-            setObservations(prev => [...prev, { ...newObs, createdAt: new Date().toISOString() }]);
-            setDrawnPaths([]);
-            setMarker(null);
-            setNote('');
-            setIsCreatingObservation(false);
-            setIsDrawingMode(false);
-        } catch (e) { console.error(e); }
-    }, [marker, patientId, note, selectedModel, snapshotId, drawnPaths, obsColor, obsScale]);
+            let currentSnapId = snapshotId;
+            if (snapshotId === 'new') {
+                const newSnap = await api.createSnapshot(patientId);
+                currentSnapId = newSnap.id;
+            }
+
+            // Save all staged observations sequentially
+            for (const obs of stagedObservations) {
+                const { id, isStaged, ...data } = obs;
+                await api.createObservation(patientId, {
+                    ...data,
+                    snapshotId: currentSnapId
+                });
+            }
+
+            navigate(-1);
+        } catch (e) {
+            console.error(e);
+            alert('Error al guardar todos los cambios');
+        } finally {
+            setIsSavingAll(false);
+        }
+    }, [patientId, snapshotId, stagedObservations, navigate]);
 
     const handleDelete = useCallback(async (id: string) => {
+        if (id.startsWith('temp_')) {
+            setStagedObservations(prev => prev.filter(o => o.id !== id));
+            return;
+        }
         if (!patientId) return;
         try {
             await api.deleteObservation(patientId, id);
@@ -674,7 +714,7 @@ export const Body3DDesigner = () => {
                                                     currentColor={obsColor}
                                                     currentScale={obsScale}
                                                     currentPaths={drawnPaths}
-                                                    observations={observations.filter((obs: any) => obs.organ === selectedModel.id || (!obs.organ && selectedModel.id === availableModels[0].id))}
+                                                    observations={[...observations, ...stagedObservations].filter((obs: any) => obs.organ === selectedModel.id || (!obs.organ && selectedModel.id === availableModels[0].id))}
                                                     onDeleteObservation={handleDelete}
                                                     isDrawingMode={isDrawingMode}
                                                     setIsDrawingMode={setIsDrawingMode}
@@ -721,6 +761,11 @@ export const Body3DDesigner = () => {
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
+                                            {obs.isStaged && (
+                                                <div className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-md text-[7px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                    Sin Guardar
+                                                </div>
+                                            )}
                                             {!isEditingObs && (
                                                 <button
                                                     onClick={() => setIsEditingObs(true)}
@@ -816,7 +861,7 @@ export const Body3DDesigner = () => {
 
                 {/* 2. HISTORY LIST (ICONS) */}
                 <div className="pointer-events-auto flex flex-col gap-2 p-2 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/5 shadow-2xl overflow-y-auto max-h-[50vh] custom-scrollbar">
-                    {observations
+                    {[...observations, ...stagedObservations]
                         .filter(obs => obs.organ === selectedModel?.id)
                         .map((obs, idx) => {
                             const Icon = anomalyIcons[obs.markerType || (obs.drawnPaths ? 'line' : 'marker')] || MapPin;
@@ -932,6 +977,20 @@ export const Body3DDesigner = () => {
                         <div className="absolute -inset-1 bg-emerald-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                 </button>
+
+                {/* GLOBAL SAVE BUTTON */}
+                <button
+                    onClick={handleSaveAll}
+                    disabled={isSavingAll}
+                    className="pointer-events-auto bg-[#00a63e] hover:bg-[#008f36] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center gap-3 active:scale-95 disabled:opacity-50 disabled:cursor-wait"
+                >
+                    {isSavingAll ? (
+                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <Save size={18} />
+                    )}
+                    {isSavingAll ? 'Guardando...' : 'Guardar Todo'}
+                </button>
             </div>
 
             {/* === MINIMALIST FLOATING MODAL === */}
@@ -963,14 +1022,14 @@ export const Body3DDesigner = () => {
 
                         <div className="flex gap-3">
                             <button
-                                onClick={handleSave}
+                                onClick={handleStage}
                                 disabled={!note.trim()}
                                 className={`flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${!note.trim()
                                     ? 'bg-white/5 text-white/20 cursor-not-allowed'
                                     : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20'
                                     }`}
                             >
-                                Guardar
+                                Confirmar
                             </button>
                         </div>
                     </div>
